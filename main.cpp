@@ -55,10 +55,11 @@ int main() {
     GLuint vbo;
     {
         float vertices[] = {
-            -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-             0.0f,  0.5f, 0.0f,
-        };
+            // positions        // colors
+            0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
+           -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
+            0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
+        };  
 
 
         glGenBuffers(1, &vbo);
@@ -72,8 +73,10 @@ int main() {
 
         glBindVertexArray(vao);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) 0                   );
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)) );
             glEnableVertexAttribArray(0);
+            glEnableVertexAttribArray(1);
         glBindVertexArray(0);
     }
 
@@ -125,9 +128,9 @@ int main() {
 
         {
             prog.Use();
-            glBindVertexArray(vao2);
-            // glDrawArrays(GL_TRIANGLES, 0, 3);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(vao);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+            // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
 
         glfwSwapBuffers(window);
