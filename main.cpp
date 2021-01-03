@@ -13,22 +13,6 @@ void processInput(GLFWwindow* window);
 const unsigned int windowWidth = 800;
 const unsigned int windowHeight = 600;
 
-const char* vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "out vec3 pos;\n"
-    "void main()\n"
-    "{\n"
-    "   pos = aPos;\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-const char* fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "in vec3 pos;\n"
-    "uniform float uTime;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(sin(pos.x + pos.y + uTime), cos(pos.x + pos.y + uTime), 1.0f, 1.0f);\n"
-    "}\n\0";
 
 class glfwHandle {
 public:
@@ -58,8 +42,14 @@ int main() {
     glViewport(0, 0, windowWidth, windowHeight);
     glfwSwapInterval(1);
 
-    ShaderProg prog("default.vert", "default.frag");
-    std::cout << prog.Link() << std::endl;
+    ShaderProg prog = []() {
+        VertexShader v ("default.vert");
+        FragmentShader f ("default.frag");
+        dp(v.Compile());
+        dp(f.Compile());
+        return ShaderProg(v, f);
+    }();
+    dp(prog.Link());
 
     GLuint vao;
     GLuint vbo;

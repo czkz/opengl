@@ -2,75 +2,81 @@
 #include <string_view>
 #include <fstream>
 #include <iostream>
+#include <functional>
 #include <glad/glad.h>
 
-class ShaderProg {
-    class Shader {
-        static std::string readFile(const char* path) {
-            std::ifstream f(path);
-            std::string ret;
-            if (!f.good()) {
-                return ret;
-            }
-            f.seekg(0, std::ios::end);
-            auto size = f.tellg();
-            f.seekg(0, std::ios::beg);
-            ret.resize(size, '\0');
-            f.read(ret.data(), size);
+class Shader {
+    static std::string readFile(const char* path) {
+        std::ifstream f(path);
+        std::string ret;
+        if (!f.good()) {
             return ret;
         }
-    private:
-        GLuint id;
-    private:
-        friend ShaderProg;
-        Shader(const char* file_path, GLuint shaderType) {
-            std::string src = readFile(file_path);
-
-            id = glCreateShader(shaderType);
-
-            const char* srcData = src.data();
-            const int srcLen = src.size();
-            glShaderSource(id, 1, &srcData, &srcLen);
+        f.seekg(0, std::ios::end);
+        auto size = f.tellg();
+        f.seekg(0, std::ios::beg);
+        ret.resize(size, '\0');
+        f.read(ret.data(), size);
+        return ret;
+    }
+    static std::string getErrorLog(
+        GLuint id,
+        std::function<void(GLuint, GLenum, GLint*)> _glGetShaderiv,
+        std::function<void(GLuint, GLsizei, GLsizei*, GLchar*)> _glGetShaderInfoLog
+    ) {
+        GLint success;
+        _glGetShaderiv(id, GL_COMPILE_STATUS, &success);
+        if (success) {
+            return "";
+        } else {
+            GLint logLen;
+            _glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logLen);
+            std::string log (logLen, '\0');
+            _glGetShaderInfoLog(id, logLen, nullptr, log.data());
+            return log;
         }
-        ~Shader() {
-            glDeleteShader(id);
-        }
-
-        /// @return Empty string on success
-        std::string Compile() {
-            glCompileShader(id);
-            GLint success;
-            glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-            if (success) {
-                return "";
-            } else {
-                GLint logLen;
-                glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logLen);
-                std::string log (logLen, '\0');
-                glGetShaderInfoLog(id, logLen, nullptr, log.data());
-                return log;
-            }
-        }
-    };
-public:
+    }
+private:
+    friend class ShaderProg;
     GLuint id;
-    
-    ShaderProg(const char* vert_path, const char* frag_path) {
-        Shader v (vert_path, GL_VERTEX_SHADER);
-        Shader f (frag_path, GL_FRAGMENT_SHADER);
-        std::string l1 = v.Compile();
-        std::string l2 = f.Compile();
-        if (!l1.empty()) {
-            std::cout << l1 << std::endl;
-        }
-        if (!l2.empty()) {
-            std::cout << l2 << std::endl;
-        }
+protected:
+    Shader(const char* file_path, GLuint shaderType) {
+        std::string src = readFile(file_path);
 
+        id = glCreateShader(shaderType);
+
+        const char* srcData = src.data();
+        const int srcLen = src.size();
+        glShaderSource(id, 1, &srcData, &srcLen);
+    }
+    ~Shader() {
+        glDeleteShader(id);
+    }
+public:
+    /// @return Empty string on success
+    std::string Compile() {
+        glCompileShader(id);
+        return getErrorLog(id, glGetShaderiv, glGetShaderInfoLog);
+    }
+};
+
+class VertexShader : public Shader {
+public:
+    explicit VertexShader(const char* file_path) : Shader(file_path, GL_VERTEX_SHADER) { }
+};
+
+class FragmentShader : public Shader {
+public:
+    explicit FragmentShader(const char* file_path) : Shader(file_path, GL_FRAGMENT_SHADER) { }
+};
+
+class ShaderProg {
+    GLuint id;
+public:
+    ShaderProg(const VertexShader& v, const FragmentShader& f) {
         id = glCreateProgram();
         glAttachShader(id, v.id);
         glAttachShader(id, f.id);
-
     }
     ~ShaderProg() {
         glDeleteProgram(id);
@@ -78,18 +84,7 @@ public:
 
     std::string Link() {
         glLinkProgram(id);
-
-        GLint success;
-        glGetProgramiv(id, GL_LINK_STATUS, &success);
-        if (success) {
-            return "";
-        } else {
-            GLint logLen;
-            glGetProgramiv(id, GL_INFO_LOG_LENGTH, &logLen);
-            std::string log (logLen, '\0');
-            glGetProgramInfoLog(id, logLen, nullptr, log.data());
-            return log;
-        }
+        return Shader::getErrorLog(id, glGetProgramiv, glGetProgramInfoLog);
     }
 
     void Use() {
