@@ -100,5 +100,15 @@ public:
         glUniform1f(uniformLocatuion, value);
         return true;
     }
+
+    bool SetInt(const char* name, int value) {
+        Use();
+        GLint uniformLocatuion = glGetUniformLocation(id, name);
+        if (uniformLocatuion == -1) {
+            return false;
+        }
+        glUniform1i(uniformLocatuion, value);
+        return true;
+    }
 };
 

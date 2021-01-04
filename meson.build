@@ -9,7 +9,7 @@ subdir('glad')
 
 executable (
   'opengl',
-  'main.cpp',
+  'main.cpp', 'stb_image.cpp',
   install : false,
   dependencies : [opengl, glfw],
   include_directories: [glad_inc],
