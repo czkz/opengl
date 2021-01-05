@@ -26,7 +26,6 @@ vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
 //  https://github.com/ashima/webgl-noise
 //
 float snoise(vec2 v) {
-
     // Precompute values for skewed triangular grid
     const vec4 C = vec4(0.211324865405187,
                         // (3.0-sqrt(3.0))/6.0
@@ -91,8 +90,9 @@ float line(float d) {
 }
 
 void main() {
-    float o = snoise(pos.xy * 10.);
-    vec2 pos = texCoord + vec2(sin(o), cos(o)) * 0.5 * (cos(3.1415 + uTime * 0.5) * 0.5 + 0.5);
+    float o = snoise(pos.xy * 10.) * 3.1415 * 2.;
+    // vec2 pos = texCoord + vec2(sin(o), cos(o)) * 0.3 * (cos(3.1415 + uTime * 0.5) * 0.5 + 0.5);
+    vec2 pos = texCoord;
 
     // vec4 texClr = texture(texture1, pos);
     vec4 texClr2 = texture(texture2, pos);

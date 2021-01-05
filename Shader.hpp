@@ -4,6 +4,7 @@
 #include <iostream>
 #include <functional>
 #include <glad/glad.h>
+#include <Vector.hpp>
 
 class Shader {
     static std::string readFile(const char* path) {
@@ -108,6 +109,16 @@ public:
             return false;
         }
         glUniform1i(uniformLocatuion, value);
+        return true;
+    }
+
+    bool SetVec3(const char* name, Vector3 value) {
+        Use();
+        GLint uniformLocatuion = glGetUniformLocation(id, name);
+        if (uniformLocatuion == -1) {
+            return false;
+        }
+        glUniform3f(uniformLocatuion, value.x, value.y, value.z);
         return true;
     }
 };

@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include "Shader.hpp"
 #include "stb_image.h"
+#include "Vector.hpp"
+#include "Quaternion.hpp"
 
 #define dp(var) (std::cout << (#var) << (var) << std::endl)
 
@@ -141,11 +143,23 @@ int main() {
         }
     }
 
+    Quaternion q = Quaternion::Rotation(45 * M_PI/180.f, {0, 0, 1});
+
     while(!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         processInput(window);
 
+        constexpr float r = 1;
+        if (glfwGetKey(window, GLFW_KEY_Q)) {
+            q = Quaternion::Rotation(+r * M_PI/180.f, {0, 0, 1}) * q;
+        }
+        if (glfwGetKey(window, GLFW_KEY_E)) {
+            q = Quaternion::Rotation(-r * M_PI/180.f, {0, 0, 1}) * q;
+        }
+
         prog.SetFloat("uTime", glfwGetTime());
+        prog.SetFloat("qs", q.s);
+        prog.SetVec3("qv", q.v);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
