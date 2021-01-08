@@ -46,7 +46,7 @@ int main() {
     glfwSwapInterval(1);
 
     ShaderProg prog = []() {
-        VertexShader v ("default.vert");
+        VertexShader v   ("default.vert");
         FragmentShader f ("default.frag");
         dp(v.Compile());
         dp(f.Compile());
@@ -60,15 +60,50 @@ int main() {
     {
         float vertices[] = {
             // positions          // colors           // texture coords
-            0.7f,  0.7f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-            0.7f, -0.7f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-           -0.7f, -0.7f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-           -0.7f,  0.7f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   // top left 
+            1.0f,  1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+            1.0f, -1.0f, -1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+           -1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+           -1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+
+            1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+            1.0f, -1.0f, -1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+           -1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+           -1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+
+            1.0f,  1.0f,  1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+            1.0f, -1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+           -1.0f, -1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+           -1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+
+            1.0f,  1.0f,  1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+            1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+           -1.0f,  1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+           -1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+
+            1.0f,  1.0f,  1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+            1.0f, -1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+            1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+            1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+
+           -1.0f,  1.0f,  1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+           -1.0f, -1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+           -1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+           -1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
         };
 
         unsigned int indices[] = {
-            0, 1, 2,
-            0, 2, 3
+             0,  1,  2,
+             0,  2,  3,
+             4,  5,  6,
+             4,  6,  7,
+             8,  9, 10,
+             8, 10, 11,
+            12, 13, 14,
+            12, 14, 15,
+            12, 13, 14,
+            12, 14, 15,
+            16, 17, 18,
+            16, 18, 19,
         };
 
         glGenBuffers(1, &vbo);
@@ -143,7 +178,11 @@ int main() {
         }
     }
 
-    Quaternion q = Quaternion::Rotation(45 * M_PI/180.f, {0, 0, 1});
+    Quaternion q = Quaternion::Identity();
+    Vector3 tr = {0, 0, 2};
+    float sc = 0.5;
+
+    glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -156,9 +195,29 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_E)) {
             q = Quaternion::Rotation(-r * M_PI/180.f, {0, 0, 1}) * q;
         }
+        if (glfwGetKey(window, GLFW_KEY_S)) {
+            q = Quaternion::Rotation(+r * M_PI/180.f, {1, 0, 0}) * q;
+        }
+        if (glfwGetKey(window, GLFW_KEY_W)) {
+            q = Quaternion::Rotation(-r * M_PI/180.f, {1, 0, 0}) * q;
+        }
+        if (glfwGetKey(window, GLFW_KEY_A)) {
+            q = Quaternion::Rotation(+r * M_PI/180.f, {0, 1, 0}) * q;
+        }
+        if (glfwGetKey(window, GLFW_KEY_D)) {
+            q = Quaternion::Rotation(-r * M_PI/180.f, {0, 1, 0}) * q;
+        }
+        if (glfwGetKey(window, GLFW_KEY_Z)) {
+            tr += {0, 0, 0.05};
+        }
+        if (glfwGetKey(window, GLFW_KEY_X)) {
+            tr -= {0, 0, 0.05};
+        }
 
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("q", q);
+        prog.SetVec3("tr", tr);
+        prog.SetFloat("sc", sc);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -168,12 +227,13 @@ int main() {
         prog.SetInt("texture2", 1);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(1, 1, 1, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         {
             prog.Use();
             glBindVertexArray(vao);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         }
 
         glfwSwapBuffers(window);

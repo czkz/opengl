@@ -13,10 +13,6 @@ uniform vec4 q;
 uniform vec3 tr;
 uniform float sc;
 
-float rand(vec2 pos) {
-    return fract(sin(dot(pos, vec2(12.9898,78.233))) * 43758.5453123);
-}
-
 vec3 qRotate(vec3 p, vec4 q) {
     float qs = q.x;
     vec3 qv = q.yzw;
@@ -36,8 +32,6 @@ void main() {
     p *= sc;
     float w = p.z * 1.;
     p.z *= foo(p.z);
-    // pos.z = 1.;
-    // float w = 1.;
     clr = aColor;
     texCoord = aTexCoord;
     pos = vec4(p, w);

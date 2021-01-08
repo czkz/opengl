@@ -1,7 +1,7 @@
 #version 330 core
 out vec4 FragColor;
 
-in vec3 pos;
+in vec4 pos;
 in vec3 clr;
 in vec2 texCoord;
 
@@ -90,13 +90,12 @@ float line(float d) {
 }
 
 void main() {
-    float o = snoise(pos.xy * 10.) * 3.1415 * 2.;
+    // float o = snoise(pos.xy * 10.) * 3.1415 * 2.;
     // vec2 pos = texCoord + vec2(sin(o), cos(o)) * 0.3 * (cos(3.1415 + uTime * 0.5) * 0.5 + 0.5);
-    vec2 pos = texCoord;
-
-    // vec4 texClr = texture(texture1, pos);
-    vec4 texClr2 = texture(texture2, pos);
-    FragColor = vec4(texClr2.rgb, 1.0f);
+    vec4 texClr = texture(texture1, texCoord);
+    vec4 texClr2 = texture(texture2, texCoord);
+    vec3 c = mix(texClr.rgb, texClr2.rgb, 0.5);
+    FragColor = vec4(c, 1.0f);
     // FragColor = vec4(mix(texClr.rgb, texClr2.rgb, 0.5f), 1.0f);
     // FragColor = vec4(sin(pos.x + pos.y + uTime), cos(pos.x + pos.y + uTime), 1.0f, 1.0f);
 }
