@@ -9,14 +9,15 @@ out vec2 texCoord;
 
 uniform float uTime;
 
-uniform float qs;
-uniform vec3 qv;
+uniform vec4 q;
 
 float rand(vec2 pos) {
     return fract(sin(dot(pos, vec2(12.9898,78.233))) * 43758.5453123);
 }
 
-vec3 qRotate(vec3 p, float qs, vec3 qv) {
+vec3 qRotate(vec3 p, vec4 q) {
+    float qs = q.x;
+    vec3 qv = q.yzw;
     float s12 = -dot(qv, p);
     vec3 v12 = p * qs + cross(qv, p);
     vec3 v3 = -qv;
@@ -24,7 +25,7 @@ vec3 qRotate(vec3 p, float qs, vec3 qv) {
 }
 
 void main() {
-    pos = qRotate(aPos, qs, qv);
+    pos = qRotate(aPos, q);
     clr = aColor;
     texCoord = aTexCoord;
     gl_Position = vec4(pos, 1.0);

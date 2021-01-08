@@ -12,6 +12,6 @@ executable (
   'main.cpp', 'stb_image.cpp',
   install : false,
   dependencies : [opengl, glfw],
-  include_directories: [glad_inc],
+  include_directories: [glad_inc, include_directories('../cp')],
   link_with: [glad_lib]
 )

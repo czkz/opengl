@@ -2,10 +2,10 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "Shader.hpp"
-#include "stb_image.h"
-#include "Vector.hpp"
-#include "Quaternion.hpp"
+#include <stb_image.h>
+#include <Shader.h>
+#include <Vector.h>
+#include <Quaternion.h>
 
 #define dp(var) (std::cout << (#var) << (var) << std::endl)
 
@@ -158,8 +158,7 @@ int main() {
         }
 
         prog.SetFloat("uTime", glfwGetTime());
-        prog.SetFloat("qs", q.s);
-        prog.SetVec3("qv", q.v);
+        prog.SetQuaternion("q", q);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);

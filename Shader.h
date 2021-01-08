@@ -4,7 +4,8 @@
 #include <iostream>
 #include <functional>
 #include <glad/glad.h>
-#include <Vector.hpp>
+#include <Vector.h>
+#include <Quaternion.h>
 
 class Shader {
     static std::string readFile(const char* path) {
@@ -112,13 +113,23 @@ public:
         return true;
     }
 
-    bool SetVec3(const char* name, Vector3 value) {
+    bool SetVec3(const char* name, const Vector3& value) {
         Use();
         GLint uniformLocatuion = glGetUniformLocation(id, name);
         if (uniformLocatuion == -1) {
             return false;
         }
         glUniform3f(uniformLocatuion, value.x, value.y, value.z);
+        return true;
+    }
+
+    bool SetQuaternion(const char* name, const Quaternion& value) {
+        Use();
+        GLint uniformLocatuion = glGetUniformLocation(id, name);
+        if (uniformLocatuion == -1) {
+            return false;
+        }
+        glUniform4f(uniformLocatuion, value.s, value.v.x, value.v.y, value.v.z);
         return true;
     }
 };
