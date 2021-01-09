@@ -6,8 +6,7 @@
 #include <Shader.h>
 #include <Vector.h>
 #include <Quaternion.h>
-
-#define dp(var) (std::cout << (#var) << (var) << std::endl)
+#include <dbg.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -24,7 +23,7 @@ public:
 };
 
 int main() {
-    glfwHandle _glfw;  // RAII init/terminate
+    glfwHandle _glfw;
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -100,10 +99,10 @@ int main() {
              8, 10, 11,
             12, 13, 14,
             12, 14, 15,
-            12, 13, 14,
-            12, 14, 15,
             16, 17, 18,
             16, 18, 19,
+            20, 21, 22,
+            20, 22, 23,
         };
 
         glGenBuffers(1, &vbo);
@@ -179,8 +178,8 @@ int main() {
     }
 
     Quaternion q = Quaternion::Identity();
-    Vector3 tr = {0, 0, 2};
-    float sc = 0.5;
+    Vector3 tr = {0, 0, 0};
+    float sc = 1;
 
     glEnable(GL_DEPTH_TEST);
 
@@ -189,30 +188,45 @@ int main() {
         processInput(window);
 
         constexpr float r = 1;
-        if (glfwGetKey(window, GLFW_KEY_Q)) {
+        constexpr float m = 0.05;
+        if (glfwGetKey(window, GLFW_KEY_E)) {
             q = Quaternion::Rotation(+r * M_PI/180.f, {0, 0, 1}) * q;
         }
-        if (glfwGetKey(window, GLFW_KEY_E)) {
+        if (glfwGetKey(window, GLFW_KEY_Q)) {
             q = Quaternion::Rotation(-r * M_PI/180.f, {0, 0, 1}) * q;
         }
-        if (glfwGetKey(window, GLFW_KEY_S)) {
-            q = Quaternion::Rotation(+r * M_PI/180.f, {1, 0, 0}) * q;
-        }
-        if (glfwGetKey(window, GLFW_KEY_W)) {
+        if (glfwGetKey(window, GLFW_KEY_UP)) {
             q = Quaternion::Rotation(-r * M_PI/180.f, {1, 0, 0}) * q;
         }
-        if (glfwGetKey(window, GLFW_KEY_A)) {
-            q = Quaternion::Rotation(+r * M_PI/180.f, {0, 1, 0}) * q;
+        if (glfwGetKey(window, GLFW_KEY_DOWN)) {
+            q = Quaternion::Rotation(+r * M_PI/180.f, {1, 0, 0}) * q;
         }
-        if (glfwGetKey(window, GLFW_KEY_D)) {
+        if (glfwGetKey(window, GLFW_KEY_LEFT)) {
             q = Quaternion::Rotation(-r * M_PI/180.f, {0, 1, 0}) * q;
         }
-        if (glfwGetKey(window, GLFW_KEY_Z)) {
-            tr += {0, 0, 0.05};
+        if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
+            q = Quaternion::Rotation(+r * M_PI/180.f, {0, 1, 0}) * q;
         }
-        if (glfwGetKey(window, GLFW_KEY_X)) {
-            tr -= {0, 0, 0.05};
+        if (glfwGetKey(window, GLFW_KEY_W)) {
+            tr += q.Inverse().Rotate({0, 0, m});
         }
+        if (glfwGetKey(window, GLFW_KEY_S)) {
+            tr -= q.Inverse().Rotate({0, 0, m});
+        }
+        if (glfwGetKey(window, GLFW_KEY_A)) {
+            tr += q.Inverse().Rotate({m, 0, 0});
+        }
+        if (glfwGetKey(window, GLFW_KEY_D)) {
+            tr -= q.Inverse().Rotate({m, 0, 0});
+        }
+        if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+            tr -= q.Inverse().Rotate({0, m, 0});
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) {
+            tr += q.Inverse().Rotate({0, m, 0});
+        }
+
+        dp(tr);
 
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("q", q);
@@ -227,13 +241,12 @@ int main() {
         prog.SetInt("texture2", 1);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClearColor(1, 1, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         {
             prog.Use();
             glBindVertexArray(vao);
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*) 0);
         }
 
         glfwSwapBuffers(window);
