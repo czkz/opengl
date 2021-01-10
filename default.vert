@@ -39,30 +39,7 @@ float simp(float x) {
     return x / (1000000.0 - 1.0);
 }
 
-mat4 projm() {
-    mat4 m;
-    float fov = 90. * 3.1415 / 180;
-    float near = 0.1;
-    float far = 10.;
-    m[0] = vec4(1/tan(fov/2.), 0, 0, 0);
-    m[1] = vec4(0, 1/tan(fov/2.), 0, 0);
-    m[2] = vec4(0, 0, (near+far)/(near-far), -1.);
-    m[3] = vec4(0, 0, 2.*far*near/(near-far), 0);
-    return m;
-}
-
-vec4 projc(vec4 v) {
-    float fov = 90. * 3.1415 / 180;
-    float near = 0.1;
-    float far = 10.;
-    vec4 r;
-    r.x = v.x / tan(fov/2.);
-    r.y = v.y / tan(fov/2.);
-    r.z = v.z * (near+far)/(near-far) + v.w * 2*near*far/(near-far);
-    r.w = -v.z;
-    return r;
-}
-
+// Classic projection matrix
 vec4 projx(vec4 v) {
     float fov = 90. * 3.1415 / 180;
     float near = 0.01;
@@ -71,6 +48,21 @@ vec4 projx(vec4 v) {
     float f = far;
 
     float w = tan(fov/2.) * -v.z;
+    v.z = (2*n*f/(f-n)/v.z + (f+n)/(f-n))*w;
+    return vec4(v.xyz, w);
+}
+
+// Somehow distance-based fov
+vec4 projxxs(vec4 v) {
+    float fov = 15. * 3.1415 / 180;
+    float near = 0.01;
+    float far = 10.;
+    float n = near;
+    float f = far;
+
+    float pr = (-v.z) * (length(v.xyz) - near);
+    float w = (fov/2.) * pr;
+    // v.z = (-v.z - near) / (far - near) * w;
     v.z = (2*n*f/(f-n)/v.z + (f+n)/(f-n))*w;
     return vec4(v.xyz, w);
 }

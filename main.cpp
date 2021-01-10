@@ -226,7 +226,7 @@ int main() {
             tr += q.Inverse().Rotate({0, m, 0});
         }
 
-        dp(tr);
+        // dp(tr);
 
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("q", q);
