@@ -10,8 +10,8 @@ uniform sampler2D texture1;
 uniform sampler2D texture2;
 
 void main() {
-    float depth = pos.z / 2.;
-    depth = pow(depth, 0.5);
+    float depth = length(pos.xyz) / 10.;
+    depth = pow(depth, 2.);
     depth = smoothstep(0.5, 1.0, depth);
     vec4 texClr = texture(texture1, texCoord);
     vec4 texClr2 = texture(texture2, texCoord);
