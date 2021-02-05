@@ -11,15 +11,14 @@
 #include "FrameCounter.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow*, Camera&, float);
+void processInput(GLFWwindow*, FPSCamera&, float);
 void mouse_callback(GLFWwindow* window, double x, double y);
 
 // settings
 const unsigned int windowWidth = 1000;
 const unsigned int windowHeight = 1000;
 
-Camera camera = { {0, 0, 0}, Quaternion::Identity() };
-Vector3 cameraEuler = {0, 0, 0};
+FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
 
 
 class glfwHandle {
@@ -196,10 +195,8 @@ int main() {
         glfwPollEvents();
         processInput(window, camera, frameCounter.deltaTime / 16);
 
-        camera.rotation = Quaternion::Euler(cameraEuler);
-
         prog.SetFloat("uTime", glfwGetTime());
-        prog.SetQuaternion("q", camera.rotation);
+        prog.SetQuaternion("q", camera.getRotation());
         prog.SetVec3("tr", camera.position);
         prog.SetFloat("sc", sc);
 
@@ -232,50 +229,21 @@ int main() {
     return 0;
 }
 
-void processInput(GLFWwindow* window, Camera& camera, float deltaTime) {
+void input_FPSCamera(GLFWwindow* window, FPSCamera& camera, float deltaTime) {
+    constexpr float m = 0.05;
+    if (glfwGetKey(window, GLFW_KEY_W))          { camera.Move(Vector3 {0, 0, -m} * deltaTime); }
+    if (glfwGetKey(window, GLFW_KEY_S))          { camera.Move(Vector3 {0, 0, +m} * deltaTime); }
+    if (glfwGetKey(window, GLFW_KEY_A))          { camera.Move(Vector3 {-m, 0, 0} * deltaTime); }
+    if (glfwGetKey(window, GLFW_KEY_D))          { camera.Move(Vector3 {+m, 0, 0} * deltaTime); }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) { camera.Move(Vector3 {0, -m, 0} * deltaTime); }
+    if (glfwGetKey(window, GLFW_KEY_SPACE))      { camera.Move(Vector3 {0, +m, 0} * deltaTime); }
+}
+
+void processInput(GLFWwindow* window, FPSCamera& camera, float deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_ENTER)) {
         glfwSetWindowShouldClose(window, true);
     }
-
-    constexpr float r = 1 * M_PI/180.f;
-    constexpr float m = 0.05;
-    // if (glfwGetKey(window, GLFW_KEY_UP)) {
-    //     camera.RotateX(-r * deltaTime);
-    // }
-    // if (glfwGetKey(window, GLFW_KEY_DOWN)) {
-    //     camera.RotateX(+r * deltaTime);
-    // }
-    // if (glfwGetKey(window, GLFW_KEY_LEFT)) {
-    //     camera.RotateY(-r * deltaTime);
-    // }
-    // if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
-    //     camera.RotateY(+r * deltaTime);
-    // }
-    if (glfwGetKey(window, GLFW_KEY_Q)) {
-        camera.RotateZ(-r * deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_E)) {
-        camera.RotateZ(+r * deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_W)) {
-        camera.Translate(Vector3 {0, 0, -m} * deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_S)) {
-        camera.Translate(Vector3 {0, 0, +m} * deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_A)) {
-        camera.Translate(Vector3 {-m, 0, 0} * deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_D)) {
-        camera.Translate(Vector3 {+m, 0, 0} * deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) {
-        camera.Translate(Vector3 {0, -m, 0} * deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_SPACE)) {
-        camera.Translate(Vector3 {0, +m, 0} * deltaTime);
-    }
-
+    input_FPSCamera(window, camera, deltaTime);
 }
 
 void framebuffer_size_callback(GLFWwindow*, int width, int height) {
@@ -291,8 +259,9 @@ void mouse_callback(GLFWwindow*, double x, double y) {
     constexpr float sensitivity = 0.002;
     v *= sensitivity;
 
-    cameraEuler += {v.y, v.x, 0};
-    cameraEuler.x = std::clamp<VEC_REAL_T>(cameraEuler.x, -M_PI/2, +M_PI/2);
+    constexpr float maxPitch = 90 / 180.f * M_PI;
+    camera.euler += {v.y, v.x, 0};
+    camera.euler.x = std::clamp<VEC_REAL_T>(camera.euler.x, -maxPitch, +maxPitch);
     // camera.RotateX(v.y);
     // camera.RotateY(v.x);
 }

@@ -2,7 +2,7 @@
 #include <Vector.h>
 #include <Quaternion.h>
 
-class Camera {
+class SpaceCamera {
 public:
     Vector3 position;
     Quaternion rotation;
@@ -22,8 +22,21 @@ public:
     void Translate(const Vector3& localSpaceTranslation) {
         position += rotation.Inverse().Rotate(localSpaceTranslation);
     }
+};
 
-    void ChangeYaw(float yawOffset) {
-        rotation = rotation * Quaternion::Rotation(yawOffset, {0, 1, 0});
+class FPSCamera {
+public:
+    Vector3 position;
+    Vector3 euler;
+
+    Quaternion getRotation() const {
+        return Quaternion::Euler(euler);
+    }
+
+    void Move(Vector3 localMovement) {
+        Vector3& v = localMovement;
+        const Vector2 i (cos(euler.y), sin(euler.y));
+        position += Vector3(v.x*i.x - v.z*i.y, v.y, v.z*i.x + v.x*i.y);
     }
 };
+
