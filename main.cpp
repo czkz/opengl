@@ -10,7 +10,7 @@
 #include "Camera.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow*, Camera&);
 
 // settings
 const unsigned int windowWidth = 1000;
@@ -185,48 +185,7 @@ int main() {
 
     while(!glfwWindowShouldClose(window)) {
         glfwPollEvents();
-        processInput(window);
-
-        constexpr float r = 1 * M_PI/180.f;
-        constexpr float m = 0.05;
-        if (glfwGetKey(window, GLFW_KEY_UP)) {
-            camera.RotateX(-r);
-        }
-        if (glfwGetKey(window, GLFW_KEY_DOWN)) {
-            camera.RotateX(+r);
-        }
-        if (glfwGetKey(window, GLFW_KEY_LEFT)) {
-            camera.RotateY(-r);
-        }
-        if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
-            camera.RotateY(+r);
-        }
-        if (glfwGetKey(window, GLFW_KEY_Q)) {
-            camera.RotateZ(-r);
-        }
-        if (glfwGetKey(window, GLFW_KEY_E)) {
-            camera.RotateZ(+r);
-        }
-        if (glfwGetKey(window, GLFW_KEY_W)) {
-            camera.Translate({0, 0, -m});
-        }
-        if (glfwGetKey(window, GLFW_KEY_S)) {
-            camera.Translate({0, 0, +m});
-        }
-        if (glfwGetKey(window, GLFW_KEY_A)) {
-            camera.Translate({-m, 0, 0});
-        }
-        if (glfwGetKey(window, GLFW_KEY_D)) {
-            camera.Translate({+m, 0, 0});
-        }
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) {
-            camera.Translate({0, -m, 0});
-        }
-        if (glfwGetKey(window, GLFW_KEY_SPACE)) {
-            camera.Translate({0, +m, 0});
-        }
-
-        // dp(tr);
+        processInput(window, camera);
 
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("q", camera.rotation);
@@ -260,10 +219,50 @@ int main() {
     return 0;
 }
 
-void processInput(GLFWwindow* window) {
+void processInput(GLFWwindow* window, Camera& camera) {
     if (glfwGetKey(window, GLFW_KEY_ENTER)) {
         glfwSetWindowShouldClose(window, true);
     }
+
+    constexpr float r = 1 * M_PI/180.f;
+    constexpr float m = 0.05;
+    if (glfwGetKey(window, GLFW_KEY_UP)) {
+        camera.RotateX(-r);
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN)) {
+        camera.RotateX(+r);
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT)) {
+        camera.RotateY(-r);
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
+        camera.RotateY(+r);
+    }
+    if (glfwGetKey(window, GLFW_KEY_Q)) {
+        camera.RotateZ(-r);
+    }
+    if (glfwGetKey(window, GLFW_KEY_E)) {
+        camera.RotateZ(+r);
+    }
+    if (glfwGetKey(window, GLFW_KEY_W)) {
+        camera.Translate({0, 0, -m});
+    }
+    if (glfwGetKey(window, GLFW_KEY_S)) {
+        camera.Translate({0, 0, +m});
+    }
+    if (glfwGetKey(window, GLFW_KEY_A)) {
+        camera.Translate({-m, 0, 0});
+    }
+    if (glfwGetKey(window, GLFW_KEY_D)) {
+        camera.Translate({+m, 0, 0});
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) {
+        camera.Translate({0, -m, 0});
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+        camera.Translate({0, +m, 0});
+    }
+
 }
 
 void framebuffer_size_callback(GLFWwindow*, int width, int height) {
