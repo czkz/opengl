@@ -7,6 +7,7 @@
 #include <Vector.h>
 #include <Quaternion.h>
 #include <dbg.h>
+#include "Camera.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -177,8 +178,7 @@ int main() {
         }
     }
 
-    Quaternion q = Quaternion::Identity();
-    Vector3 tr = {0, 0, 0};
+    Camera camera = { {0, 0, 0}, Quaternion::Identity() };
     float sc = 1;
 
     glEnable(GL_DEPTH_TEST);
@@ -187,50 +187,50 @@ int main() {
         glfwPollEvents();
         processInput(window);
 
-        constexpr float r = 1;
+        constexpr float r = 1 * M_PI/180.f;
         constexpr float m = 0.05;
-        if (glfwGetKey(window, GLFW_KEY_E)) {
-            q = Quaternion::Rotation(+r * M_PI/180.f, {0, 0, 1}) * q;
-        }
-        if (glfwGetKey(window, GLFW_KEY_Q)) {
-            q = Quaternion::Rotation(-r * M_PI/180.f, {0, 0, 1}) * q;
-        }
         if (glfwGetKey(window, GLFW_KEY_UP)) {
-            q = Quaternion::Rotation(-r * M_PI/180.f, {1, 0, 0}) * q;
+            camera.RotateX(-r);
         }
         if (glfwGetKey(window, GLFW_KEY_DOWN)) {
-            q = Quaternion::Rotation(+r * M_PI/180.f, {1, 0, 0}) * q;
+            camera.RotateX(+r);
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT)) {
-            q = Quaternion::Rotation(-r * M_PI/180.f, {0, 1, 0}) * q;
+            camera.RotateY(-r);
         }
         if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
-            q = Quaternion::Rotation(+r * M_PI/180.f, {0, 1, 0}) * q;
+            camera.RotateY(+r);
+        }
+        if (glfwGetKey(window, GLFW_KEY_Q)) {
+            camera.RotateZ(-r);
+        }
+        if (glfwGetKey(window, GLFW_KEY_E)) {
+            camera.RotateZ(+r);
         }
         if (glfwGetKey(window, GLFW_KEY_W)) {
-            tr += q.Inverse().Rotate({0, 0, m});
+            camera.Translate({0, 0, -m});
         }
         if (glfwGetKey(window, GLFW_KEY_S)) {
-            tr -= q.Inverse().Rotate({0, 0, m});
+            camera.Translate({0, 0, +m});
         }
         if (glfwGetKey(window, GLFW_KEY_A)) {
-            tr += q.Inverse().Rotate({m, 0, 0});
+            camera.Translate({-m, 0, 0});
         }
         if (glfwGetKey(window, GLFW_KEY_D)) {
-            tr -= q.Inverse().Rotate({m, 0, 0});
-        }
-        if (glfwGetKey(window, GLFW_KEY_SPACE)) {
-            tr -= q.Inverse().Rotate({0, m, 0});
+            camera.Translate({+m, 0, 0});
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) {
-            tr += q.Inverse().Rotate({0, m, 0});
+            camera.Translate({0, -m, 0});
+        }
+        if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+            camera.Translate({0, +m, 0});
         }
 
         // dp(tr);
 
         prog.SetFloat("uTime", glfwGetTime());
-        prog.SetQuaternion("q", q);
-        prog.SetVec3("tr", tr);
+        prog.SetQuaternion("q", camera.rotation);
+        prog.SetVec3("tr", camera.position);
         prog.SetFloat("sc", sc);
 
         glActiveTexture(GL_TEXTURE0);
