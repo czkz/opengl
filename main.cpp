@@ -8,13 +8,18 @@
 #include <Quaternion.h>
 #include <dbg.h>
 #include "Camera.h"
+#include "FrameCounter.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow*, Camera&);
+void processInput(GLFWwindow*, Camera&, float);
+void mouse_callback(GLFWwindow* window, double x, double y);
 
 // settings
 const unsigned int windowWidth = 1000;
 const unsigned int windowHeight = 1000;
+
+Camera camera = { {0, 0, 0}, Quaternion::Identity() };
+Vector3 cameraEuler = {0, 0, 0};
 
 
 class glfwHandle {
@@ -36,6 +41,9 @@ int main() {
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -178,14 +186,17 @@ int main() {
         }
     }
 
-    Camera camera = { {0, 0, 0}, Quaternion::Identity() };
     float sc = 1;
+    FrameCounter frameCounter;
 
     glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(window)) {
+        frameCounter.tick();
         glfwPollEvents();
-        processInput(window, camera);
+        processInput(window, camera, frameCounter.deltaTime / 16);
+
+        camera.rotation = Quaternion::Euler(cameraEuler);
 
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("q", camera.rotation);
@@ -204,6 +215,8 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         {
+            // First two commands can be outside the loop
+            //  only when there's one shader and one VAO
             prog.Use();
             glBindVertexArray(vao);
             glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*) 0);
@@ -219,52 +232,67 @@ int main() {
     return 0;
 }
 
-void processInput(GLFWwindow* window, Camera& camera) {
+void processInput(GLFWwindow* window, Camera& camera, float deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_ENTER)) {
         glfwSetWindowShouldClose(window, true);
     }
 
     constexpr float r = 1 * M_PI/180.f;
     constexpr float m = 0.05;
-    if (glfwGetKey(window, GLFW_KEY_UP)) {
-        camera.RotateX(-r);
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN)) {
-        camera.RotateX(+r);
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT)) {
-        camera.RotateY(-r);
-    }
-    if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
-        camera.RotateY(+r);
-    }
+    // if (glfwGetKey(window, GLFW_KEY_UP)) {
+    //     camera.RotateX(-r * deltaTime);
+    // }
+    // if (glfwGetKey(window, GLFW_KEY_DOWN)) {
+    //     camera.RotateX(+r * deltaTime);
+    // }
+    // if (glfwGetKey(window, GLFW_KEY_LEFT)) {
+    //     camera.RotateY(-r * deltaTime);
+    // }
+    // if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
+    //     camera.RotateY(+r * deltaTime);
+    // }
     if (glfwGetKey(window, GLFW_KEY_Q)) {
-        camera.RotateZ(-r);
+        camera.RotateZ(-r * deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_E)) {
-        camera.RotateZ(+r);
+        camera.RotateZ(+r * deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_W)) {
-        camera.Translate({0, 0, -m});
+        camera.Translate(Vector3 {0, 0, -m} * deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_S)) {
-        camera.Translate({0, 0, +m});
+        camera.Translate(Vector3 {0, 0, +m} * deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_A)) {
-        camera.Translate({-m, 0, 0});
+        camera.Translate(Vector3 {-m, 0, 0} * deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_D)) {
-        camera.Translate({+m, 0, 0});
+        camera.Translate(Vector3 {+m, 0, 0} * deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) {
-        camera.Translate({0, -m, 0});
+        camera.Translate(Vector3 {0, -m, 0} * deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_SPACE)) {
-        camera.Translate({0, +m, 0});
+        camera.Translate(Vector3 {0, +m, 0} * deltaTime);
     }
 
 }
 
 void framebuffer_size_callback(GLFWwindow*, int width, int height) {
     glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow*, double x, double y) {
+    static Vector2 prev (x, y);
+    const Vector2 curr (x, y);
+    Vector2 v = curr - prev;
+    prev = curr;
+
+    constexpr float sensitivity = 0.002;
+    v *= sensitivity;
+
+    cameraEuler += {v.y, v.x, 0};
+    cameraEuler.x = std::clamp<VEC_REAL_T>(cameraEuler.x, -M_PI/2, +M_PI/2);
+    // camera.RotateX(v.y);
+    // camera.RotateY(v.x);
 }
