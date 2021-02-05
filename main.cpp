@@ -2,13 +2,13 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "stb_image.h"
 #include "Shader.h"
 #include <Vector.h>
 #include <Quaternion.h>
 #include <dbg.h>
 #include "Camera.h"
 #include "FrameCounter.h"
+#include "Texture.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow*, FPSCamera&, float);
@@ -140,50 +140,8 @@ int main() {
         glBindVertexArray(0);
     }
 
-    GLuint texture;
-    {
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        {
-            stbi_set_flip_vertically_on_load(true);
-            int width, height, nrChannels;
-            unsigned char* data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
-
-            if (data) {
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-                // glGenerateMipmap(GL_TEXTURE_2D);
-            } else {
-                std::cout << "Failed to load texture" << std::endl;
-            }
-
-            stbi_image_free(data);
-        }
-    }
-
-    GLuint texture2;
-    {
-        glGenTextures(1, &texture2);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        {
-            stbi_set_flip_vertically_on_load(true);
-            int width, height, nrChannels;
-            unsigned char* data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
-
-            if (data) {
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-                glGenerateMipmap(GL_TEXTURE_2D);
-            } else {
-                std::cout << "Failed to load texture" << std::endl;
-            }
-
-            stbi_image_free(data);
-        }
-    }
+    Texture texture ("container.jpg");
+    Texture texture2 ("awesomeface.png");
 
     float sc = 1;
     FrameCounter frameCounter;
@@ -201,9 +159,9 @@ int main() {
         prog.SetFloat("sc", sc);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glBindTexture(GL_TEXTURE_2D, texture.handle);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
+        glBindTexture(GL_TEXTURE_2D, texture2.handle);
         prog.SetInt("texture1", 0);
         prog.SetInt("texture2", 1);
 
@@ -261,9 +219,8 @@ void mouse_callback(GLFWwindow*, double x, double y) {
     constexpr float sensitivity = 0.002;
     v *= sensitivity;
 
-    constexpr float maxPitch = 90 / 180.f * M_PI;
     camera.euler += {v.y, v.x, 0};
-    camera.euler.x = std::clamp<VEC_REAL_T>(camera.euler.x, -maxPitch, +maxPitch);
+    camera.ClampPitch();
     // camera.RotateX(v.y);
     // camera.RotateY(v.x);
 }
