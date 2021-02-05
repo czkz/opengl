@@ -62,7 +62,7 @@ int main() {
     }();
     dp(prog.Link());
 
-    Model cube;
+    Model cube (model_cube::vertices, model_cube::indices);
 
     Texture texture ("container.jpg");
     Texture texture2 ("awesomeface.png");
