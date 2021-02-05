@@ -7,6 +7,10 @@ public:
     Vector3 position;
     Quaternion rotation;
 
+    const Quaternion& getRotation() const {
+        return rotation;
+    }
+
     void RotateX(float pitch) {
         rotation = Quaternion::Rotation(pitch, {1, 0, 0}) * rotation;
     }
@@ -19,7 +23,7 @@ public:
         rotation = Quaternion::Rotation(roll, {0, 0, 1}) * rotation;
     }
 
-    void Translate(const Vector3& localSpaceTranslation) {
+    void Move(const Vector3& localSpaceTranslation) {
         position += rotation.Inverse().Rotate(localSpaceTranslation);
     }
 };
@@ -29,7 +33,7 @@ public:
     Vector3 position;
     Vector3 euler;
 
-    Quaternion getRotation() const {
+    const Quaternion getRotation() const {
         return Quaternion::Euler(euler);
     }
 

@@ -229,21 +229,23 @@ int main() {
     return 0;
 }
 
-void input_FPSCamera(GLFWwindow* window, FPSCamera& camera, float deltaTime) {
-    constexpr float m = 0.05;
-    if (glfwGetKey(window, GLFW_KEY_W))          { camera.Move(Vector3 {0, 0, -m} * deltaTime); }
-    if (glfwGetKey(window, GLFW_KEY_S))          { camera.Move(Vector3 {0, 0, +m} * deltaTime); }
-    if (glfwGetKey(window, GLFW_KEY_A))          { camera.Move(Vector3 {-m, 0, 0} * deltaTime); }
-    if (glfwGetKey(window, GLFW_KEY_D))          { camera.Move(Vector3 {+m, 0, 0} * deltaTime); }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) { camera.Move(Vector3 {0, -m, 0} * deltaTime); }
-    if (glfwGetKey(window, GLFW_KEY_SPACE))      { camera.Move(Vector3 {0, +m, 0} * deltaTime); }
+Vector3 inputMove(GLFWwindow* window) {
+    Vector3 v = {0, 0, 0};
+    if (glfwGetKey(window, GLFW_KEY_W))          { v.z -= 1; }
+    if (glfwGetKey(window, GLFW_KEY_S))          { v.z += 1; }
+    if (glfwGetKey(window, GLFW_KEY_A))          { v.x -= 1; }
+    if (glfwGetKey(window, GLFW_KEY_D))          { v.x += 1; }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) { v.y -= 1; }
+    if (glfwGetKey(window, GLFW_KEY_SPACE))      { v.y += 1; }
+    if (v) { v.Normalize(); }
+    return v;
 }
 
 void processInput(GLFWwindow* window, FPSCamera& camera, float deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_ENTER)) {
         glfwSetWindowShouldClose(window, true);
     }
-    input_FPSCamera(window, camera, deltaTime);
+    camera.Move(inputMove(window) * deltaTime * 0.05);
 }
 
 void framebuffer_size_callback(GLFWwindow*, int width, int height) {
