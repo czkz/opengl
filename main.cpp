@@ -11,8 +11,7 @@
 #include "Texture.h"
 #include "Model.h"
 #include "Window.h"
-
-void processInput(GLFWwindow*, FPSCamera&, float);
+#include "Input.h"
 
 // settings
 const unsigned int windowWidth = 1000;
@@ -53,18 +52,7 @@ int main() {
     FrameCounter frameCounter;
 
     window.onMouseMove = [&camera](float x, float y) {
-        static Vector2 prev (x, y);
-        const Vector2 curr (x, y);
-        Vector2 v = curr - prev;
-        prev = curr;
-
-        constexpr float sensitivity = 0.002;
-        v *= sensitivity;
-
-        camera.euler += {v.y, v.x, 0};
-        camera.ClampPitch();
-        // camera.RotateX(v.y);
-        // camera.RotateY(v.x);
+        Input::FPSCamera::onMouseMove(camera, x, y);
     };
 
     glEnable(GL_DEPTH_TEST);
@@ -72,7 +60,8 @@ int main() {
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
         glfwPollEvents();
-        processInput(window.handle, camera, frameCounter.deltaTime / 16);
+        Input::FPSCamera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
+        Input::Application::onTick(window.handle);
 
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("q", camera.getRotation());
@@ -102,24 +91,5 @@ int main() {
     }
 
     return 0;
-}
-
-Vector3 inputMove(GLFWwindow* window) {
-    Vector3 v = {0, 0, 0};
-    if (glfwGetKey(window, GLFW_KEY_W))          { v.z -= 1; }
-    if (glfwGetKey(window, GLFW_KEY_S))          { v.z += 1; }
-    if (glfwGetKey(window, GLFW_KEY_A))          { v.x -= 1; }
-    if (glfwGetKey(window, GLFW_KEY_D))          { v.x += 1; }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) { v.y -= 1; }
-    if (glfwGetKey(window, GLFW_KEY_SPACE))      { v.y += 1; }
-    if (v) { v.Normalize(); }
-    return v;
-}
-
-void processInput(GLFWwindow* window, FPSCamera& camera, float deltaTime) {
-    if (glfwGetKey(window, GLFW_KEY_ENTER)) {
-        glfwSetWindowShouldClose(window, true);
-    }
-    camera.Move(inputMove(window) * deltaTime * 0.05);
 }
 
