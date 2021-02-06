@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 #include <Vector.h>
+#include <span>
 
 struct vertex {
     Vector3 pos;
@@ -21,19 +22,18 @@ public:
     GLuint vbo;
     GLuint ubo;
 
-    template <typename VertexArray, typename IndexArray>
-    Model(const VertexArray& vertices, const IndexArray& indices) {
+    Model(std::span<const vertex> vertices, std::span<const unsigned int> indices) {
 
         glGenBuffers(1, &vbo);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, std::size(vertices) * sizeof(vertices[0]), vertices.data(), GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, vertices.size_bytes(), vertices.data(), GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
         glGenBuffers(1, &ubo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ubo);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, std::size(indices) * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size_bytes(), indices.data(), GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 
@@ -42,7 +42,7 @@ public:
         glBindVertexArray(vao);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ubo);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            size_t nAttrs = VertexArray::value_type::registerAttributes();
+            size_t nAttrs = decltype(vertices)::value_type::registerAttributes();
             for (size_t i = 0; i < nAttrs; i++) {
                 glEnableVertexAttribArray(i);
             }
