@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <functional>
-#include <dbg.h>
 
 class Window {
     static constexpr int OpenGL_ver_major = 3;
@@ -10,7 +9,7 @@ class Window {
 
     class glfwSystem {
     public:
-        glfwSystem () { glfwInit(); dp("glfwSystem ctor"); }
+        glfwSystem () { glfwInit(); }
         ~glfwSystem () { glfwTerminate(); }
     };
 
@@ -18,7 +17,6 @@ public:
     GLFWwindow* handle;
 
     Window(int width, int height, const char* title) {
-        dp("Window ctor");
         // Init on first Window, terminate on program termination
         static glfwSystem _glfw = glfwSystem();
 
