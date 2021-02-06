@@ -10,10 +10,11 @@
 #include "FrameCounter.h"
 #include "Texture.h"
 #include "Model.h"
+#include "Window.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void framebuffer_size_callback(int width, int height);
 void processInput(GLFWwindow*, FPSCamera&, float);
-void mouse_callback(GLFWwindow* window, double x, double y);
+void mouse_callback(float x, float y);
 
 // settings
 const unsigned int windowWidth = 1000;
@@ -22,28 +23,11 @@ const unsigned int windowHeight = 1000;
 FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
 
 
-class glfwHandle {
-public:
-    glfwHandle() { glfwInit(); }
-    ~glfwHandle() { glfwTerminate(); }
-};
-
 int main() {
-    glfwHandle _glfw;
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Sample Text", nullptr, nullptr);
-    if (window == nullptr) {
-        std::cout << "Failed to create window!" << std::endl;
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(window, mouse_callback);
+    Window window (1000, 1000, "Sample Text");
+    window.MakeContextCurrent();
+    window.onMouseMove = mouse_callback;
+    window.onSizeChanged = framebuffer_size_callback;
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -72,10 +56,10 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    while(!glfwWindowShouldClose(window)) {
+    while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
         glfwPollEvents();
-        processInput(window, camera, frameCounter.deltaTime / 16);
+        processInput(window.handle, camera, frameCounter.deltaTime / 16);
 
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("q", camera.getRotation());
@@ -101,7 +85,7 @@ int main() {
             glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*) 0);
         }
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window.handle);
     }
 
     return 0;
@@ -126,11 +110,11 @@ void processInput(GLFWwindow* window, FPSCamera& camera, float deltaTime) {
     camera.Move(inputMove(window) * deltaTime * 0.05);
 }
 
-void framebuffer_size_callback(GLFWwindow*, int width, int height) {
+void framebuffer_size_callback(int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void mouse_callback(GLFWwindow*, double x, double y) {
+void mouse_callback(float x, float y) {
     static Vector2 prev (x, y);
     const Vector2 curr (x, y);
     Vector2 v = curr - prev;
