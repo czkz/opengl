@@ -12,22 +12,19 @@
 #include "Model.h"
 #include "Window.h"
 
-void framebuffer_size_callback(int width, int height);
 void processInput(GLFWwindow*, FPSCamera&, float);
-void mouse_callback(float x, float y);
 
 // settings
 const unsigned int windowWidth = 1000;
 const unsigned int windowHeight = 1000;
 
-FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
-
-
 int main() {
     Window window (1000, 1000, "Sample Text");
     window.MakeContextCurrent();
-    window.onMouseMove = mouse_callback;
-    window.onSizeChanged = framebuffer_size_callback;
+    window.onSizeChanged = [](int width, int height) {
+        glViewport(0, 0, width, height);
+    };
+
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -52,7 +49,23 @@ int main() {
     Texture texture2 ("awesomeface.png");
 
     float sc = 1;
+    FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
     FrameCounter frameCounter;
+
+    window.onMouseMove = [&camera](float x, float y) {
+        static Vector2 prev (x, y);
+        const Vector2 curr (x, y);
+        Vector2 v = curr - prev;
+        prev = curr;
+
+        constexpr float sensitivity = 0.002;
+        v *= sensitivity;
+
+        camera.euler += {v.y, v.x, 0};
+        camera.ClampPitch();
+        // camera.RotateX(v.y);
+        // camera.RotateY(v.x);
+    };
 
     glEnable(GL_DEPTH_TEST);
 
@@ -110,21 +123,3 @@ void processInput(GLFWwindow* window, FPSCamera& camera, float deltaTime) {
     camera.Move(inputMove(window) * deltaTime * 0.05);
 }
 
-void framebuffer_size_callback(int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
-void mouse_callback(float x, float y) {
-    static Vector2 prev (x, y);
-    const Vector2 curr (x, y);
-    Vector2 v = curr - prev;
-    prev = curr;
-
-    constexpr float sensitivity = 0.002;
-    v *= sensitivity;
-
-    camera.euler += {v.y, v.x, 0};
-    camera.ClampPitch();
-    // camera.RotateX(v.y);
-    // camera.RotateY(v.x);
-}
