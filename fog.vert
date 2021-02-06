@@ -55,7 +55,7 @@ void main() {
     texCoord = aTexCoord;
 
     vec3 p = aPos;
-    p += tr;
+    p -= tr;
     p *= sc;
     p = qRotate(p, q);
     pos = vec4(p, 1.);
