@@ -24,7 +24,6 @@ int main() {
         glViewport(0, 0, width, height);
     };
 
-
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -2;
@@ -34,8 +33,8 @@ int main() {
     glfwSwapInterval(1);
 
     ShaderProg prog = []() {
-        VertexShader v   ("default.vert");
-        FragmentShader f ("default.frag");
+        VertexShader v   ("fog.vert");
+        FragmentShader f ("fog.frag");
         dp(v.Compile());
         dp(f.Compile());
         return ShaderProg(v, f);
@@ -75,8 +74,8 @@ int main() {
         prog.SetInt("texture1", 0);
         prog.SetInt("texture2", 1);
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        // glClearColor(1., 1., 1., 1.);
+        // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(1., 1., 1., 1.);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         {
