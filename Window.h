@@ -60,7 +60,19 @@ private:
         }
 
         glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        glfwSwapInterval(1);  // Vsync
+
+        if (glfwRawMouseMotionSupported()) {
+            glfwSetInputMode(handle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        }
+
+        if (glfwExtensionSupported("WGL_EXT_swap_control_tear") ||
+                glfwExtensionSupported("GLX_EXT_swap_control_tear")
+        ) {
+            dp("***_EXT_swap_control_tear");
+            // glfwSwapInterval(-1);  // No vsync
+        } else {
+            glfwSwapInterval(1);  // Vsync
+        }
 
         return handle;
     }
