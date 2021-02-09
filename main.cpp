@@ -59,22 +59,14 @@ int main() {
     kbManager.on(GLFW_KEY_ENTER, [&window](int, int, int, int) {
         glfwSetWindowShouldClose(window.handle, true);
     });
-    MoveMaker mm;
-    kbManager.on(
-        {GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D},
-        [&mm](int key, int, int action, int) {
-            mm.onKeyAny(key, action);
-        }
-    );
 
     glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
         glfwPollEvents();
-        // Input::FPSCamera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
-        // Input::Application::onTick(window.handle);
-        camera.Move(mm.GetMove() * frameCounter.deltaTime * 0.01);
+        Input::Application::onTick(window.handle);
+        Input::FPSCamera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("q", camera.getRotation());
