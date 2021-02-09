@@ -58,8 +58,8 @@ int main() {
         Input::FPSCamera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
         prog.SetFloat("uTime", glfwGetTime());
-        prog.SetQuaternion("q", camera.getRotation());
-        prog.SetVec3("tr", camera.position);
+        prog.SetQuaternion("cameraRotation", camera.getRotation());
+        prog.SetVec3("cameraPosition", camera.position);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture.handle);

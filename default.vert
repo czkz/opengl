@@ -3,14 +3,14 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec2 aTexCoord;
   
-out vec3 pos;
-out vec3 clr;
-out vec2 texCoord;
+out vec3 sPos;
+out vec3 sColor;
+out vec2 sTexCoord;
 
 uniform float uTime;
 
-uniform vec4 q;
-uniform vec3 tr;
+uniform vec4 cameraRotation;
+uniform vec3 cameraPosition;
 
 float rand(vec2 pos) {
     return fract(sin(dot(pos, vec2(12.9898,78.233))) * 43758.5453123);
@@ -55,13 +55,13 @@ vec4 projxxs(vec4 v) {
 
 
 void main() {
-    texCoord = aTexCoord;
-    clr = aColor;
+    sTexCoord = aTexCoord;
+    sColor = aColor;
 
     vec3 p = aPos;
-    p -= tr;
-    p = qRotate(p, q);
-    pos = p;
+    p -= cameraPosition;
+    p = qRotate(p, cameraRotation);
+    sPos = p;
 
     gl_Position = projx(vec4(p, 1.));
 }
