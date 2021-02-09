@@ -46,7 +46,7 @@ int main() {
     };
 
     KeyboardManager kbManager (window.handle);
-    kbManager.on(GLFW_KEY_ENTER, [&window](int, int, int, int) {
+    kbManager.on(GLFW_KEY_ENTER, [&window](int, bool, int) {
         glfwSetWindowShouldClose(window.handle, true);
     });
 
@@ -54,7 +54,6 @@ int main() {
 
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
-        glfwPollEvents();
         Input::Application::onTick(window.handle);
         Input::FPSCamera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
@@ -82,6 +81,7 @@ int main() {
         }
 
         glfwSwapBuffers(window.handle);
+        glfwPollEvents();
     }
 
     return 0;

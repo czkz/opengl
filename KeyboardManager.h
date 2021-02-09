@@ -7,7 +7,10 @@
 
 class KeyboardManager : public CallbackCapture<KeyboardManager> {
 public:
-    using callback_t = std::function<void(int, int, int, int)>;
+    /// @arg key GLFW_KEY_ENTER, GLFW_KEY_W, etc.
+    /// @arg isDown true if key was just pressed, false if released
+    /// @arg mods bitfield of GLFW_MOD_{SHIFT,CONTROL,ALT,SUPER,CAPS_LOCK,NUM_LOCK}
+    using callback_t = std::function<void(int key, bool isDown, int mods)>;
 
     KeyboardManager(GLFWwindow* windowHandle) : CallbackCapture(windowHandle) {
         glfwSetKeyCallback(windowHandle, key_callback);
@@ -24,15 +27,16 @@ public:
     }
 
 private:
-    static void key_callback(GLFWwindow* windowHandle, int key, int scancode, int action, int mods) {
+    static void key_callback(GLFWwindow* windowHandle, int key, int, int action, int mods) {
+        if (action == GLFW_REPEAT) { return; }
         KeyboardManager* _this = _these[windowHandle];
         if (_this->any.contains(key)) {
-            _this->any[key](key, scancode, action, mods);
+            _this->any[key](key, action == GLFW_PRESS, mods);
         }
         if (action == GLFW_PRESS && _this->down.contains(key)) {
-            _this->down[key](key, scancode, action, mods);
+            _this->down[key](key, action == GLFW_PRESS, mods);
         } else if (action == GLFW_RELEASE && _this->up.contains(key)) {
-            _this->up[key](key, scancode, action, mods);
+            _this->up[key](key, action == GLFW_PRESS, mods);
         }
     }
     std::map<int, callback_t> any;

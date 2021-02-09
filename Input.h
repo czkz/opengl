@@ -8,30 +8,15 @@ class MoveMaker {
 public:
     // void ResetMove() { v = {0, 0, 0}; }
     Vector3 GetMove() { return v ? v.Normalized() : v; }
-    void onKeyAny(int key, int action) {
-        switch (action) {
-            case GLFW_PRESS: {
-                switch (key) {
-                    case GLFW_KEY_W:          { v.z -= 1; break; }
-                    case GLFW_KEY_S:          { v.z += 1; break; }
-                    case GLFW_KEY_A:          { v.x -= 1; break; }
-                    case GLFW_KEY_D:          { v.x += 1; break; }
-                    case GLFW_KEY_LEFT_SHIFT: { v.y -= 1; break; }
-                    case GLFW_KEY_SPACE:      { v.y += 1; break; }
-                }
-                break;
-            }
-            case GLFW_RELEASE: {
-                switch (key) {
-                    case GLFW_KEY_W:          { v.z += 1; break; }
-                    case GLFW_KEY_S:          { v.z -= 1; break; }
-                    case GLFW_KEY_A:          { v.x += 1; break; }
-                    case GLFW_KEY_D:          { v.x -= 1; break; }
-                    case GLFW_KEY_LEFT_SHIFT: { v.y += 1; break; }
-                    case GLFW_KEY_SPACE:      { v.y -= 1; break; }
-                }
-                break;
-            }
+    void onKeyAny(int key, bool action) {
+        int val = action ? 1 : -1;
+        switch (key) {
+            case GLFW_KEY_W:          { v.z -= val; return; }
+            case GLFW_KEY_S:          { v.z += val; return; }
+            case GLFW_KEY_A:          { v.x -= val; return; }
+            case GLFW_KEY_D:          { v.x += val; return; }
+            case GLFW_KEY_LEFT_SHIFT: { v.y -= val; return; }
+            case GLFW_KEY_SPACE:      { v.y += val; return; }
         }
     }
 };
