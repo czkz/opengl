@@ -1,7 +1,7 @@
 #version 330 core
 out vec4 FragColor;
 
-in vec4 pos;
+in vec3 pos;
 in vec3 clr;
 in vec2 texCoord;
 
@@ -10,7 +10,7 @@ uniform sampler2D texture1;
 uniform sampler2D texture2;
 
 void main() {
-    float depth = length(pos.xyz) / 10.;
+    float depth = length(pos) / 10.;
     depth = pow(depth, 2.);
     depth = smoothstep(0.5, 1.0, depth);
     vec4 texClr = texture(texture1, texCoord);

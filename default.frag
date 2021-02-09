@@ -1,7 +1,7 @@
 #version 330 core
 out vec4 FragColor;
 
-in vec4 pos;
+in vec3 pos;
 in vec3 clr;
 in vec2 texCoord;
 
@@ -95,6 +95,7 @@ void main() {
     vec4 texClr = texture(texture1, texCoord);
     vec4 texClr2 = texture(texture2, texCoord);
     vec3 c = mix(texClr.rgb, texClr2.rgb, 0.5);
+    // c = mix(c, clr, 0.75);
     FragColor = vec4(c, 1.0f);
     // FragColor = vec4(mix(texClr.rgb, texClr2.rgb, 0.5f), 1.0f);
     // FragColor = vec4(sin(pos.x + pos.y + uTime), cos(pos.x + pos.y + uTime), 1.0f, 1.0f);

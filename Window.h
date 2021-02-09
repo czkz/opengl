@@ -1,4 +1,5 @@
 #pragma once
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <functional>
@@ -22,12 +23,18 @@ public:
         : CallbackCapture(create_window(width, height, title))
         , handle(CallbackCapture::windowHandle) {
         registerAllCallbacks();
+        MakeContextCurrent();
+        if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+            throw std::runtime_error("Failed to initialize GLAD");
+        }
+
     }
     ~Window() noexcept {
         glfwDestroyWindow(handle);
     }
 
-    /// Set this thread's OpenGL calls to operate on this window
+    /// Set this thread's OpenGL calls to operate on this window.
+    /// Done automatically in ctor
     void MakeContextCurrent() {
         glfwMakeContextCurrent(handle);
     }
@@ -53,6 +60,7 @@ private:
         }
 
         glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSwapInterval(1);  // Vsync
 
         return handle;
     }

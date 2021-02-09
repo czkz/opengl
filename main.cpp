@@ -20,22 +20,13 @@ const unsigned int windowHeight = 1000;
 
 int main() {
     Window window (1000, 1000, "Sample Text");
-    window.MakeContextCurrent();
     window.onSizeChanged = [](int width, int height) {
         glViewport(0, 0, width, height);
     };
 
-    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -2;
-    }
-
-    glViewport(0, 0, windowWidth, windowHeight);
-    glfwSwapInterval(1);
-
     ShaderProg prog = []() {
-        VertexShader v   ("fog.vert");
-        FragmentShader f ("fog.frag");
+        VertexShader v   ("default.vert");
+        FragmentShader f ("default.frag");
         dp(v.Compile());
         dp(f.Compile());
         return ShaderProg(v, f);
@@ -47,7 +38,6 @@ int main() {
     Texture texture ("container.jpg");
     Texture texture2 ("awesomeface.png");
 
-    float sc = 1;
     FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
     FrameCounter frameCounter;
 
@@ -71,7 +61,6 @@ int main() {
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("q", camera.getRotation());
         prog.SetVec3("tr", camera.position);
-        prog.SetFloat("sc", sc);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture.handle);
