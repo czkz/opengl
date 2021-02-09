@@ -13,6 +13,7 @@
 #include "Window.h"
 #include "Input.h"
 #include "KeyboardManager.h"
+#include "Object.h"
 
 // settings
 const unsigned int windowWidth = 1000;
@@ -33,7 +34,9 @@ int main() {
     }();
     dp(prog.Link());
 
-    Model cube (model_cube::vertices, model_cube::indices);
+    Model cube_model (model_cube::vertices, model_cube::indices);
+    Object cube (cube_model);
+    // Model light (model_cube::vertices, model_cube::indices);
 
     Texture texture ("container.jpg");
     Texture texture2 ("awesomeface.png");
@@ -76,7 +79,7 @@ int main() {
             // First two commands can be outside the loop
             //  only when there's one shader and one VAO
             prog.Use();
-            glBindVertexArray(cube.vao);
+            glBindVertexArray(cube.model.vao);
             glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*) 0);
         }
 
