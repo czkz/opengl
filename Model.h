@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <Vector.h>
 #include <span>
+#include <functional>
 
 struct vertex {
     Vector3 pos;
@@ -16,42 +17,115 @@ struct vertex {
     }
 };
 
+class BufferObject {
+    size_t last_n_elems = 0;
+public:
+    GLuint handle;
+    const GLenum type;
+    BufferObject(GLenum type) : type(type) {
+        glGenBuffers(1, &handle);
+    }
+    ~BufferObject() {
+        glDeleteBuffers(1, &handle);
+    }
+    BufferObject(const BufferObject&) = delete;
+    BufferObject(BufferObject&&) = default;
+
+    size_t size() const { return last_n_elems; }
+
+    BufferObject& LoadData(const std::ranges::range auto& data, GLenum usage = GL_STATIC_DRAW) {
+        std::span _data = data;
+        Bind();
+        glBufferData(type, _data.size_bytes(), _data.data(), usage);
+        last_n_elems = _data.size();
+        return *this;
+    }
+
+protected:
+    void Bind() {
+        glBindBuffer(type, handle);
+    }
+};
+
+class VBO : public BufferObject {
+public:
+    VBO() : BufferObject(GL_ARRAY_BUFFER) { }
+};
+class EBO : public BufferObject {
+public:
+    EBO() : BufferObject(GL_ELEMENT_ARRAY_BUFFER) { }
+};
+
+
+
+/// Unbinds any VAOs in destructor
+class VAO_lock {
+public:
+    ~VAO_lock() {
+        glBindVertexArray(0);
+    }
+};
+
+class VAO {
+    GLuint handle;
+public:
+    VAO() {
+        glGenVertexArrays(1, &handle);
+    }
+    VAO(const VAO&) = delete;
+    VAO(VAO&&) = default;
+    ~VAO() {
+        glDeleteVertexArrays(1, &handle);
+    }
+
+    class Config {
+        GLuint vao;
+        explicit Config(GLuint vao_handle) : vao(vao_handle) { }
+        friend VAO;
+    public:
+        Config(const Config&) = delete;
+        Config(Config&&) = default;
+
+        void Bind(BufferObject& bo) {
+            glBindBuffer(bo.type, bo.handle);
+        }
+    };
+
+    void Configure(const std::function<void(Config)>& config_script) {
+        VAO_lock lock;
+        Bind(lock);
+        config_script(Config(handle));
+    }
+
+    /// VAO_lock is just to make it harder to forget
+    void Bind(VAO_lock&) {
+        glBindVertexArray(handle);
+    }
+};
+
 class Model {
 public:
-    GLuint vao;
-    GLuint vbo;
-    GLuint ubo;
+    VAO vao;
+    VBO vbo;
+    EBO ebo;
 
-    Model(std::span<const vertex> vertices, std::span<const unsigned int> indices) {
-
-        glGenBuffers(1, &vbo);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, vertices.size_bytes(), vertices.data(), GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-        glGenBuffers(1, &ubo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ubo);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size_bytes(), indices.data(), GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
-        glGenVertexArrays(1, &vao);
-
-        glBindVertexArray(vao);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ubo);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            size_t nAttrs = decltype(vertices)::value_type::registerAttributes();
+    Model(const std::ranges::range auto& vertices, const std::ranges::range auto& indices) {
+        vbo.LoadData(vertices);
+        ebo.LoadData(indices);
+        vao.Configure([this](VAO::Config c) {
+            c.Bind(ebo);
+            c.Bind(vbo);
+            ///TODO automate, make static
+            size_t nAttrs = std::remove_cvref<decltype(vertices[0])>::type::registerAttributes();
             for (size_t i = 0; i < nAttrs; i++) {
                 glEnableVertexAttribArray(i);
             }
-        glBindVertexArray(0);
+        });
     }
 
-    ~Model() {
-        glDeleteVertexArrays(1, &vao);
-        glDeleteBuffers(1, &vbo);
+    void Draw(VAO_lock& lock) {
+        vao.Bind(lock);
+        glDrawElements(GL_TRIANGLES, ebo.size(), GL_UNSIGNED_INT, (void*) 0);
     }
 };
 

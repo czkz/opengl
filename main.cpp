@@ -13,7 +13,7 @@
 #include "Window.h"
 #include "Input.h"
 #include "KeyboardManager.h"
-#include "Object.h"
+// #include "Object.h"
 
 // settings
 const unsigned int windowWidth = 1000;
@@ -35,7 +35,7 @@ int main() {
     dp(prog.Link());
 
     Model cube_model (model_cube::vertices, model_cube::indices);
-    Object cube (cube_model);
+    // Object cube (cube_model);
     // Model light (model_cube::vertices, model_cube::indices);
 
     Texture texture ("container.jpg");
@@ -80,11 +80,9 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         {
-            // First two commands can be outside the loop
-            //  only when there's one shader and one VAO
+            VAO_lock lock;
             // prog.Use();  // Already in UpdateUniformsAndUse()
-            glBindVertexArray(cube.model.vao);
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*) 0);
+            cube_model.Draw(lock);
         }
 
         glfwSwapBuffers(window.handle);
