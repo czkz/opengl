@@ -33,6 +33,14 @@ int main() {
         return ShaderProg(v, f);
     }();
     dp(prog.Link());
+    ShaderProg fogprog = []() {
+        VertexShader v   ("fog.vert");
+        FragmentShader f ("fog.frag");
+        dp(v.Compile());
+        dp(f.Compile());
+        return ShaderProg(v, f);
+    }();
+    dp(fogprog.Link());
 
     Model cube_model (model_cube::vertices, model_cube::indices);
     Object cube (cube_model);
@@ -53,6 +61,23 @@ int main() {
         glfwSetWindowShouldClose(window.handle, true);
     });
 
+    prog.uniformUpdater = [&camera, &texture, &texture2](ShaderProg::Config c) {
+        c.SetFloat("uTime", glfwGetTime());
+        c.SetQuaternion("cameraRotation", camera.getRotation());
+        c.SetVec3("cameraPosition", camera.position);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture.handle);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2.handle);
+        c.SetInt("texture1", 0);
+        c.SetInt("texture2", 1);
+    };
+
+    fogprog.uniformUpdater = prog.uniformUpdater;
+    bool b = false;
+    kbManager.on(GLFW_KEY_F, [&](int, bool, int) { b=!b; });
+
     glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(window.handle)) {
@@ -60,16 +85,7 @@ int main() {
         Input::Application::onTick(window.handle);
         Input::FPSCamera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
-        prog.SetFloat("uTime", glfwGetTime());
-        prog.SetQuaternion("cameraRotation", camera.getRotation());
-        prog.SetVec3("cameraPosition", camera.position);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.handle);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2.handle);
-        prog.SetInt("texture1", 0);
-        prog.SetInt("texture2", 1);
+        (b ? fogprog : prog).UpdateUniformsAndUse();
 
         // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClearColor(1., 1., 1., 1.);
@@ -78,7 +94,7 @@ int main() {
         {
             // First two commands can be outside the loop
             //  only when there's one shader and one VAO
-            prog.Use();
+            // prog.Use();  // Already in UpdateUniformsAndUse()
             glBindVertexArray(cube.model.vao);
             glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*) 0);
         }

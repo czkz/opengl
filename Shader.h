@@ -93,44 +93,56 @@ public:
         glUseProgram(id);
     }
 
-    bool SetFloat(const char* name, float value) {
-        Use();
-        GLint uniformLocatuion = glGetUniformLocation(id, name);
-        if (uniformLocatuion == -1) {
-            return false;
-        }
-        glUniform1f(uniformLocatuion, value);
-        return true;
-    }
+    class Config {
+        GLuint id;
+        explicit Config(GLuint shaderProg_id) : id(shaderProg_id) { }
+        friend ShaderProg;
+    public:
+        Config(const Config&) = delete;
+        Config(Config&&) = default;
 
-    bool SetInt(const char* name, int value) {
-        Use();
-        GLint uniformLocatuion = glGetUniformLocation(id, name);
-        if (uniformLocatuion == -1) {
-            return false;
+        bool SetFloat(const char* name, float value) {
+            GLint uniformLocatuion = glGetUniformLocation(id, name);
+            if (uniformLocatuion == -1) {
+                return false;
+            }
+            glUniform1f(uniformLocatuion, value);
+            return true;
         }
-        glUniform1i(uniformLocatuion, value);
-        return true;
-    }
 
-    bool SetVec3(const char* name, const Vector3& value) {
-        Use();
-        GLint uniformLocatuion = glGetUniformLocation(id, name);
-        if (uniformLocatuion == -1) {
-            return false;
+        bool SetInt(const char* name, int value) {
+            GLint uniformLocatuion = glGetUniformLocation(id, name);
+            if (uniformLocatuion == -1) {
+                return false;
+            }
+            glUniform1i(uniformLocatuion, value);
+            return true;
         }
-        glUniform3f(uniformLocatuion, value.x, value.y, value.z);
-        return true;
-    }
 
-    bool SetQuaternion(const char* name, const Quaternion& value) {
-        Use();
-        GLint uniformLocatuion = glGetUniformLocation(id, name);
-        if (uniformLocatuion == -1) {
-            return false;
+        bool SetVec3(const char* name, const Vector3& value) {
+            GLint uniformLocatuion = glGetUniformLocation(id, name);
+            if (uniformLocatuion == -1) {
+                return false;
+            }
+            glUniform3f(uniformLocatuion, value.x, value.y, value.z);
+            return true;
         }
-        glUniform4f(uniformLocatuion, value.s, value.v.x, value.v.y, value.v.z);
-        return true;
+
+        bool SetQuaternion(const char* name, const Quaternion& value) {
+            GLint uniformLocatuion = glGetUniformLocation(id, name);
+            if (uniformLocatuion == -1) {
+                return false;
+            }
+            glUniform4f(uniformLocatuion, value.s, value.v.x, value.v.y, value.v.z);
+            return true;
+        }
+    };
+
+    std::function<void(Config)> uniformUpdater;
+
+    void UpdateUniformsAndUse() {
+        Use();
+        uniformUpdater(Config(id));
     }
 };
 
