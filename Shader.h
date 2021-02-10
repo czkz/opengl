@@ -147,7 +147,12 @@ public:
     /// Calls uniformUpdater
     void UpdateUniformsAndUse() {
         Use();
-        uniformUpdater(Config(id));
+        if (uniformUpdater) { uniformUpdater(Config(id)); }
+    }
+
+    /// Calls additionalUpdates, doesn't call Use()
+    void AdditionalUniformUpdates(std::function<void(Config)> additionalUpdates) {
+        additionalUpdates(Config(id));
     }
 };
 

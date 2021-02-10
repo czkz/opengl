@@ -12,6 +12,9 @@ uniform float uTime;
 uniform vec4 cameraRotation;
 uniform vec3 cameraPosition;
 
+uniform vec4 objectRotation;
+uniform vec3 objectPosition;
+
 float rand(vec2 pos) {
     return fract(sin(dot(pos, vec2(12.9898,78.233))) * 43758.5453123);
 }
@@ -59,6 +62,8 @@ void main() {
     sColor = aColor;
 
     vec3 p = aPos;
+    p = qRotate(p, objectRotation);
+    p += objectPosition;
     p -= cameraPosition;
     p = qRotate(p, cameraRotation);
     sPos = p;

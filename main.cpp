@@ -13,7 +13,7 @@
 #include "Window.h"
 #include "Input.h"
 #include "KeyboardManager.h"
-// #include "Object.h"
+#include "Object.h"
 
 // settings
 const unsigned int windowWidth = 1000;
@@ -35,8 +35,8 @@ int main() {
     dp(prog.Link());
 
     Model cube_model (model_cube::vertices, model_cube::indices);
-    // Object cube (cube_model);
-    // Model light (model_cube::vertices, model_cube::indices);
+    Object cube = { cube_model, Transform{{0, 0, 0}, Quaternion::Identity()} };
+    Object light = { cube_model, Transform{{2, 2, 2}, Quaternion::Identity()} };
 
     Texture texture ("container.jpg");
     Texture texture2 ("awesomeface.png");
@@ -73,6 +73,8 @@ int main() {
         Input::Application::onTick(window.handle);
         Input::FPSCamera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
+        light.transform.rotation = Quaternion::Rotation(glfwGetTime(), {0, 1, 1});
+
         prog.UpdateUniformsAndUse();
 
         // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -82,7 +84,17 @@ int main() {
         {
             VAO_lock lock;
             // prog.Use();  // Already in UpdateUniformsAndUse()
-            cube_model.Draw(lock);
+            prog.AdditionalUniformUpdates([&cube](ShaderProg::Config c) {
+                c.SetVec3("objectPosition", cube.transform.position);
+                c.SetQuaternion("objectRotation", cube.transform.rotation);
+            });
+            cube.model.Draw(lock);
+
+            prog.AdditionalUniformUpdates([&light](ShaderProg::Config c) {
+                c.SetVec3("objectPosition", light.transform.position);
+                c.SetQuaternion("objectRotation", light.transform.rotation);
+            });
+            light.model.Draw(lock);
         }
 
         glfwSwapBuffers(window.handle);

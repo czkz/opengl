@@ -1,9 +1,10 @@
 #pragma once
+#include <functional>
 #include "Transform.h"
 #include "Model.h"
+#include "Shader.h"
 
 struct Object {
-    Object(Model& m, Transform t = {{0, 0, 0}, Quaternion::Identity()}) : model(m), transform(t) { }
     Model& model;
     Transform transform;
 };
