@@ -51,6 +51,8 @@ protected:
         const int srcLen = src.size();
         glShaderSource(id, 1, &srcData, &srcLen);
     }
+    Shader(const Shader&) = delete;
+    Shader(Shader&&) = default;
     ~Shader() {
         glDeleteShader(id);
     }
@@ -80,6 +82,8 @@ public:
         glAttachShader(id, v.id);
         glAttachShader(id, f.id);
     }
+    ShaderProg(const ShaderProg&) = delete;
+    ShaderProg(ShaderProg&&) = default;
     ~ShaderProg() {
         glDeleteProgram(id);
     }
