@@ -144,6 +144,7 @@ public:
 
     std::function<void(Config)> uniformUpdater;
 
+    /// Calls uniformUpdater
     void UpdateUniformsAndUse() {
         Use();
         uniformUpdater(Config(id));
