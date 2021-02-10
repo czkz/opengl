@@ -33,14 +33,6 @@ int main() {
         return ShaderProg(v, f);
     }();
     dp(prog.Link());
-    ShaderProg fogprog = []() {
-        VertexShader v   ("fog.vert");
-        FragmentShader f ("fog.frag");
-        dp(v.Compile());
-        dp(f.Compile());
-        return ShaderProg(v, f);
-    }();
-    dp(fogprog.Link());
 
     Model cube_model (model_cube::vertices, model_cube::indices);
     Object cube (cube_model);
@@ -74,10 +66,6 @@ int main() {
         c.SetInt("texture2", 1);
     };
 
-    fogprog.uniformUpdater = prog.uniformUpdater;
-    bool b = false;
-    kbManager.on(GLFW_KEY_F, [&](int, bool, int) { b=!b; });
-
     glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(window.handle)) {
@@ -85,7 +73,7 @@ int main() {
         Input::Application::onTick(window.handle);
         Input::FPSCamera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
-        (b ? fogprog : prog).UpdateUniformsAndUse();
+        prog.UpdateUniformsAndUse();
 
         // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClearColor(1., 1., 1., 1.);
