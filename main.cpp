@@ -36,7 +36,7 @@ int main() {
 
     Model cube_model (model_cube::vertices, model_cube::indices);
     Object cube = { cube_model, Transform{{0, 0, 0}, Quaternion::Identity()} };
-    Object light = { cube_model, Transform{{2, 2, 2}, Quaternion::Identity()} };
+    Object light = { cube_model, Transform{ {1.5, 1.5, 1.5}, Quaternion::Identity(), 0.5 } };
 
     Texture texture ("container.jpg");
     Texture texture2 ("awesomeface.png");
@@ -73,7 +73,7 @@ int main() {
         Input::Application::onTick(window.handle);
         Input::FPSCamera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
-        light.transform.rotation = Quaternion::Rotation(glfwGetTime(), {0, 1, 1});
+        light.transform.rotation = Quaternion::Rotation(glfwGetTime(), {1, 1, 1});
 
         prog.UpdateUniformsAndUse();
 
@@ -87,12 +87,14 @@ int main() {
             prog.AdditionalUniformUpdates([&cube](ShaderProg::Config c) {
                 c.SetVec3("objectPosition", cube.transform.position);
                 c.SetQuaternion("objectRotation", cube.transform.rotation);
+                c.SetFloat("objectScale", cube.transform.scale);
             });
             cube.model.Draw(lock);
 
             prog.AdditionalUniformUpdates([&light](ShaderProg::Config c) {
                 c.SetVec3("objectPosition", light.transform.position);
                 c.SetQuaternion("objectRotation", light.transform.rotation);
+                c.SetFloat("objectScale", light.transform.scale);
             });
             light.model.Draw(lock);
         }

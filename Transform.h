@@ -6,5 +6,6 @@ class Transform {
 public:
     Vector3 position;
     Quaternion rotation;
+    float scale = 1;
 };
 

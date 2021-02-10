@@ -14,6 +14,7 @@ uniform vec3 cameraPosition;
 
 uniform vec4 objectRotation;
 uniform vec3 objectPosition;
+uniform float objectScale;
 
 float rand(vec2 pos) {
     return fract(sin(dot(pos, vec2(12.9898,78.233))) * 43758.5453123);
@@ -63,6 +64,7 @@ void main() {
 
     vec3 p = aPos;
     p = qRotate(p, objectRotation);
+    p *= objectScale;
     p += objectPosition;
     p -= cameraPosition;
     p = qRotate(p, cameraRotation);
