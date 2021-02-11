@@ -97,13 +97,13 @@ public:
         glUseProgram(id);
     }
 
-    class Config {
+    class Uniforms {
         GLuint id;
-        explicit Config(GLuint shaderProg_id) : id(shaderProg_id) { }
+        explicit Uniforms(GLuint shaderProg_id) : id(shaderProg_id) { }
         friend ShaderProg;
     public:
-        Config(const Config&) = delete;
-        Config(Config&&) = default;
+        Uniforms(const Uniforms&) = delete;
+        Uniforms(Uniforms&&) = default;
 
         bool SetFloat(const char* name, float value) {
             GLint uniformLocatuion = glGetUniformLocation(id, name);
@@ -142,17 +142,17 @@ public:
         }
     };
 
-    std::function<void(Config)> uniformUpdater;
+    std::function<void(Uniforms)> uniformUpdater;
 
     /// Calls uniformUpdater
     void UpdateUniformsAndUse() {
         Use();
-        if (uniformUpdater) { uniformUpdater(Config(id)); }
+        if (uniformUpdater) { uniformUpdater(Uniforms(id)); }
     }
 
     /// Doesn't call Use()
-    Config GetConfig() {
-        return Config(id);
+    Uniforms GetUniforms() {
+        return Uniforms(id);
     }
 };
 

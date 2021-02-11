@@ -53,7 +53,7 @@ int main() {
         glfwSetWindowShouldClose(window.handle, true);
     });
 
-    prog.uniformUpdater = [&camera, &texture, &texture2](ShaderProg::Config c) {
+    prog.uniformUpdater = [&camera, &texture, &texture2](ShaderProg::Uniforms c) {
         c.SetFloat("uTime", glfwGetTime());
         c.SetQuaternion("cameraRotation", camera.getRotation());
         c.SetVec3("cameraPosition", camera.position);
@@ -84,10 +84,10 @@ int main() {
         {
             VAO_lock lock;
             // prog.Use();  // Already in UpdateUniformsAndUse()
-            cube.transform.SetUniforms(prog.GetConfig());
+            cube.transform.SetUniforms(prog.GetUniforms());
             cube.model.Draw(lock);
 
-            light.transform.SetUniforms(prog.GetConfig());
+            light.transform.SetUniforms(prog.GetUniforms());
             light.model.Draw(lock);
         }
 

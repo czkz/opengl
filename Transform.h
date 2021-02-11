@@ -9,7 +9,7 @@ public:
     Quaternion rotation;
     float scale = 1;
 
-    void SetUniforms(ShaderProg::Config c) {
+    void SetUniforms(ShaderProg::Uniforms c) {
         c.SetVec3("objectPosition", position);
         c.SetQuaternion("objectRotation", rotation);
         c.SetFloat("objectScale", scale);
