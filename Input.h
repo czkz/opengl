@@ -24,23 +24,23 @@ public:
 namespace Input {
     Vector3 inputMove(GLFWwindow* window) {
         Vector3 v = {0, 0, 0};
-        if (glfwGetKey(window, GLFW_KEY_W))          { v.z -= 1; }
-        if (glfwGetKey(window, GLFW_KEY_S))          { v.z += 1; }
+        if (glfwGetKey(window, GLFW_KEY_S))          { v.y -= 1; }
+        if (glfwGetKey(window, GLFW_KEY_W))          { v.y += 1; }
         if (glfwGetKey(window, GLFW_KEY_A))          { v.x -= 1; }
         if (glfwGetKey(window, GLFW_KEY_D))          { v.x += 1; }
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) { v.y -= 1; }
-        if (glfwGetKey(window, GLFW_KEY_SPACE))      { v.y += 1; }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) { v.z -= 1; }
+        if (glfwGetKey(window, GLFW_KEY_SPACE))      { v.z += 1; }
         if (v) { v.Normalize(); }
         return v;
     }
     Vector3 inputRot(GLFWwindow* window) {
         Vector3 v = {0, 0, 0};
-        if (glfwGetKey(window, GLFW_KEY_UP))    { v.x -= 1; }
-        if (glfwGetKey(window, GLFW_KEY_DOWN))  { v.x += 1; }
-        if (glfwGetKey(window, GLFW_KEY_LEFT))  { v.y -= 1; }
-        if (glfwGetKey(window, GLFW_KEY_RIGHT)) { v.y += 1; }
-        if (glfwGetKey(window, GLFW_KEY_Q))     { v.z -= 1; }
-        if (glfwGetKey(window, GLFW_KEY_E))     { v.z += 1; }
+        if (glfwGetKey(window, GLFW_KEY_UP))    { v.x += 1; }
+        if (glfwGetKey(window, GLFW_KEY_DOWN))  { v.x -= 1; }
+        if (glfwGetKey(window, GLFW_KEY_RIGHT)) { v.z -= 1; }
+        if (glfwGetKey(window, GLFW_KEY_LEFT))  { v.z += 1; }
+        if (glfwGetKey(window, GLFW_KEY_Q))     { v.y -= 1; }
+        if (glfwGetKey(window, GLFW_KEY_E))     { v.y += 1; }
         if (v) { v.Normalize(); }
         return v;
     }
@@ -70,6 +70,7 @@ namespace Input {
             camera.ClampPitch();
         }
 
+
         void onMouseMove(class SpaceCamera& camera, float x, float y) {
             static Vector2 prev (x, y);
             const Vector2 curr (x, y);
@@ -79,13 +80,13 @@ namespace Input {
             constexpr float sensitivity = 0.002;
             v *= sensitivity;
 
-            camera.RotateX(v.y);
-            camera.RotateY(v.x);
+            camera.RotateX(-v.y);
+            camera.RotateZ(-v.x);
         }
 
         void onTick(GLFWwindow* window, class SpaceCamera& camera, float deltaTime) {
             camera.Move(inputMove(window) * deltaTime * 0.05);
-            camera.rotation = Quaternion::Euler(inputRot(window) * deltaTime * 0.05) * camera.rotation;
+            camera.rotation = camera.rotation * Quaternion::Euler(inputRot(window) * deltaTime * 0.05);
         }
     }
 }

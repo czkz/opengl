@@ -13,19 +13,19 @@ public:
     }
 
     void RotateX(float ang) {
-        rotation = Quaternion::Rotation(ang, {1, 0, 0}) * rotation;
+        rotation = rotation * Quaternion::Rotation(ang, {1, 0, 0});
     }
 
     void RotateY(float ang) {
-        rotation = Quaternion::Rotation(ang, {0, 1, 0}) * rotation;
+        rotation = rotation * Quaternion::Rotation(ang, {0, 1, 0});
     }
 
     void RotateZ(float ang) {
-        rotation = Quaternion::Rotation(ang, {0, 0, 1}) * rotation;
+        rotation = rotation * Quaternion::Rotation(ang, {0, 0, 1});
     }
 
     void Move(const Vector3& localSpaceTranslation) {
-        position += rotation.Inverse().Rotate(localSpaceTranslation);
+        position += rotation.Rotate(localSpaceTranslation);
     }
 };
 
