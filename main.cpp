@@ -84,18 +84,10 @@ int main() {
         {
             VAO_lock lock;
             // prog.Use();  // Already in UpdateUniformsAndUse()
-            prog.AdditionalUniformUpdates([&cube](ShaderProg::Config c) {
-                c.SetVec3("objectPosition", cube.transform.position);
-                c.SetQuaternion("objectRotation", cube.transform.rotation);
-                c.SetFloat("objectScale", cube.transform.scale);
-            });
+            cube.transform.SetUniforms(prog.GetConfig());
             cube.model.Draw(lock);
 
-            prog.AdditionalUniformUpdates([&light](ShaderProg::Config c) {
-                c.SetVec3("objectPosition", light.transform.position);
-                c.SetQuaternion("objectRotation", light.transform.rotation);
-                c.SetFloat("objectScale", light.transform.scale);
-            });
+            light.transform.SetUniforms(prog.GetConfig());
             light.model.Draw(lock);
         }
 
