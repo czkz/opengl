@@ -33,6 +33,17 @@ namespace Input {
         if (v) { v.Normalize(); }
         return v;
     }
+    Vector3 inputRot(GLFWwindow* window) {
+        Vector3 v = {0, 0, 0};
+        if (glfwGetKey(window, GLFW_KEY_UP))    { v.x -= 1; }
+        if (glfwGetKey(window, GLFW_KEY_DOWN))  { v.x += 1; }
+        if (glfwGetKey(window, GLFW_KEY_LEFT))  { v.y -= 1; }
+        if (glfwGetKey(window, GLFW_KEY_RIGHT)) { v.y += 1; }
+        if (glfwGetKey(window, GLFW_KEY_Q))     { v.z -= 1; }
+        if (glfwGetKey(window, GLFW_KEY_E))     { v.z += 1; }
+        if (v) { v.Normalize(); }
+        return v;
+    }
 
     namespace Application {
         void onTick(GLFWwindow*) {
@@ -57,6 +68,8 @@ namespace Input {
 
         void onTick(GLFWwindow* window, class FPSCamera& camera, float deltaTime) {
             camera.Move(inputMove(window) * deltaTime * 0.05);
+            camera.euler += inputRot(window) * deltaTime * 0.05;
+            camera.ClampPitch();
         }
     }
 }
