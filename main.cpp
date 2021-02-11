@@ -41,8 +41,8 @@ int main() {
     Texture texture ("container.jpg");
     Texture texture2 ("awesomeface.png");
 
-    // FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
-    SpaceCamera camera = { {0, 0, 0}, Quaternion::Identity() };
+    FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
+    // SpaceCamera camera = { {0, 0, 0}, Quaternion::Identity() };
 
     FrameCounter frameCounter;
 

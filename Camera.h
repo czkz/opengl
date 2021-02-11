@@ -48,8 +48,8 @@ public:
 
     void Move(Vector3 localMovement) {
         Vector3& v = localMovement;
-        const Vector2 i (cos(euler.y), sin(euler.y));
-        position += Vector3(v.x*i.x - v.z*i.y, v.y, v.z*i.x + v.x*i.y);
+        const Vector2 i (cos(euler.z), sin(euler.z));
+        position += Vector3(v.x*i.x - v.y*i.y, v.y*i.x + v.x*i.y, v.z);
     }
 };
 

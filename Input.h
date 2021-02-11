@@ -60,7 +60,7 @@ namespace Input {
             constexpr float sensitivity = 0.002;
             v *= sensitivity;
 
-            camera.euler += {v.y, v.x, 0};
+            camera.euler += {-v.y, 0, -v.x};
             camera.ClampPitch();
         }
 
