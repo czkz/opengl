@@ -50,7 +50,7 @@ namespace Input {
         }
     }
 
-    namespace FPSCamera {
+    namespace Camera {
         void onMouseMove(class FPSCamera& camera, float x, float y) {
             static Vector2 prev (x, y);
             const Vector2 curr (x, y);
@@ -69,9 +69,7 @@ namespace Input {
             camera.euler += inputRot(window) * deltaTime * 0.05;
             camera.ClampPitch();
         }
-    }
 
-    namespace SpaceCamera {
         void onMouseMove(class SpaceCamera& camera, float x, float y) {
             static Vector2 prev (x, y);
             const Vector2 curr (x, y);
