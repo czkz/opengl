@@ -46,6 +46,11 @@ public:
         }
     }
 
+    /// Avoids float precision loss at high values by avoiding high values
+    void WrapYaw() {
+        euler.z = fmod(euler.z, 4);
+    }
+
     void Move(Vector3 localMovement) {
         Vector3& v = localMovement;
         const Vector2 i (cos(euler.z), sin(euler.z));

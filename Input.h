@@ -65,9 +65,13 @@ namespace Input {
         }
 
         void onTick(GLFWwindow* window, class FPSCamera& camera, float deltaTime) {
-            camera.Move(inputMove(window) * deltaTime * 0.05);
-            camera.euler += inputRot(window) * deltaTime * 0.05;
-            camera.ClampPitch();
+            if (const auto move = inputMove(window)) {
+                camera.Move(move * deltaTime * 0.05);
+            }
+            if (const auto rot = inputRot(window)) {
+                camera.euler += rot * deltaTime * 0.05;
+                camera.ClampPitch();
+            }
         }
 
 
@@ -85,8 +89,12 @@ namespace Input {
         }
 
         void onTick(GLFWwindow* window, class SpaceCamera& camera, float deltaTime) {
-            camera.Move(inputMove(window) * deltaTime * 0.05);
-            camera.rotation = camera.rotation * Quaternion::Euler(inputRot(window) * deltaTime * 0.05);
+            if (const auto move = inputMove(window)) {
+                camera.Move(move * deltaTime * 0.05);
+            }
+            if (const auto rot = inputRot(window)) {
+                camera.rotation = camera.rotation * Quaternion::Euler(rot * deltaTime * 0.05);
+            }
         }
     }
 }
