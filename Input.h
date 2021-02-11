@@ -62,14 +62,32 @@ namespace Input {
 
             camera.euler += {v.y, v.x, 0};
             camera.ClampPitch();
-            // camera.RotateX(v.y);
-            // camera.RotateY(v.x);
         }
 
         void onTick(GLFWwindow* window, class FPSCamera& camera, float deltaTime) {
             camera.Move(inputMove(window) * deltaTime * 0.05);
             camera.euler += inputRot(window) * deltaTime * 0.05;
             camera.ClampPitch();
+        }
+    }
+
+    namespace SpaceCamera {
+        void onMouseMove(class SpaceCamera& camera, float x, float y) {
+            static Vector2 prev (x, y);
+            const Vector2 curr (x, y);
+            Vector2 v = curr - prev;
+            prev = curr;
+
+            constexpr float sensitivity = 0.002;
+            v *= sensitivity;
+
+            camera.RotateX(v.y);
+            camera.RotateY(v.x);
+        }
+
+        void onTick(GLFWwindow* window, class SpaceCamera& camera, float deltaTime) {
+            camera.Move(inputMove(window) * deltaTime * 0.05);
+            camera.rotation = Quaternion::Euler(inputRot(window) * deltaTime * 0.05) * camera.rotation;
         }
     }
 }

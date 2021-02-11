@@ -12,16 +12,16 @@ public:
         return rotation;
     }
 
-    void RotateX(float pitch) {
-        rotation = Quaternion::Rotation(pitch, {1, 0, 0}) * rotation;
+    void RotateX(float ang) {
+        rotation = Quaternion::Rotation(ang, {1, 0, 0}) * rotation;
     }
 
-    void RotateY(float yaw) {
-        rotation = Quaternion::Rotation(yaw, {0, 1, 0}) * rotation;
+    void RotateY(float ang) {
+        rotation = Quaternion::Rotation(ang, {0, 1, 0}) * rotation;
     }
 
-    void RotateZ(float roll) {
-        rotation = Quaternion::Rotation(roll, {0, 0, 1}) * rotation;
+    void RotateZ(float ang) {
+        rotation = Quaternion::Rotation(ang, {0, 0, 1}) * rotation;
     }
 
     void Move(const Vector3& localSpaceTranslation) {

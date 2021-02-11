@@ -41,11 +41,12 @@ int main() {
     Texture texture ("container.jpg");
     Texture texture2 ("awesomeface.png");
 
-    FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
+    // FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
+    SpaceCamera camera = { {0, 0, 0}, Quaternion::Identity() };
     FrameCounter frameCounter;
 
     window.onMouseMove = [&camera](float x, float y) {
-        Input::FPSCamera::onMouseMove(camera, x, y);
+        Input::SpaceCamera::onMouseMove(camera, x, y);
     };
 
     KeyboardManager kbManager (window.handle);
@@ -71,7 +72,7 @@ int main() {
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
         Input::Application::onTick(window.handle);
-        Input::FPSCamera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
+        Input::SpaceCamera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
         light.transform.rotation = Quaternion::Rotation(glfwGetTime(), {1, 1, 1});
 
