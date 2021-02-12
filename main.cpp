@@ -93,7 +93,7 @@ int main() {
 
         c.SetVec3("lightPos", light.transform.position);
         c.SetVec3("lightColor", {1, 1, 1});
-        c.SetFloat("lightIntensity", (sin(glfwGetTime()) + 1) / 2 * 10);
+        c.SetFloat("lightIntensity", (sin(glfwGetTime()) + 1) / 2 * 1);
     };
 
     lightSourceProg.uniformUpdater = [&camera, &light](ShaderProg::Uniforms c) {
@@ -103,7 +103,7 @@ int main() {
 
         c.SetVec3("lightPos", light.transform.position);
         c.SetVec3("lightColor", {1, 1, 1});
-        c.SetFloat("lightIntensity", (sin(glfwGetTime()) + 1) / 2 * 10);
+        c.SetFloat("lightIntensity", (sin(glfwGetTime()) + 1) / 2 * 1);
     };
 
     glEnable(GL_DEPTH_TEST);
