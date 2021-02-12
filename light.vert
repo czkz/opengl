@@ -43,7 +43,7 @@ vec4 qInverse(vec4 q) {
 vec4 projx(vec4 v) {
     float fov = 90. * 3.1415 / 180;
     float near = 0.01;
-    float far = 10.;
+    float far = 100.;
     float n = near;
     float f = far;
 
