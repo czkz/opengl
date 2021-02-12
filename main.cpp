@@ -46,11 +46,11 @@ int main() {
 
     SimpleModel cube_model (model_cube_normals::vertices);
     std::vector<Object> cubes;
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1000; i++) {
         using namespace std::numbers;
         cubes.emplace_back(cube_model, Transform{ Quaternion::Rotation(pi * 2 * phi * i, {0, 0, 1}).Rotate({(float) pow(i * 2.f, 0.5f), 0, 0}), Quaternion::Identity() });
     }
-    Object light = { cube_model, Transform{ {2, 2, 2}, Quaternion::Identity(), 0.1 } };
+    Object light = { cube_model, Transform{ {0, 0, 2}, Quaternion::Identity(), 0.1 } };
 
     Texture texture ("container2.png");
     Texture textureSpecular ("container2_specular.png");
@@ -93,6 +93,7 @@ int main() {
 
         c.SetVec3("lightPos", light.transform.position);
         c.SetVec3("lightColor", {1, 1, 1});
+        c.SetFloat("lightIntensity", (sin(glfwGetTime()) + 1) / 2 * 10);
     };
 
     lightSourceProg.uniformUpdater = [&camera, &light](ShaderProg::Uniforms c) {
@@ -102,6 +103,7 @@ int main() {
 
         c.SetVec3("lightPos", light.transform.position);
         c.SetVec3("lightColor", {1, 1, 1});
+        c.SetFloat("lightIntensity", (sin(glfwGetTime()) + 1) / 2 * 10);
     };
 
     glEnable(GL_DEPTH_TEST);
