@@ -5,6 +5,6 @@
 #include "Shader.h"
 
 struct Object {
-    Model& model;
+    SimpleModel& model;
     Transform transform;
 };

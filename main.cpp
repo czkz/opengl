@@ -26,20 +26,28 @@ int main() {
     };
 
     ShaderProg prog = []() {
-        VertexShader v   ("default.vert");
-        FragmentShader f ("default.frag");
+        VertexShader v   ("light.vert");
+        FragmentShader f ("light.frag");
         dp(v.Compile());
         dp(f.Compile());
         return ShaderProg(v, f);
     }();
     dp(prog.Link());
 
-    Model cube_model (model_cube::vertices, model_cube::indices);
-    Object cube = { cube_model, Transform{{0, 0, 0}, Quaternion::Identity()} };
-    Object light = { cube_model, Transform{ {1.5, 1.5, 1.5}, Quaternion::Identity(), 0.5 } };
+    ShaderProg lightSourceProg = []() {
+        VertexShader v   ("lightsource.vert");
+        FragmentShader f ("lightsource.frag");
+        dp(v.Compile());
+        dp(f.Compile());
+        return ShaderProg(v, f);
+    }();
+    dp(lightSourceProg.Link());
+
+    SimpleModel cube_model (model_cube_normals::vertices);
+    Object cube = { cube_model, Transform{ {0, 0, 0}, Quaternion::Identity() } };
+    Object light = { cube_model, Transform{ {2, 2, 2}, Quaternion::Identity(), 0.1 } };
 
     Texture texture ("container.jpg");
-    Texture texture2 ("awesomeface.png");
 
     FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
     // SpaceCamera camera = { {0, 0, 0}, Quaternion::Identity() };
@@ -55,17 +63,32 @@ int main() {
         glfwSetWindowShouldClose(window.handle, true);
     });
 
-    prog.uniformUpdater = [&camera, &texture, &texture2](ShaderProg::Uniforms c) {
+    constexpr Vector3 backgroundColor = {0, 0, 0};
+
+    prog.uniformUpdater = [&camera, &texture, &light](ShaderProg::Uniforms c) {
         c.SetFloat("uTime", glfwGetTime());
         c.SetQuaternion("cameraRotation", camera.getRotation());
         c.SetVec3("cameraPosition", camera.position);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture.handle);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2.handle);
         c.SetInt("texture1", 0);
-        c.SetInt("texture2", 1);
+
+        c.SetVec3("lightPos", light.transform.position);
+        c.SetVec3("lightColor", {1, 1, 1});
+    };
+
+    lightSourceProg.uniformUpdater = [&camera, &texture, &light](ShaderProg::Uniforms c) {
+        c.SetFloat("uTime", glfwGetTime());
+        c.SetQuaternion("cameraRotation", camera.getRotation());
+        c.SetVec3("cameraPosition", camera.position);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture.handle);
+        c.SetInt("texture1", 0);
+
+        c.SetVec3("lightPos", light.transform.position);
+        c.SetVec3("lightColor", {1, 1, 1});
     };
 
     glEnable(GL_DEPTH_TEST);
@@ -75,21 +98,21 @@ int main() {
         Input::Application::onTick(window.handle);
         Input::Camera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
-        light.transform.rotation = Quaternion::Rotation(glfwGetTime(), {1, 1, 1});
-
-        prog.UpdateUniformsAndUse();
+        cube.transform.rotation = Quaternion::Rotation(glfwGetTime(), {0, 0, 1});
 
         // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClearColor(1., 1., 1., 1.);
+        glClearColor(backgroundColor.x * 255, backgroundColor.y * 255, backgroundColor.z * 255, 1.);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         {
             VAO_lock lock;
-            // prog.Use();  // Already in UpdateUniformsAndUse()
+
+            prog.UpdateUniformsAndUse();
             cube.transform.SetUniforms(prog.GetUniforms());
             cube.model.Draw(lock);
 
-            light.transform.SetUniforms(prog.GetUniforms());
+            lightSourceProg.UpdateUniformsAndUse();
+            light.transform.SetUniforms(lightSourceProg.GetUniforms());
             light.model.Draw(lock);
         }
 

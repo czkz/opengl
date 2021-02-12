@@ -4,19 +4,6 @@
 #include <span>
 #include <functional>
 
-struct vertex {
-    Vector3 pos;
-    Vector3 color;
-    Vector2 texCoord;
-
-    static size_t registerAttributes() {
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) 0                   );
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (3 * sizeof(float)) );
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)) );
-        return 3;
-    }
-};
-
 class BufferObject {
     size_t last_n_elems = 0;
 public:
@@ -103,13 +90,13 @@ public:
     }
 };
 
-class Model {
+class IndexedModel {
 public:
     VAO vao;
     VBO vbo;
     EBO ebo;
 
-    Model(const std::ranges::range auto& vertices, const std::ranges::range auto& indices) {
+    IndexedModel(const std::ranges::range auto& vertices, const std::ranges::range auto& indices) {
         vbo.LoadData(vertices);
         ebo.LoadData(indices);
         vao.Configure([this](VAO::Config c) {
@@ -129,34 +116,70 @@ public:
     }
 };
 
+class SimpleModel {
+public:
+    VAO vao;
+    VBO vbo;
+
+    SimpleModel(const std::ranges::range auto& vertices) {
+        vbo.LoadData(vertices);
+        vao.Configure([this](VAO::Config c) {
+            c.Bind(vbo);
+            ///TODO automate, make static
+            size_t nAttrs = std::remove_cvref<decltype(vertices[0])>::type::registerAttributes();
+            for (size_t i = 0; i < nAttrs; i++) {
+                glEnableVertexAttribArray(i);
+            }
+        });
+    }
+
+    void Draw(VAO_lock& lock) {
+        vao.Bind(lock);
+        glDrawArrays(GL_TRIANGLES, 0, vbo.size());
+    }
+};
+
 
 namespace model_cube {
-    constexpr std::array vertices = {
-        vertex { { +1.0f, +1.0f, -1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
-        vertex { { +1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
-        vertex { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-        vertex { { -1.0f, +1.0f, -1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
-        vertex { { +1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
-        vertex { { +1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
-        vertex { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-        vertex { { -1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
-        vertex { { +1.0f, +1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
-        vertex { { +1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
-        vertex { { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-        vertex { { -1.0f, +1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
-        vertex { { +1.0f, +1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
-        vertex { { +1.0f, +1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
-        vertex { { -1.0f, +1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-        vertex { { -1.0f, +1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
-        vertex { { +1.0f, +1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
-        vertex { { +1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
-        vertex { { +1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-        vertex { { +1.0f, +1.0f, -1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
-        vertex { { -1.0f, +1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
-        vertex { { -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
-        vertex { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-        vertex { { -1.0f, +1.0f, -1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
+    struct vertex {
+        Vector3 pos;
+        Vector3 color;
+        Vector2 texCoord;
+
+        static size_t registerAttributes() {
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) 0                   );
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (3 * sizeof(float)) );
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)) );
+            return 3;
+        }
     };
+
+    // constexpr std::array vertices = {
+    //     vertex { { +1.0f, +1.0f, -1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
+    //     vertex { { +1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+    //     vertex { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+    //     vertex { { -1.0f, +1.0f, -1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
+    //     vertex { { +1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
+    //     vertex { { +1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+    //     vertex { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+    //     vertex { { -1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
+    //     vertex { { +1.0f, +1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
+    //     vertex { { +1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+    //     vertex { { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+    //     vertex { { -1.0f, +1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
+    //     vertex { { +1.0f, +1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
+    //     vertex { { +1.0f, +1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+    //     vertex { { -1.0f, +1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+    //     vertex { { -1.0f, +1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
+    //     vertex { { +1.0f, +1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
+    //     vertex { { +1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+    //     vertex { { +1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+    //     vertex { { +1.0f, +1.0f, -1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
+    //     vertex { { -1.0f, +1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
+    //     vertex { { -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+    //     vertex { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+    //     vertex { { -1.0f, +1.0f, -1.0f }, { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
+    // };
 
     constexpr std::array<unsigned int, 36> indices = {
         0,  1,  2,
@@ -171,6 +194,58 @@ namespace model_cube {
         16, 18, 19,
         20, 21, 22,
         20, 22, 23,
+    };
+}
+
+namespace model_cube_normals {
+    struct vertex {
+        Vector3 pos;
+        Vector3 normal;
+
+        static size_t registerAttributes() {
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) 0                   );
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)) );
+            return 2;
+        }
+    };
+
+    constexpr std::array vertices = {
+        vertex { { -0.5f, -0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f } },
+        vertex { { +0.5f, -0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f } }, 
+        vertex { { +0.5f, +0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f } }, 
+        vertex { { +0.5f, +0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f } }, 
+        vertex { { -0.5f, +0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f } }, 
+        vertex { { -0.5f, -0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f } }, 
+        vertex { { -0.5f, -0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f } },
+        vertex { { +0.5f, -0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f } },
+        vertex { { -0.5f, +0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f } },
+        vertex { { -0.5f, -0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f } },
+        vertex { { -0.5f, +0.5f, +0.5f }, { -1.0f, +0.0f, +0.0f } },
+        vertex { { -0.5f, +0.5f, -0.5f }, { -1.0f, +0.0f, +0.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { -1.0f, +0.0f, +0.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { -1.0f, +0.0f, +0.0f } },
+        vertex { { -0.5f, -0.5f, +0.5f }, { -1.0f, +0.0f, +0.0f } },
+        vertex { { -0.5f, +0.5f, +0.5f }, { -1.0f, +0.0f, +0.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +1.0f, +0.0f, +0.0f } },
+        vertex { { +0.5f, +0.5f, -0.5f }, { +1.0f, +0.0f, +0.0f } },
+        vertex { { +0.5f, -0.5f, -0.5f }, { +1.0f, +0.0f, +0.0f } },
+        vertex { { +0.5f, -0.5f, -0.5f }, { +1.0f, +0.0f, +0.0f } },
+        vertex { { +0.5f, -0.5f, +0.5f }, { +1.0f, +0.0f, +0.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +1.0f, +0.0f, +0.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { +0.0f, -1.0f, +0.0f } },
+        vertex { { +0.5f, -0.5f, -0.5f }, { +0.0f, -1.0f, +0.0f } },
+        vertex { { +0.5f, -0.5f, +0.5f }, { +0.0f, -1.0f, +0.0f } },
+        vertex { { +0.5f, -0.5f, +0.5f }, { +0.0f, -1.0f, +0.0f } },
+        vertex { { -0.5f, -0.5f, +0.5f }, { +0.0f, -1.0f, +0.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { +0.0f, -1.0f, +0.0f } },
+        vertex { { -0.5f, +0.5f, -0.5f }, { +0.0f, +1.0f, +0.0f } },
+        vertex { { +0.5f, +0.5f, -0.5f }, { +0.0f, +1.0f, +0.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +0.0f, +1.0f, +0.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +0.0f, +1.0f, +0.0f } },
+        vertex { { -0.5f, +0.5f, +0.5f }, { +0.0f, +1.0f, +0.0f } },
+        vertex { { -0.5f, +0.5f, -0.5f }, { +0.0f, +1.0f, +0.0f } },
     };
 }
 

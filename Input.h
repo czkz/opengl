@@ -41,7 +41,6 @@ namespace Input {
         if (glfwGetKey(window, GLFW_KEY_LEFT))  { v.z += 1; }
         if (glfwGetKey(window, GLFW_KEY_Q))     { v.y -= 1; }
         if (glfwGetKey(window, GLFW_KEY_E))     { v.y += 1; }
-        if (v) { v.Normalize(); }
         return v;
     }
 
