@@ -47,7 +47,9 @@ int main() {
     Object cube = { cube_model, Transform{ {0, 0, 0}, Quaternion::Identity() } };
     Object light = { cube_model, Transform{ {2, 2, 2}, Quaternion::Identity(), 0.1 } };
 
-    Texture texture ("container.jpg");
+    Texture texture ("container2.png");
+    Texture textureSpecular ("container2_specular.png");
+    Texture textureEmission ("matrix.jpg");
 
     FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
     // SpaceCamera camera = { {0, 0, 0}, Quaternion::Identity() };
@@ -65,27 +67,33 @@ int main() {
 
     constexpr Vector3 backgroundColor = {0, 0, 0};
 
-    prog.uniformUpdater = [&camera, &texture, &light](ShaderProg::Uniforms c) {
+    prog.uniformUpdater = [&](ShaderProg::Uniforms c) {
         c.SetFloat("uTime", glfwGetTime());
         c.SetQuaternion("cameraRotation", camera.getRotation());
         c.SetVec3("cameraPosition", camera.position);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture.handle);
-        c.SetInt("texture1", 0);
+        c.SetInt("material.diffuse", 0);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, textureSpecular.handle);
+        c.SetInt("material.specular", 1);
+
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, textureEmission.handle);
+        c.SetInt("material.emission", 2);
+
+        c.SetFloat("material.shininess", 32);
 
         c.SetVec3("lightPos", light.transform.position);
         c.SetVec3("lightColor", {1, 1, 1});
     };
 
-    lightSourceProg.uniformUpdater = [&camera, &texture, &light](ShaderProg::Uniforms c) {
+    lightSourceProg.uniformUpdater = [&camera, &light](ShaderProg::Uniforms c) {
         c.SetFloat("uTime", glfwGetTime());
         c.SetQuaternion("cameraRotation", camera.getRotation());
         c.SetVec3("cameraPosition", camera.position);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.handle);
-        c.SetInt("texture1", 0);
 
         c.SetVec3("lightPos", light.transform.position);
         c.SetVec3("lightColor", {1, 1, 1});
@@ -98,7 +106,7 @@ int main() {
         Input::Application::onTick(window.handle);
         Input::Camera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
-        cube.transform.rotation = Quaternion::Rotation(glfwGetTime(), {0, 0, 1});
+        cube.transform.rotation = Quaternion::Rotation(glfwGetTime(), {0, 0, 1}) * Quaternion::Rotation(M_PI / 2, {1, 0, 0});
 
         // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClearColor(backgroundColor.x * 255, backgroundColor.y * 255, backgroundColor.z * 255, 1.);

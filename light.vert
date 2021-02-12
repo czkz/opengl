@@ -1,9 +1,11 @@
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoord;
   
 out vec3 sPos;
 out vec3 sNormal;
+out vec2 sTexCoord;
 
 uniform vec4 cameraRotation;
 uniform vec3 cameraPosition;
@@ -70,6 +72,7 @@ void main() {
     vec3 p = applyCamera(aPos);
     sPos = applyOnlyWorld(aPos);
     sNormal = qRotate(aNormal, zUp2zBack(objectRotation));
+    sTexCoord = aTexCoord;
 
     gl_Position = projx(vec4(p, 1.));
 }
