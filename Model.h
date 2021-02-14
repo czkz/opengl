@@ -9,6 +9,7 @@ class BufferObject {
 public:
     GLuint handle;
     const GLenum type;
+    /// See https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml
     BufferObject(GLenum type) : type(type) {
         glGenBuffers(1, &handle);
     }
