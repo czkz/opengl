@@ -137,7 +137,7 @@ public:
             if (uniformLocatuion == -1) {
                 return false;
             }
-            glUniform4f(uniformLocatuion, value.s, value.v.x, value.v.y, value.v.z);
+            glUniform4f(uniformLocatuion, value.v.x, value.v.y, value.v.z, value.s);
             return true;
         }
     };

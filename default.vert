@@ -25,12 +25,12 @@ vec3 zUp2zBack(vec3 p) {
 }
 
 vec4 zUp2zBack(vec4 q) {
-    return vec4(q.x, q.y, q.w, -q.z);
+    return vec4(q.x, q.z, -q.y, q.w);
 }
 
 vec3 qRotate(vec3 p, vec4 q) {
-    float qs = q.x;
-    vec3 qv = q.yzw;
+    float qs = q.w;
+    vec3 qv = q.xyz;
     float s12 = -dot(qv, p);
     vec3 v12 = p * qs + cross(qv, p);
     vec3 v3 = -qv;
@@ -38,7 +38,7 @@ vec3 qRotate(vec3 p, vec4 q) {
 }
 
 vec4 qInverse(vec4 q) {
-    return vec4(q.x, -q.yzw);
+    return vec4(-q.xyz, q.w);
 }
 
 // Classic projection matrix
