@@ -27,8 +27,8 @@ int main() {
     };
 
     ShaderProg prog = []() {
-        VertexShader v   ("light.vert");
-        FragmentShader f ("light.frag");
+        VertexShader v   ("default.vert");
+        FragmentShader f ("default.frag");
         dp(v.Compile());
         dp(f.Compile());
         return ShaderProg(v, f);
