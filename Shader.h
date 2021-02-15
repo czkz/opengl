@@ -66,12 +66,14 @@ public:
 
 class VertexShader : public Shader {
 public:
-    explicit VertexShader(const char* file_path) : Shader(file_path, GL_VERTEX_SHADER) { }
+    explicit VertexShader(const char* file_path)
+        : Shader(file_path, GL_VERTEX_SHADER) { }
 };
 
 class FragmentShader : public Shader {
 public:
-    explicit FragmentShader(const char* file_path) : Shader(file_path, GL_FRAGMENT_SHADER) { }
+    explicit FragmentShader(const char* file_path)
+        : Shader(file_path, GL_FRAGMENT_SHADER) { }
 };
 
 class ShaderProg {

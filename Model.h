@@ -21,7 +21,10 @@ public:
 
     size_t size() const { return last_n_elems; }
 
-    BufferObject& LoadData(const std::ranges::range auto& data, GLenum usage = GL_STATIC_DRAW) {
+    BufferObject& LoadData(
+        const std::ranges::range auto& data,
+        GLenum usage = GL_STATIC_DRAW
+    ) {
         std::span _data = data;
         Bind();
         glBufferData(type, _data.size_bytes(), _data.data(), usage);
@@ -97,7 +100,10 @@ public:
     VBO vbo;
     EBO ebo;
 
-    IndexedModel(const std::ranges::range auto& vertices, const std::ranges::range auto& indices) {
+    IndexedModel(
+        const std::ranges::range auto& vertices,
+        const std::ranges::range auto& indices
+    ) {
         vbo.LoadData(vertices);
         ebo.LoadData(indices);
         vao.Configure([this](VAO::Config c) {

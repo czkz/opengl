@@ -14,7 +14,9 @@ class Texture {
                 stbi_set_flip_vertically_on_load(true);
                 data = stbi_load(filename, &width, &height, &nrChannels, 0);
                 if (data == nullptr) {
-                    throw std::runtime_error(std::string("Failed to load texture ") + filename);
+                    throw std::runtime_error(
+                        std::string("Failed to load texture ") + filename
+                    );
                 }
             }
         ~stbi_data() { stbi_image_free(data); };
@@ -27,7 +29,7 @@ class Texture {
             case 4: return GL_RGBA;
         }
         throw std::runtime_error(
-            std::string("stbi returned unexpected nrChannels: ") + std::to_string(nrChannels)
+            "stbi returned unexpected nrChannels: " + std::to_string(nrChannels)
         );
     }
 public:

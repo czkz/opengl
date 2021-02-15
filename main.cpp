@@ -48,7 +48,15 @@ int main() {
     std::vector<Object> cubes;
     for (int i = 0; i < 1000; i++) {
         using namespace std::numbers;
-        cubes.emplace_back(cube_model, Transform{ Quaternion::Rotation(pi * 2 * phi * i, {0, 0, 1}).Rotate({(float) pow(i * 2.f, 0.5f), 0, 0}), Quaternion::Identity() });
+        cubes.emplace_back(
+            cube_model,
+            Transform {
+                Quaternion::Rotation( pi * 2 * phi * i, {0, 0, 1}).Rotate(
+                    {(float) pow(i * 2.f, 0.5f), 0, 0}
+                ),
+                Quaternion::Identity()
+            }
+        );
     }
     Object light = { cube_model, Transform{ {0, 0, 2}, Quaternion::Identity(), 0.1 } };
 
@@ -114,11 +122,18 @@ int main() {
         Input::Camera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
         for (auto& cube : cubes) {
-            cube.transform.rotation = Quaternion::Rotation(glfwGetTime() + cube.transform.position.x, {0, 0, 1}) * Quaternion::Rotation(M_PI / 2, {1, 0, 0});
+            cube.transform.rotation = Quaternion::Rotation(
+                glfwGetTime() + cube.transform.position.x, {0, 0, 1}
+            ) * Quaternion::Rotation(M_PI / 2, {1, 0, 0});
         }
 
         // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClearColor(backgroundColor.x * 255, backgroundColor.y * 255, backgroundColor.z * 255, 1.);
+        glClearColor(
+            backgroundColor.x * 255,
+            backgroundColor.y * 255,
+            backgroundColor.z * 255,
+            1.0
+        );
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         {
