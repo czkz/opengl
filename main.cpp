@@ -115,6 +115,7 @@ int main() {
     };
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
 
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
@@ -134,7 +135,7 @@ int main() {
             backgroundColor.z * 255,
             1.0
         );
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         {
             VAO_lock lock;
@@ -145,8 +146,17 @@ int main() {
                 cube.model.Draw(lock);
             }
 
+            glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+            light.transform.SetUniforms(prog.GetUniforms());
+            light.model.Draw(lock);
+
+            glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
             lightSourceProg.UpdateUniformsAndUse();
+            light.transform.scale *= 1.1;
             light.transform.SetUniforms(lightSourceProg.GetUniforms());
+            light.transform.scale /= 1.1;
             light.model.Draw(lock);
         }
 
