@@ -62,9 +62,9 @@ int main() {
     }
     Object light = { cube_model, Transform{ {0, 0, 2}, Quaternion::Identity(), 0.1 } };
 
-    Texture texture ("container2.png");
-    Texture textureSpecular ("container2_specular.png");
-    Texture textureEmission ("matrix.jpg");
+    Texture texture ("textures/container2.png");
+    Texture textureSpecular ("textures/container2_specular.png");
+    Texture textureEmission ("textures/matrix.jpg");
 
     FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
     // SpaceCamera camera = { {0, 0, 0}, Quaternion::Identity() };
