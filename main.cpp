@@ -20,6 +20,7 @@
 const unsigned int windowWidth = 1000;
 const unsigned int windowHeight = 1000;
 
+
 int main() {
     Window window (1000, 1000, "Sample Text");
     window.onSizeChanged = [](int width, int height) {
@@ -45,9 +46,7 @@ int main() {
     dp(lightSourceProg.Link());
 
     SimpleModel cube_model (model_cube_normals::vertices);
-    SimpleModel plane_model (model_plane_normals::vertices);
     std::vector<Object> cubes;
-    Object ground_plane { plane_model, Transform { {0, 0, 0}, Quaternion::Identity(), 10 } };
     for (int i = 0; i < 1000; i++) {
         using namespace std::numbers;
         cubes.emplace_back(
@@ -56,13 +55,14 @@ int main() {
                 Quaternion::Rotation( pi * 2 * phi * i, {0, 0, 1}).Rotate(
                     {(float) pow(i * 2.f, 0.5f), 0, 0.53}
                 ),
-                Quaternion::Identity()
+                Quaternion::Identity(),
+                3
             }
         );
     }
     Object light = { cube_model, Transform{ {0, 0, 2}, Quaternion::Identity(), 0.1 } };
 
-    Texture texture ("textures/container2.png");
+    Texture texture ("textures/grass.png");
     Texture textureSpecular ("textures/container2_specular.png");
     Texture textureEmission ("textures/matrix.jpg");
 
@@ -120,6 +120,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
 
+    VAO_lock lock;
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
         Input::Application::onTick(window.handle);
@@ -141,36 +142,11 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         {
-            VAO_lock lock;
-
             prog.UpdateUniformsAndUse();
             for (auto& cube : cubes) {
                 cube.transform.SetUniforms(prog.GetUniforms());
                 cube.model.Draw(lock);
             }
-
-            lightSourceProg.UpdateUniformsAndUse();
-            glStencilFunc(GL_ALWAYS, 1, 0xFF);
-            glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_REPLACE);
-            glDepthMask(GL_FALSE);
-            ground_plane.transform.SetUniforms(lightSourceProg.GetUniforms());
-            ground_plane.model.Draw(lock);
-            glDepthMask(GL_TRUE);
-
-            prog.UpdateUniformsAndUse();
-            glStencilFunc(GL_EQUAL, 1, 0xFF);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            prog.GetUniforms().SetFloat("colorScale", 0.5);
-            for (auto& cube : cubes) {
-                cube.transform.position.z = -cube.transform.position.z;
-                cube.transform.scale = -cube.transform.scale;
-                cube.transform.SetUniforms(prog.GetUniforms());
-                cube.transform.position.z = -cube.transform.position.z;
-                cube.transform.scale = -cube.transform.scale;
-                cube.model.Draw(lock);
-            }
-            glStencilFunc(GL_ALWAYS, 1, 0xFF);
-            prog.GetUniforms().SetFloat("colorScale", 1);
         }
 
         glfwSwapBuffers(window.handle);
