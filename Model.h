@@ -138,6 +138,7 @@ namespace model_cube_normals {
         }
     };
 
+    [[maybe_unused]]
     constexpr std::array vertices = {
         vertex { { -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f } },
         vertex { {  0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f } },
@@ -192,6 +193,7 @@ namespace model_plane_normals {
         }
     };
 
+    [[maybe_unused]]
     constexpr std::array vertices = {
         vertex { { -0.5f,  0.0f, -0.5f },  { 0.0f,  1.0f,  0.0f },  { 0.0f, 1.0f } },
         vertex { {  0.5f,  0.0f, -0.5f },  { 0.0f,  1.0f,  0.0f },  { 1.0f, 1.0f } },
