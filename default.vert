@@ -1,7 +1,6 @@
 #version 330 core
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
-layout (location = 2) in vec2 aTexCoord;
+layout (location = 1) in vec2 aTexCoord;
   
 out vec3 sPos;
 out vec3 sColor;
@@ -72,7 +71,6 @@ vec4 projxxs(vec4 v) {
 
 void main() {
     sTexCoord = aTexCoord;
-    sColor = aColor;
 
     vec3 p = aPos;
     p = qRotate(p, zUp2zBack(objectRotation));

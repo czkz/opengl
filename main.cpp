@@ -56,13 +56,13 @@ int main() {
                     {(float) pow(i * 2.f, 0.5f), 0, 0.53}
                 ),
                 Quaternion::Identity(),
-                3
+                1
             }
         );
     }
     Object light = { cube_model, Transform{ {0, 0, 2}, Quaternion::Identity(), 0.1 } };
 
-    Texture texture ("textures/grass.png");
+    Texture texture ("textures/container2.png");
     Texture textureSpecular ("textures/container2_specular.png");
     Texture textureEmission ("textures/matrix.jpg");
 
@@ -119,6 +119,7 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
+    glEnable(GL_CULL_FACE);
 
     VAO_lock lock;
     while(!glfwWindowShouldClose(window.handle)) {
