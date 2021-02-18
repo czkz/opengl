@@ -3,21 +3,15 @@
 #include <Vector.h>
 #include <span>
 #include <functional>
+#include "GLObjectHandles.h"
 
 class BufferObject {
+    BufferObjectHandle handle;
     size_t last_n_elems = 0;
 public:
-    GLuint handle;
     const GLenum type;
     /// See https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml
-    BufferObject(GLenum type) : type(type) {
-        glGenBuffers(1, &handle);
-    }
-    ~BufferObject() {
-        glDeleteBuffers(1, &handle);
-    }
-    BufferObject(const BufferObject&) = delete;
-    BufferObject(BufferObject&&) = default;
+    BufferObject(GLenum type) : type(type) { }
 
     size_t size() const { return last_n_elems; }
 
@@ -32,9 +26,9 @@ public:
         return *this;
     }
 
-protected:
+public:
     void Bind() {
-        glBindBuffer(type, handle);
+        glBindBuffer(type, handle.value);
     }
 };
 
@@ -58,39 +52,24 @@ public:
 };
 
 class VAO {
-    GLuint handle;
+    VAOHandle handle;
 public:
-    VAO() {
-        glGenVertexArrays(1, &handle);
-    }
-    VAO(const VAO&) = delete;
-    VAO(VAO&&) = default;
-    ~VAO() {
-        glDeleteVertexArrays(1, &handle);
-    }
-
     class Config {
-        GLuint vao;
-        explicit Config(GLuint vao_handle) : vao(vao_handle) { }
-        friend VAO;
     public:
-        Config(const Config&) = delete;
-        Config(Config&&) = default;
-
         void Bind(BufferObject& bo) {
-            glBindBuffer(bo.type, bo.handle);
+            bo.Bind();
         }
     };
 
     void Configure(const std::function<void(Config)>& config_script) {
         VAO_lock lock;
         Bind(lock);
-        config_script(Config(handle));
+        config_script(Config());
     }
 
     /// VAO_lock is just to make it harder to forget
     void Bind(VAO_lock&) {
-        glBindVertexArray(handle);
+        glBindVertexArray(handle.value);
     }
 };
 
