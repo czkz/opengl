@@ -1,10 +1,9 @@
 #pragma once
-#include <functional>
+#include <memory>
 #include "Transform.h"
 #include "Model.h"
-#include "Shader.h"
 
 struct Object {
-    SimpleModel& model;
+    std::shared_ptr<VAO> vao;
     Transform transform;
 };

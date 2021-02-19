@@ -45,7 +45,16 @@ int main() {
     }();
     dp(lightSourceProg.Link());
 
-    SimpleModel cube_model (model_cube_normals::vertices);
+    auto vbo = VBO(model_cube_normals::vertices);
+    auto cube_model = std::make_shared<VAO> (
+        [&vbo](VAO::Config c) {
+            c.Bind(vbo);
+            size_t nAttrs = model_cube_normals::vertex::registerAttributes();
+            for (size_t i = 0; i < nAttrs; i++) {
+                glEnableVertexAttribArray(i);
+            }
+        }
+    );
     std::vector<Object> cubes;
     for (int i = 0; i < 1000; i++) {
         using namespace std::numbers;
@@ -146,7 +155,8 @@ int main() {
             prog.UpdateUniformsAndUse();
             for (auto& cube : cubes) {
                 cube.transform.SetUniforms(prog.GetUniforms());
-                cube.model.Draw(lock);
+                cube.vao->Bind(lock);
+                glDrawArrays(GL_TRIANGLES, 0, model_cube_normals::vertices.size());
             }
         }
 

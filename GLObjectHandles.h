@@ -4,9 +4,10 @@
 
 
 class GLObjectHandle {
+protected:
+    GLObjectHandle() = default;
 public:
     GLuint value = 0;
-    GLObjectHandle() = default;
     GLObjectHandle(const GLObjectHandle&) = delete;
     GLObjectHandle(GLObjectHandle&&) = default;
     GLObjectHandle& operator=(GLObjectHandle&& other) {
@@ -17,6 +18,7 @@ public:
 
 class BufferObjectHandle : public GLObjectHandle {
 public:
+    BufferObjectHandle(BufferObjectHandle&&) = default;
     BufferObjectHandle() {
         glGenBuffers(1, &value);
     }
@@ -27,6 +29,7 @@ public:
 
 class VAOHandle : public GLObjectHandle {
 public:
+    VAOHandle(VAOHandle&&) = default;
     VAOHandle() {
         glGenVertexArrays(1, &value);
     }

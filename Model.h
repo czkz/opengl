@@ -12,10 +12,17 @@ public:
     const GLenum type;
     /// See https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml
     BufferObject(GLenum type) : type(type) { }
+    BufferObject(BufferObject&&) = default;
+
+    BufferObject(
+        GLenum type,
+        const std::ranges::range auto& data,
+        GLenum usage = GL_STATIC_DRAW
+    ) : BufferObject(type) { LoadData(data, usage); }
 
     size_t size() const { return last_n_elems; }
 
-    BufferObject& LoadData(
+    void LoadData(
         const std::ranges::range auto& data,
         GLenum usage = GL_STATIC_DRAW
     ) {
@@ -23,10 +30,10 @@ public:
         Bind();
         glBufferData(type, _data.size_bytes(), _data.data(), usage);
         last_n_elems = _data.size();
-        return *this;
     }
 
-public:
+protected:
+    friend class VAO;
     void Bind() {
         glBindBuffer(type, handle.value);
     }
@@ -35,10 +42,12 @@ public:
 class VBO : public BufferObject {
 public:
     VBO() : BufferObject(GL_ARRAY_BUFFER) { }
+    VBO(auto&&... args) : BufferObject(GL_ARRAY_BUFFER, args...) { }
 };
 class EBO : public BufferObject {
 public:
     EBO() : BufferObject(GL_ELEMENT_ARRAY_BUFFER) { }
+    EBO(auto&&... args) : BufferObject(GL_ELEMENT_ARRAY_BUFFER, args...) { }
 };
 
 
@@ -61,6 +70,11 @@ public:
         }
     };
 
+    VAO() = default;
+    VAO(const std::function<void(Config)>& config_script) {
+        Configure(config_script);
+    }
+
     void Configure(const std::function<void(Config)>& config_script) {
         VAO_lock lock;
         Bind(lock);
@@ -73,34 +87,6 @@ public:
     }
 };
 
-class IndexedModel {
-public:
-    VAO vao;
-    VBO vbo;
-    EBO ebo;
-
-    IndexedModel(
-        const std::ranges::range auto& vertices,
-        const std::ranges::range auto& indices
-    ) {
-        vbo.LoadData(vertices);
-        ebo.LoadData(indices);
-        vao.Configure([this](VAO::Config c) {
-            c.Bind(ebo);
-            c.Bind(vbo);
-            ///TODO automate, make static
-            size_t nAttrs = std::remove_cvref<decltype(vertices[0])>::type::registerAttributes();
-            for (size_t i = 0; i < nAttrs; i++) {
-                glEnableVertexAttribArray(i);
-            }
-        });
-    }
-
-    void Draw(VAO_lock& lock) {
-        vao.Bind(lock);
-        glDrawElements(GL_TRIANGLES, ebo.size(), GL_UNSIGNED_INT, (void*) 0);
-    }
-};
 
 class SimpleModel {
 public:
