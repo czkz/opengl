@@ -17,13 +17,11 @@
 #include <numbers>
 #include "model_data.h"
 
-// settings
-const unsigned int windowWidth = 1000;
-const unsigned int windowHeight = 1000;
-
-
 int main() {
-    Window window (1000, 1000, "Sample Text");
+    constexpr unsigned int windowWidth = 1000;
+    constexpr unsigned int windowHeight = 1000;
+
+    Window window (windowWidth, windowHeight, "Sample Text");
     window.onSizeChanged = [](int width, int height) {
         glViewport(0, 0, width, height);
     };
@@ -37,15 +35,6 @@ int main() {
     }();
     dp(prog.Link());
 
-    ShaderProg lightSourceProg = []() {
-        VertexShader v   ("lightsource.vert");
-        FragmentShader f ("lightsource.frag");
-        dp(v.Compile());
-        dp(f.Compile());
-        return ShaderProg(v, f);
-    }();
-    dp(lightSourceProg.Link());
-
     auto vbo = VBO(model_cube_normals::vertices);
     auto cube_model = std::make_shared<VAO>();
     {
@@ -57,6 +46,7 @@ int main() {
         }
         cube_model->Unbind();
     };
+
     std::vector<Object> cubes;
     for (int i = 0; i < 1000; i++) {
         using namespace std::numbers;
@@ -71,6 +61,7 @@ int main() {
             }
         );
     }
+
     Object light = { cube_model, Transform{ {0, 0, 2}, Quaternion::Identity(), 0.1 } };
 
     Texture texture ("textures/container2.png");
@@ -115,17 +106,6 @@ int main() {
         c.SetVec3("lightPos", light.transform.position);
         c.SetVec3("lightColor", {1, 1, 1});
         c.SetFloat("lightIntensity", (sin(glfwGetTime()) + 1) / 2 * 1);
-    };
-
-    lightSourceProg.uniformUpdater = [&camera, &light](ShaderProg::Uniforms c) {
-        c.SetFloat("uTime", glfwGetTime());
-        c.SetQuaternion("cameraRotation", camera.getRotation());
-        c.SetVec3("cameraPosition", camera.position);
-
-        c.SetVec3("lightPos", light.transform.position);
-        c.SetVec3("lightColor", {1, 1, 1});
-        // c.SetFloat("lightIntensity", (sin(glfwGetTime()) + 1) / 2 * 1);
-        c.SetFloat("lightIntensity", 0);
     };
 
     glEnable(GL_DEPTH_TEST);
