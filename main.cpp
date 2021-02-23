@@ -46,15 +46,16 @@ int main() {
     dp(lightSourceProg.Link());
 
     auto vbo = VBO(model_cube_normals::vertices);
-    auto cube_model = std::make_shared<VAO> (
-        [&vbo](VAO::Config c) {
-            c.Bind(vbo);
-            size_t nAttrs = model_cube_normals::vertex::registerAttributes();
-            for (size_t i = 0; i < nAttrs; i++) {
-                glEnableVertexAttribArray(i);
-            }
+    auto cube_model = std::make_shared<VAO>();
+    {
+        cube_model->Bind();
+        vbo.Bind();
+        size_t nAttrs = model_cube_normals::vertex::registerAttributes();
+        for (size_t i = 0; i < nAttrs; i++) {
+            glEnableVertexAttribArray(i);
         }
-    );
+        cube_model->Unbind();
+    };
     std::vector<Object> cubes;
     for (int i = 0; i < 1000; i++) {
         using namespace std::numbers;
@@ -130,7 +131,6 @@ int main() {
     glEnable(GL_STENCIL_TEST);
     glEnable(GL_CULL_FACE);
 
-    VAO_lock lock;
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
         Input::Application::onTick(window.handle);
@@ -153,9 +153,9 @@ int main() {
 
         {
             prog.UpdateUniformsAndUse();
+            cube_model->Bind();
             for (auto& cube : cubes) {
                 cube.transform.SetUniforms(prog.GetUniforms());
-                cube.vao->Bind(lock);
                 glDrawArrays(GL_TRIANGLES, 0, model_cube_normals::vertices.size());
             }
         }
@@ -163,6 +163,7 @@ int main() {
         glfwSwapBuffers(window.handle);
         glfwPollEvents();
     }
+    VAO::Unbind();
 
     return 0;
 }

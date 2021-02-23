@@ -32,8 +32,8 @@ public:
         last_n_elems = _data.size();
     }
 
-protected:
-    friend class VAO;
+public:
+    // friend class VAO;
     void Bind() {
         glBindBuffer(type, handle.value);
     }
@@ -51,65 +51,44 @@ public:
 };
 
 
-
-/// Unbinds any VAOs in destructor
-class VAO_lock {
+class VAO {
+    VAOHandle handle;
 public:
-    ~VAO_lock() {
+    VAO() = default;
+
+    /// VAO_lock is just to make it harder to forget
+    void Bind() {
+        glBindVertexArray(handle.value);
+    }
+
+    static void Unbind() {
         glBindVertexArray(0);
     }
 };
 
-class VAO {
-    VAOHandle handle;
-public:
-    class Config {
-    public:
-        void Bind(BufferObject& bo) {
-            bo.Bind();
-        }
-    };
 
-    VAO() = default;
-    VAO(const std::function<void(Config)>& config_script) {
-        Configure(config_script);
-    }
-
-    void Configure(const std::function<void(Config)>& config_script) {
-        VAO_lock lock;
-        Bind(lock);
-        config_script(Config());
-    }
-
-    /// VAO_lock is just to make it harder to forget
-    void Bind(VAO_lock&) {
-        glBindVertexArray(handle.value);
-    }
-};
-
-
-class SimpleModel {
-public:
-    VAO vao;
-    VBO vbo;
-
-    SimpleModel(const std::ranges::range auto& vertices) {
-        vbo.LoadData(vertices);
-        vao.Configure([this](VAO::Config c) {
-            c.Bind(vbo);
-            ///TODO automate, make static
-            size_t nAttrs = std::remove_cvref<decltype(vertices[0])>::type::registerAttributes();
-            for (size_t i = 0; i < nAttrs; i++) {
-                glEnableVertexAttribArray(i);
-            }
-        });
-    }
-
-    void Draw(VAO_lock& lock) {
-        vao.Bind(lock);
-        glDrawArrays(GL_TRIANGLES, 0, vbo.size());
-    }
-};
+// class SimpleModel {
+// public:
+//     VAO vao;
+//     VBO vbo;
+//
+//     SimpleModel(const std::ranges::range auto& vertices) {
+//         vbo.LoadData(vertices);
+//         vao.Configure([this](VAO::Config c) {
+//             c.Bind(vbo);
+//             ///TODO automate, make static
+//             size_t nAttrs = std::remove_cvref<decltype(vertices[0])>::type::registerAttributes();
+//             for (size_t i = 0; i < nAttrs; i++) {
+//                 glEnableVertexAttribArray(i);
+//             }
+//         });
+//     }
+//
+//     void Draw(VAO_lock& lock) {
+//         vao.Bind(lock);
+//         glDrawArrays(GL_TRIANGLES, 0, vbo.size());
+//     }
+// };
 
 
 namespace model_cube_normals {
