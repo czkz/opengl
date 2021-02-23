@@ -15,6 +15,7 @@
 #include "KeyboardManager.h"
 #include "Object.h"
 #include <numbers>
+#include "model_data.h"
 
 // settings
 const unsigned int windowWidth = 1000;
