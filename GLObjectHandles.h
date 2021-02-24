@@ -38,3 +38,25 @@ public:
     }
 };
 
+class FramebufferHandle : public GLObjectHandle {
+public:
+    FramebufferHandle(FramebufferHandle&&) = default;
+    FramebufferHandle() {
+        glGenFramebuffers(1, &value);
+    }
+    ~FramebufferHandle() {
+        glDeleteFramebuffers(1, &value);
+    }
+};
+
+class RenderbufferHandle : public GLObjectHandle {
+public:
+    RenderbufferHandle(RenderbufferHandle&&) = default;
+    RenderbufferHandle() {
+        glGenRenderbuffers(1, &value);
+    }
+    ~RenderbufferHandle() {
+        glDeleteRenderbuffers(1, &value);
+    }
+};
+

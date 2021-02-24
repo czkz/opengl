@@ -16,6 +16,7 @@
 #include "Object.h"
 #include <numbers>
 #include "model_data.h"
+#include "Framebuffer.h"
 
 int main() {
     constexpr unsigned int windowWidth = 1000;
@@ -108,6 +109,35 @@ int main() {
         c.SetFloat("lightIntensity", (sin(glfwGetTime()) + 1) / 2 * 1);
     };
 
+    Framebuffer fbo;
+    fbo.Bind();
+    Texture texColorBuffer (windowWidth, windowHeight, GL_RGBA);
+    texColorBuffer.AttachToFramebuffer();
+    dp(Framebuffer::CheckBoundFrameBuffer());
+    Framebuffer::BindDefault();
+
+    VAO screenQuad;
+    VBO screenQuadVbo(model_screen_quad::vertices);
+    {
+        screenQuad.Bind();
+        vbo.Bind();
+        size_t nAttrs = model_screen_quad::vertex::registerAttributes();
+        for (size_t i = 0; i < nAttrs; i++) {
+            glEnableVertexAttribArray(i);
+        }
+        screenQuad.Unbind();
+    }
+
+    ShaderProg ppProg = []() {
+        VertexShader v   ("postprocessing.vert");
+        FragmentShader f ("postprocessing.frag");
+        dp(v.Compile());
+        dp(f.Compile());
+        return ShaderProg(v, f);
+    }();
+    dp(ppProg.Link());
+
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
     glEnable(GL_CULL_FACE);
@@ -122,6 +152,8 @@ int main() {
                 glfwGetTime() + cube.transform.position.x, {0, 0, 1}
             ) * Quaternion::Rotation(M_PI / 2, {1, 0, 0});
         }
+
+        fbo.Bind();
 
         // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClearColor(
@@ -140,6 +172,11 @@ int main() {
                 glDrawArrays(GL_TRIANGLES, 0, model_cube_normals::vertices.size());
             }
         }
+
+        Framebuffer::BindDefault();
+        screenQuad.Bind();
+        ppProg.Use();
+        glDrawArrays(GL_TRIANGLES, 0, screenQuadVbo.size());
 
         glfwSwapBuffers(window.handle);
         glfwPollEvents();

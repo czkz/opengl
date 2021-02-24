@@ -81,3 +81,22 @@ namespace model_plane_normals {
     };
 }
 
+namespace model_screen_quad {
+    struct vertex {
+        Vector2 pos;
+
+        static size_t registerAttributes() {
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*) 0);
+            return 1;
+        }
+    };
+
+    [[maybe_unused]]
+    constexpr std::array vertices = {
+        vertex { { 0.0f, 0.0f } },
+        vertex { { 1.0f, 0.0f } },
+        vertex { { 0.0f, 1.0f } },
+        vertex { { 1.0f, 1.0f } },
+    };
+}
+

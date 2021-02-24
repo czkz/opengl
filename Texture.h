@@ -55,4 +55,28 @@ public:
         /// TODO test if this does anything
         glGenerateMipmap(GL_TEXTURE_2D);
     }
+    Texture(GLsizei w, GLsizei h, GLenum channels) {
+        glGenTextures(1, &handle);
+        glBindTexture(GL_TEXTURE_2D, handle);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            channels,
+            w,
+            h,
+            0,
+            channels,
+            GL_UNSIGNED_BYTE,
+            nullptr
+        );
+    }
+    ~Texture() {
+        glDeleteTextures(1, &handle);
+    }
+
+    void AttachToFramebuffer() {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, handle, 0);
+    }
 };

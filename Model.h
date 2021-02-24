@@ -2,7 +2,6 @@
 #include <glad/glad.h>
 #include <Vector.h>
 #include <span>
-#include <functional>
 #include "GLObjectHandles.h"
 
 class BufferObject {
