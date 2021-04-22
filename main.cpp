@@ -111,36 +111,48 @@ int main() {
 
     Framebuffer fbo;
     fbo.Bind();
-    Texture texColorBuffer (windowWidth, windowHeight, GL_RGBA);
+    Texture texColorBuffer (windowWidth, windowHeight, GL_RGB);
     texColorBuffer.AttachToFramebuffer();
+
+    unsigned int rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
     dp(Framebuffer::CheckBoundFrameBuffer());
     Framebuffer::BindDefault();
 
-    VAO screenQuad;
-    VBO screenQuadVbo(model_screen_quad::vertices);
-    {
-        screenQuad.Bind();
-        vbo.Bind();
-        size_t nAttrs = model_screen_quad::vertex::registerAttributes();
-        for (size_t i = 0; i < nAttrs; i++) {
-            glEnableVertexAttribArray(i);
-        }
-        screenQuad.Unbind();
-    }
-
-    ShaderProg ppProg = []() {
+    ShaderProg screenShader = []() {
         VertexShader v   ("postprocessing.vert");
         FragmentShader f ("postprocessing.frag");
         dp(v.Compile());
         dp(f.Compile());
         return ShaderProg(v, f);
     }();
-    dp(ppProg.Link());
+    dp(screenShader.Link());
+    screenShader.uniformUpdater = [&](ShaderProg::Uniforms c) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texColorBuffer.handle);
+        c.SetInt("screenTexture", 0);
+    };
 
+
+    auto screenQuadVbo = VBO(model_screen_quad::vertices);
+    auto screenQuad = std::make_shared<VAO>();
+    {
+        screenQuad->Bind();
+        screenQuadVbo.Bind();
+        size_t nAttrs = model_screen_quad::vertex::registerAttributes();
+        for (size_t i = 0; i < nAttrs; i++) {
+            glEnableVertexAttribArray(i);
+        }
+        screenQuad->Unbind();
+    }
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_STENCIL_TEST);
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_STENCIL_TEST);
+    // glEnable(GL_CULL_FACE);
 
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
@@ -156,12 +168,7 @@ int main() {
         fbo.Bind();
 
         // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClearColor(
-            backgroundColor.x,
-            backgroundColor.y,
-            backgroundColor.z,
-            1.0
-        );
+        glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         {
@@ -174,9 +181,12 @@ int main() {
         }
 
         Framebuffer::BindDefault();
-        screenQuad.Bind();
-        ppProg.Use();
-        glDrawArrays(GL_TRIANGLES, 0, screenQuadVbo.size());
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        screenShader.UpdateUniformsAndUse();
+        screenQuad->Bind();
+        // glDisable(GL_DEPTH_TEST);
+        glBindTexture(GL_TEXTURE_2D, texColorBuffer.handle);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glfwSwapBuffers(window.handle);
         glfwPollEvents();

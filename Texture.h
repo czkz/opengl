@@ -58,8 +58,6 @@ public:
     Texture(GLsizei w, GLsizei h, GLenum channels) {
         glGenTextures(1, &handle);
         glBindTexture(GL_TEXTURE_2D, handle);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
@@ -71,6 +69,8 @@ public:
             GL_UNSIGNED_BYTE,
             nullptr
         );
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
     ~Texture() {
         glDeleteTextures(1, &handle);

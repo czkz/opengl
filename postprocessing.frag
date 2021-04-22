@@ -1,10 +1,11 @@
 #version 330 core
 out vec4 FragColor;
   
-in vec2 sTexCoords;
+in vec2 st;
 
 uniform sampler2D screenTexture;
 
 void main() { 
-    FragColor = texture(screenTexture, sTexCoords);
+    FragColor = texture(screenTexture, st);
+    // FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
