@@ -144,7 +144,9 @@ public:
             return true;
         }
 
-        bool SetTexture(const char* name, Texture& value, int index, GLenum target) {
+        bool SetTexture(const char* name, Texture& value,
+                int index, GLenum target = GL_TEXTURE_2D)
+        {
             if (index >= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) {
                 return false;
             }

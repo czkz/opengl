@@ -1,22 +1,15 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "Shader.h"
-#include <Vector.h>
-#include <Quaternion.h>
+
+#include <memory>
+#include <optional>
+
 #include <dbg.h>
-#include "Camera.h"
-#include "FrameCounter.h"
-#include "Texture.h"
+
 #include "Model.h"
-#include "Window.h"
-#include "Input.h"
-#include "KeyboardManager.h"
-#include "Object.h"
-#include <numbers>
-#include "model_data.h"
-#include "Framebuffer.h"
-#include "Renderbuffer.h"
+#include "Shader.h"
+#include "Texture.h"
 
 template <typename T>
 std::pair<std::shared_ptr<VAO>, size_t> make_vao(const T& data) {
@@ -52,24 +45,24 @@ ShaderProg make_prog(const char* base_path) {
     );
 }
 
-struct FboStruct {
-    Framebuffer fbo;
-    Texture color_buffer;
-    std::optional<Texture> depth_stencil_texture;
-};
-__attribute__((always_inline)) inline FboStruct make_fbo(int width, int height) {
-    Framebuffer fbo;
-    Texture texColorBuffer (width, height, GL_RGB);
-    dp(texColorBuffer.handle.value);
-    fbo.Bind();
-    {
-        texColorBuffer.AttachToFramebuffer();
-
-        Renderbuffer rbo (width, height);
-        rbo.AttachToFramebuffer();
-
-        Framebuffer::BindDefault();
-    }
-
-    return FboStruct { std::move(fbo), std::move(texColorBuffer), std::nullopt };
-}
+// struct FboStruct {
+//     Framebuffer fbo;
+//     Texture color_buffer;
+//     std::optional<Texture> depth_stencil_texture;
+// };
+// __attribute__((always_inline)) inline FboStruct make_fbo(int width, int height) {
+//     Framebuffer fbo;
+//     Texture texColorBuffer (width, height, GL_RGB);
+//     dp(texColorBuffer.handle.value);
+//     fbo.Bind();
+//     {
+//         texColorBuffer.AttachToFramebuffer();
+//
+//         Renderbuffer rbo (width, height);
+//         rbo.AttachToFramebuffer();
+//
+//         Framebuffer::BindDefault();
+//     }
+//
+//     return FboStruct { std::move(fbo), std::move(texColorBuffer), std::nullopt };
+// }
