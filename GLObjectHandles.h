@@ -9,7 +9,10 @@ protected:
 public:
     GLuint value = 0;
     GLObjectHandle(const GLObjectHandle&) = delete;
-    GLObjectHandle(GLObjectHandle&&) = default;
+    GLObjectHandle(GLObjectHandle&& other) {
+        value = other.value;
+        other.value = 0;
+    }
     GLObjectHandle& operator=(GLObjectHandle&& other) {
         std::swap(value, other.value);
         return *this;
@@ -71,6 +74,17 @@ public:
     }
     ~TextureHandle() {
         glDeleteTextures(1, &value);
+    }
+};
+
+class ShaderProgHandle : public GLObjectHandle {
+public:
+    ShaderProgHandle(ShaderProgHandle&&) = default;
+    ShaderProgHandle() {
+        value = glCreateProgram();
+    }
+    ~ShaderProgHandle() {
+        glDeleteProgram(value);
     }
 };
 
