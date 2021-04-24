@@ -11,20 +11,24 @@
 #include "Shader.h"
 #include "Texture.h"
 
+struct Mesh {
+    VAO vao;
+    size_t n_verts;
+};
 template <typename T>
-std::pair<std::shared_ptr<VAO>, size_t> make_vao(const T& data) {
-    auto cubeVAO = std::make_shared<VAO>();
+Mesh make_vao(const T& data) {
+    VAO vao;
     {
         auto vbo = VBO(data);
-        cubeVAO->Bind();
+        vao.Bind();
         vbo.Bind();
         size_t nAttrs = T::value_type::registerAttributes();
         for (size_t i = 0; i < nAttrs; i++) {
             glEnableVertexAttribArray(i);
         }
-        cubeVAO->Unbind();
-    };
-    return { cubeVAO, data.size() };
+        VAO::Unbind();
+    }
+    return { std::move(vao), data.size() };
 }
 
 ShaderProg make_prog(const char* vert_path, const char* frag_path) {

@@ -32,7 +32,7 @@ int main() {
         glfwSetWindowShouldClose(window.handle, true);
     });
 
-    auto cubeVAO = make_vao(model_cube_normals::vertices);
+    auto cube_mesh = make_vao(model_cube_normals::vertices);
     std::vector<Transform> cubes;
     for (int i = 0; i < 1000; i++) {
         using namespace std::numbers;
@@ -44,16 +44,8 @@ int main() {
         );
     }
 
-    Texture texture ("textures/container2.png");
+    Texture cube_texture ("textures/container2.png");
     ShaderProg prog = make_prog("shaders/default");
-    prog.uniformUpdater = [&](ShaderProg::Uniforms c) {
-        c.SetFloat("uTime", glfwGetTime());
-        c.SetQuaternion("cameraRotation", camera.getRotation());
-        c.SetVec3("cameraPosition", camera.position);
-
-        c.SetTexture("texture1", texture, 0, GL_TEXTURE_2D);
-        c.SetTexture("texture2", texture, 0, GL_TEXTURE_2D);
-    };
 
     constexpr Vector3 backgroundColor = {0, 0, 0};
     glEnable(GL_CULL_FACE);
@@ -66,20 +58,26 @@ int main() {
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        prog.UpdateUniformsAndUse();
-        cubeVAO.first->Bind();
+        prog.Use();
+        prog.SetFloat("uTime", glfwGetTime());
+        prog.SetQuaternion("cameraRotation", camera.getRotation());
+        prog.SetVec3("cameraPosition", camera.position);
+
+        prog.SetTexture("texture1", cube_texture, 0, GL_TEXTURE_2D);
+
+        cube_mesh.vao.Bind();
         for (auto& cube : cubes) {
             cube.rotation =
                 Quaternion::Rotation(glfwGetTime() + cube.position.x, {0, 0, 1})
                 * Quaternion::Rotation(M_PI / 2, {1, 0, 0});
-            cube.SetUniforms(prog.GetUniforms());
-            glDrawArrays(GL_TRIANGLES, 0, model_cube_normals::vertices.size());
+            cube.SetUniforms(prog);
+            glDrawArrays(GL_TRIANGLES, 0, cube_mesh.n_verts);
         }
+        VAO::Unbind();
 
         glfwSwapBuffers(window.handle);
         glfwPollEvents();
     }
-    VAO::Unbind();
 
     return 0;
 }
