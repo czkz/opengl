@@ -44,6 +44,10 @@ int main() {
         );
     }
 
+    auto pp_fbo = make_fbo(windowWidth, windowHeight);
+    ShaderProg screenShader = make_prog("shaders/postprocessing");
+    auto screenQuad_mesh = make_vao(model_screen_quad::vertices);
+
     Texture cube_texture ("textures/container2.png");
     ShaderProg prog = make_prog("shaders/default");
 
@@ -55,15 +59,15 @@ int main() {
         Input::Application::onTick(window.handle);
         Input::Camera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
-        glEnable(GL_DEPTH_TEST);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
         prog.Use();
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("cameraRotation", camera.getRotation());
         prog.SetVec3("cameraPosition", camera.position);
-
         prog.SetTexture("texture1", cube_texture, 0, GL_TEXTURE_2D);
+
+        pp_fbo.fbo.Bind();
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         cube_mesh.vao.Bind();
         for (auto& cube : cubes) {
@@ -74,6 +78,12 @@ int main() {
             glDrawArrays(GL_TRIANGLES, 0, cube_mesh.n_verts);
         }
         VAO::Unbind();
+
+        Framebuffer::BindDefault();
+        glDisable(GL_DEPTH_TEST);
+        screenShader.SetTexture("screenTexture", pp_fbo.color_buffer, 0, GL_TEXTURE_2D);
+        screenQuad_mesh.vao.Bind();
+        glDrawArrays(GL_TRIANGLES, 0, screenQuad_mesh.n_verts);
 
         glfwSwapBuffers(window.handle);
         glfwPollEvents();

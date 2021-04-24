@@ -27,7 +27,7 @@ class Shader {
     }
 private:
     friend class ShaderProg;
-    GLuint id;
+    GLuint id = 0;
 protected:
     Shader(const char* file_path, GLuint shaderType) {
         id = glCreateShader(shaderType);
@@ -38,7 +38,10 @@ protected:
         glShaderSource(id, 1, &srcData, &srcLen);
     }
     Shader(const Shader&) = delete;
-    Shader(Shader&&) = default;
+    Shader(Shader&& other) {
+        id = other.id;
+        other.id = 0;
+    }
     ~Shader() {
         glDeleteShader(id);
     }

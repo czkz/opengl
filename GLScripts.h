@@ -9,7 +9,8 @@
 
 #include "Model.h"
 #include "Shader.h"
-#include "Texture.h"
+#include "Framebuffer.h"
+#include "Renderbuffer.h"
 
 struct Mesh {
     VAO vao;
@@ -49,24 +50,24 @@ ShaderProg make_prog(const char* base_path) {
     );
 }
 
-// struct FboStruct {
-//     Framebuffer fbo;
-//     Texture color_buffer;
-//     std::optional<Texture> depth_stencil_texture;
-// };
-// __attribute__((always_inline)) inline FboStruct make_fbo(int width, int height) {
-//     Framebuffer fbo;
-//     Texture texColorBuffer (width, height, GL_RGB);
-//     dp(texColorBuffer.handle.value);
-//     fbo.Bind();
-//     {
-//         texColorBuffer.AttachToFramebuffer();
-//
-//         Renderbuffer rbo (width, height);
-//         rbo.AttachToFramebuffer();
-//
-//         Framebuffer::BindDefault();
-//     }
-//
-//     return FboStruct { std::move(fbo), std::move(texColorBuffer), std::nullopt };
-// }
+struct FBOStruct {
+    Framebuffer fbo;
+    Texture color_buffer;
+    std::optional<Texture> depth_stencil_texture;
+};
+FBOStruct make_fbo(int width, int height) {
+    Framebuffer fbo;
+    Texture texColorBuffer (width, height, GL_RGB);
+    dp(texColorBuffer.handle.value);
+    fbo.Bind();
+    {
+        texColorBuffer.AttachToFramebuffer();
+
+        Renderbuffer rbo (width, height);
+        rbo.AttachToFramebuffer();
+
+        Framebuffer::BindDefault();
+    }
+
+    return FBOStruct { std::move(fbo), std::move(texColorBuffer), std::nullopt };
+}
