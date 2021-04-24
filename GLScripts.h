@@ -53,21 +53,40 @@ ShaderProg make_prog(const char* base_path) {
 struct FBOStruct {
     Framebuffer fbo;
     Texture color_buffer;
-    std::optional<Texture> depth_stencil_texture;
+};
+struct FBOStructEx {
+    Framebuffer fbo;
+    Texture color_buffer;
+    Texture depth_stencil_buffer;
 };
 FBOStruct make_fbo(int width, int height) {
     Framebuffer fbo;
-    Texture texColorBuffer (width, height, GL_RGB);
-    dp(texColorBuffer.handle.value);
+    auto color_buffer          = Texture (width, height, GL_RGB);
+    auto depth_stencil_buffer = Renderbuffer (width, height);
+
     fbo.Bind();
-    {
-        texColorBuffer.AttachToFramebuffer();
+    color_buffer.AttachToFramebuffer(GL_COLOR_ATTACHMENT0);
+    depth_stencil_buffer.AttachToFramebuffer();
+    Framebuffer::BindDefault();
 
-        Renderbuffer rbo (width, height);
-        rbo.AttachToFramebuffer();
+    return FBOStruct {
+        std::move(fbo),
+        std::move(color_buffer),
+    };
+}
+FBOStructEx make_fbo_ex(int width, int height) {
+    Framebuffer fbo;
+    auto color_buffer = Texture (width, height, GL_RGB);
+    auto depth_buffer = Texture (width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
 
-        Framebuffer::BindDefault();
-    }
+    fbo.Bind();
+    color_buffer.AttachToFramebuffer(GL_COLOR_ATTACHMENT0);
+    depth_buffer.AttachToFramebuffer(GL_DEPTH_STENCIL_ATTACHMENT);
+    Framebuffer::BindDefault();
 
-    return FBOStruct { std::move(fbo), std::move(texColorBuffer), std::nullopt };
+    return FBOStructEx {
+        std::move(fbo),
+        std::move(color_buffer),
+        std::move(depth_buffer)
+    };
 }

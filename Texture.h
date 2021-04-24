@@ -35,21 +35,22 @@ class Texture {
     }
 public:
     TextureHandle handle;
-    Texture(const char* filename, std::optional<GLenum> channels = std::nullopt) {
+    Texture(const char* filename, std::optional<GLenum> format = std::nullopt) {
         this->Bind(GL_TEXTURE_2D);
         stbi_data img (filename);
-        auto format = channels.value_or(resolveChannels(img.nrChannels));
-        glTexImage2D( GL_TEXTURE_2D, 0, format,
-                img.width, img.height, 0, format, GL_UNSIGNED_BYTE, img.data );
-        /// TODO test if this does anything
-        // glGenerateMipmap(GL_TEXTURE_2D);
+        auto _format = format.value_or(resolveChannels(img.nrChannels));
+        glTexImage2D( GL_TEXTURE_2D, 0, _format,
+                img.width, img.height, 0, _format, GL_UNSIGNED_BYTE, img.data);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        /// TODO test if this does anything
+        // glGenerateMipmap(GL_TEXTURE_2D);
     }
-    Texture(GLsizei w, GLsizei h, GLenum channels) {
+    Texture(GLsizei w, GLsizei h, GLenum format) : Texture(w, h, format, format, GL_UNSIGNED_BYTE) { }
+    Texture(GLsizei w, GLsizei h, GLenum internal_format, GLenum format, GLenum type, unsigned char* data = nullptr) {
         this->Bind(GL_TEXTURE_2D);
-        glTexImage2D( GL_TEXTURE_2D, 0, channels,
-                w, h, 0, channels, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D( GL_TEXTURE_2D, 0, internal_format,
+                w, h, 0, format, type, data);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
@@ -59,8 +60,9 @@ public:
         glBindTexture(target, handle.value);
     }
 
-    void AttachToFramebuffer() {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+    /// @arg attach_type GL_COLOR_ATTACHMENT0, GL_DEPTH_STENCIL_ATTACHMENT, etc.
+    void AttachToFramebuffer(GLenum attach_type) {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, attach_type,
                 GL_TEXTURE_2D, handle.value, 0);
     }
 };
