@@ -94,11 +94,11 @@ namespace model_screen_quad {
     [[maybe_unused]]
     constexpr std::array vertices = {
         vertex { { -1.0f, -1.0f } },
-        vertex { { -1.0f,  1.0f } },
-        vertex { {  1.0f, -1.0f } },
         vertex { {  1.0f, -1.0f } },
         vertex { { -1.0f,  1.0f } },
-        vertex { {  1.0f,  1.0f } }
+        vertex { {  1.0f, -1.0f } },
+        vertex { {  1.0f,  1.0f } },
+        vertex { { -1.0f,  1.0f } },
     };
 }
 

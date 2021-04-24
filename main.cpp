@@ -17,6 +17,7 @@
 #include <numbers>
 #include "model_data.h"
 #include "Framebuffer.h"
+#include "Renderbuffer.h"
 
 int main() {
     constexpr unsigned int windowWidth = 1000;
@@ -36,23 +37,23 @@ int main() {
     }();
     dp(prog.Link());
 
-    auto vbo = VBO(model_cube_normals::vertices);
-    auto cube_model = std::make_shared<VAO>();
+    auto cubeVAO = std::make_shared<VAO>();
     {
-        cube_model->Bind();
+        auto vbo = VBO(model_cube_normals::vertices);
+        cubeVAO->Bind();
         vbo.Bind();
         size_t nAttrs = model_cube_normals::vertex::registerAttributes();
         for (size_t i = 0; i < nAttrs; i++) {
             glEnableVertexAttribArray(i);
         }
-        cube_model->Unbind();
+        cubeVAO->Unbind();
     };
 
     std::vector<Object> cubes;
     for (int i = 0; i < 1000; i++) {
         using namespace std::numbers;
         cubes.emplace_back(
-            cube_model,
+            cubeVAO,
             Transform {
                 Quaternion::Rotation( pi * 2 * phi * i, {0, 0, 1}).Rotate(
                     {(float) pow(i * 2.f, 0.5f), 0, 0.53}
@@ -63,11 +64,7 @@ int main() {
         );
     }
 
-    Object light = { cube_model, Transform{ {0, 0, 2}, Quaternion::Identity(), 0.1 } };
-
     Texture texture ("textures/container2.png");
-    Texture textureSpecular ("textures/container2_specular.png");
-    Texture textureEmission ("textures/matrix.jpg");
 
     FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
     // SpaceCamera camera = { {0, 0, 0}, Quaternion::Identity() };
@@ -92,36 +89,21 @@ int main() {
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture.handle);
-        c.SetInt("material.diffuse", 0);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, textureSpecular.handle);
-        c.SetInt("material.specular", 1);
-
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, textureEmission.handle);
-        c.SetInt("material.emission", 2);
-
-        c.SetFloat("material.shininess", 32);
-
-        c.SetVec3("lightPos", light.transform.position);
-        c.SetVec3("lightColor", {1, 1, 1});
-        c.SetFloat("lightIntensity", (sin(glfwGetTime()) + 1) / 2 * 1);
     };
 
     Framebuffer fbo;
-    fbo.Bind();
     Texture texColorBuffer (windowWidth, windowHeight, GL_RGB);
-    texColorBuffer.AttachToFramebuffer();
+    fbo.Bind();
+    {
+        texColorBuffer.AttachToFramebuffer();
 
-    unsigned int rbo;
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+        Renderbuffer rbo (windowWidth, windowHeight);
+        rbo.AttachToFramebuffer();
 
-    dp(Framebuffer::CheckBoundFrameBuffer());
-    Framebuffer::BindDefault();
+        dp(Framebuffer::CheckBoundFrameBuffer());
+
+        Framebuffer::BindDefault();
+    }
 
     ShaderProg screenShader = []() {
         VertexShader v   ("postprocessing.vert");
@@ -138,21 +120,20 @@ int main() {
     };
 
 
-    auto screenQuadVbo = VBO(model_screen_quad::vertices);
-    auto screenQuad = std::make_shared<VAO>();
+    auto screenQuadVBO = VBO(model_screen_quad::vertices);
+    auto screenQuadVAO = std::make_shared<VAO>();
     {
-        screenQuad->Bind();
-        screenQuadVbo.Bind();
+        screenQuadVAO->Bind();
+        screenQuadVBO.Bind();
         size_t nAttrs = model_screen_quad::vertex::registerAttributes();
         for (size_t i = 0; i < nAttrs; i++) {
             glEnableVertexAttribArray(i);
         }
-        screenQuad->Unbind();
+        screenQuadVAO->Unbind();
     }
 
-    glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_STENCIL_TEST);
-    // glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
+    glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
 
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
@@ -166,14 +147,12 @@ int main() {
         }
 
         fbo.Bind();
-
-        // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
         {
+            glEnable(GL_DEPTH_TEST);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
             prog.UpdateUniformsAndUse();
-            cube_model->Bind();
+            cubeVAO->Bind();
             for (auto& cube : cubes) {
                 cube.transform.SetUniforms(prog.GetUniforms());
                 glDrawArrays(GL_TRIANGLES, 0, model_cube_normals::vertices.size());
@@ -181,12 +160,13 @@ int main() {
         }
 
         Framebuffer::BindDefault();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        screenShader.UpdateUniformsAndUse();
-        screenQuad->Bind();
-        // glDisable(GL_DEPTH_TEST);
-        glBindTexture(GL_TEXTURE_2D, texColorBuffer.handle);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        {
+            glDisable(GL_DEPTH_TEST);
+
+            screenShader.UpdateUniformsAndUse();
+            screenQuadVAO->Bind();
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
 
         glfwSwapBuffers(window.handle);
         glfwPollEvents();
