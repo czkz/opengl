@@ -11,8 +11,11 @@ public:
     GLObjectHandle(const GLObjectHandle&) = delete;
     GLObjectHandle(GLObjectHandle&&) = default;
     GLObjectHandle& operator=(GLObjectHandle&& other) {
-        std::swap(*this, other);
+        std::swap(value, other.value);
         return *this;
+    }
+    ~GLObjectHandle() {
+        value = 0;
     }
 };
 
@@ -57,6 +60,17 @@ public:
     }
     ~RenderbufferHandle() {
         glDeleteRenderbuffers(1, &value);
+    }
+};
+
+class TextureHandle : public GLObjectHandle {
+public:
+    TextureHandle(TextureHandle&&) = default;
+    TextureHandle() {
+        glGenTextures(1, &value);
+    }
+    ~TextureHandle() {
+        glDeleteTextures(1, &value);
     }
 };
 

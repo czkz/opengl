@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <Vector.h>
 #include <Quaternion.h>
+#include "Texture.h"
 
 class Shader {
     static std::string readFile(const char* path) {
@@ -108,38 +109,50 @@ public:
         Uniforms(Uniforms&&) = default;
 
         bool SetFloat(const char* name, float value) {
-            GLint uniformLocatuion = glGetUniformLocation(id, name);
-            if (uniformLocatuion == -1) {
+            GLint uniformLocation = glGetUniformLocation(id, name);
+            if (uniformLocation == -1) {
                 return false;
             }
-            glUniform1f(uniformLocatuion, value);
+            glUniform1f(uniformLocation, value);
             return true;
         }
 
         bool SetInt(const char* name, int value) {
-            GLint uniformLocatuion = glGetUniformLocation(id, name);
-            if (uniformLocatuion == -1) {
+            GLint uniformLocation = glGetUniformLocation(id, name);
+            if (uniformLocation == -1) {
                 return false;
             }
-            glUniform1i(uniformLocatuion, value);
+            glUniform1i(uniformLocation, value);
             return true;
         }
 
         bool SetVec3(const char* name, const Vector3& value) {
-            GLint uniformLocatuion = glGetUniformLocation(id, name);
-            if (uniformLocatuion == -1) {
+            GLint uniformLocation = glGetUniformLocation(id, name);
+            if (uniformLocation == -1) {
                 return false;
             }
-            glUniform3f(uniformLocatuion, value.x, value.y, value.z);
+            glUniform3f(uniformLocation, value.x, value.y, value.z);
             return true;
         }
 
         bool SetQuaternion(const char* name, const Quaternion& value) {
-            GLint uniformLocatuion = glGetUniformLocation(id, name);
-            if (uniformLocatuion == -1) {
+            GLint uniformLocation = glGetUniformLocation(id, name);
+            if (uniformLocation == -1) {
                 return false;
             }
-            glUniform4f(uniformLocatuion, value.v.x, value.v.y, value.v.z, value.s);
+            glUniform4f(uniformLocation, value.v.x, value.v.y, value.v.z, value.s);
+            return true;
+        }
+
+        bool SetTexture(const char* name, Texture& value, int index, GLenum target) {
+            if (index >= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) {
+                return false;
+            }
+            glActiveTexture(GL_TEXTURE0 + index);
+            value.Bind(target);
+            if (!SetInt(name, index)) {
+                return false;
+            }
             return true;
         }
     };

@@ -18,6 +18,7 @@
 #include "model_data.h"
 #include "Framebuffer.h"
 #include "Renderbuffer.h"
+#include "GLScripts.h"
 
 int main() {
     constexpr unsigned int windowWidth = 1000;
@@ -28,40 +29,25 @@ int main() {
         glViewport(0, 0, width, height);
     };
 
-    ShaderProg prog = []() {
-        VertexShader v   ("default.vert");
-        FragmentShader f ("default.frag");
-        dp(v.Compile());
-        dp(f.Compile());
-        return ShaderProg(v, f);
-    }();
-    dp(prog.Link());
+    ShaderProg prog = make_prog("default");
 
-    auto cubeVAO = std::make_shared<VAO>();
-    {
-        auto vbo = VBO(model_cube_normals::vertices);
-        cubeVAO->Bind();
-        vbo.Bind();
-        size_t nAttrs = model_cube_normals::vertex::registerAttributes();
-        for (size_t i = 0; i < nAttrs; i++) {
-            glEnableVertexAttribArray(i);
-        }
-        cubeVAO->Unbind();
-    };
-
+    ///FIXME
+    auto cubeVAO = make_vao(model_cube_normals::vertices);
     std::vector<Object> cubes;
-    for (int i = 0; i < 1000; i++) {
-        using namespace std::numbers;
-        cubes.emplace_back(
-            cubeVAO,
-            Transform {
-                Quaternion::Rotation( pi * 2 * phi * i, {0, 0, 1}).Rotate(
-                    {(float) pow(i * 2.f, 0.5f), 0, 0.53}
-                ),
-                Quaternion::Identity(),
-                1
-            }
-        );
+    {
+        for (int i = 0; i < 1000; i++) {
+            using namespace std::numbers;
+            cubes.emplace_back(
+                cubeVAO.first,
+                Transform {
+                    Quaternion::Rotation( pi * 2 * phi * i, {0, 0, 1} ).Rotate(
+                        {(float) pow(i * 2.f, 0.5f), 0, 0.53}
+                    ),
+                    Quaternion::Identity(),
+                    1
+                }
+            );
+        }
     }
 
     Texture texture ("textures/container2.png");
@@ -87,12 +73,16 @@ int main() {
         c.SetQuaternion("cameraRotation", camera.getRotation());
         c.SetVec3("cameraPosition", camera.position);
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.handle);
+        c.SetTexture("texture1", texture, 0, GL_TEXTURE_2D);
+        c.SetTexture("texture2", texture, 0, GL_TEXTURE_2D);
     };
+
+    // Doesn't work for no reason
+    // auto pp_fbo = make_fbo(windowWidth, windowHeight);
 
     Framebuffer fbo;
     Texture texColorBuffer (windowWidth, windowHeight, GL_RGB);
+    dp(texColorBuffer.handle.value);
     fbo.Bind();
     {
         texColorBuffer.AttachToFramebuffer();
@@ -100,23 +90,14 @@ int main() {
         Renderbuffer rbo (windowWidth, windowHeight);
         rbo.AttachToFramebuffer();
 
-        dp(Framebuffer::CheckBoundFrameBuffer());
-
         Framebuffer::BindDefault();
     }
 
-    ShaderProg screenShader = []() {
-        VertexShader v   ("postprocessing.vert");
-        FragmentShader f ("postprocessing.frag");
-        dp(v.Compile());
-        dp(f.Compile());
-        return ShaderProg(v, f);
-    }();
-    dp(screenShader.Link());
+    auto pp_fbo = FboStruct {std::move(fbo), std::move(texColorBuffer), std::nullopt };
+
+    ShaderProg screenShader = make_prog("postprocessing");
     screenShader.uniformUpdater = [&](ShaderProg::Uniforms c) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texColorBuffer.handle);
-        c.SetInt("screenTexture", 0);
+        c.SetTexture("screenTexture", pp_fbo.color_buffer, 0, GL_TEXTURE_2D);
     };
 
 
@@ -146,13 +127,13 @@ int main() {
             ) * Quaternion::Rotation(M_PI / 2, {1, 0, 0});
         }
 
-        fbo.Bind();
+        pp_fbo.fbo.Bind();
         {
             glEnable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
             prog.UpdateUniformsAndUse();
-            cubeVAO->Bind();
+            cubeVAO.first->Bind();
             for (auto& cube : cubes) {
                 cube.transform.SetUniforms(prog.GetUniforms());
                 glDrawArrays(GL_TRIANGLES, 0, model_cube_normals::vertices.size());
@@ -162,10 +143,11 @@ int main() {
         Framebuffer::BindDefault();
         {
             glDisable(GL_DEPTH_TEST);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
             screenShader.UpdateUniformsAndUse();
             screenQuadVAO->Bind();
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
         }
 
         glfwSwapBuffers(window.handle);
