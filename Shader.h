@@ -8,48 +8,34 @@
 #include "file_utils.h"
 
 class Shader {
-    static std::string getErrorLog(
-        GLuint id,
-        std::function<void(GLuint, GLenum, GLint*)> _glGetShaderiv,
-        std::function<void(GLuint, GLsizei, GLsizei*, GLchar*)> _glGetShaderInfoLog
-    ) {
+    static std::string getErrorLog(GLuint id) {
         GLint success;
-        _glGetShaderiv(id, GL_COMPILE_STATUS, &success);
+        glGetShaderiv(id, GL_COMPILE_STATUS, &success);
         if (success) {
             return "";
         } else {
             GLint logLen;
-            _glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logLen);
+            glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logLen);
             std::string log (logLen, '\0');
-            _glGetShaderInfoLog(id, logLen, nullptr, log.data());
+            glGetShaderInfoLog(id, logLen, nullptr, log.data());
             return log;
         }
     }
 private:
     friend class ShaderProg;
-    GLuint id = 0;
+    ShaderHandle handle;
 protected:
-    Shader(const char* file_path, GLuint shaderType) {
-        id = glCreateShader(shaderType);
-
+    Shader(const char* file_path, GLuint shaderType) : handle(shaderType) {
         std::string src = file_utils::readFile(file_path);
         const char* srcData = src.data();
         const int srcLen = src.size();
-        glShaderSource(id, 1, &srcData, &srcLen);
-    }
-    Shader(const Shader&) = delete;
-    Shader(Shader&& other) {
-        id = other.id;
-        other.id = 0;
-    }
-    ~Shader() {
-        glDeleteShader(id);
+        glShaderSource(handle.value, 1, &srcData, &srcLen);
     }
 public:
     /// @return Empty string on success
     std::string Compile() {
-        glCompileShader(id);
-        return getErrorLog(id, glGetShaderiv, glGetShaderInfoLog);
+        glCompileShader(handle.value);
+        return getErrorLog(handle.value);
     }
 };
 
@@ -69,13 +55,13 @@ class ShaderProg {
     ShaderProgHandle handle;
 public:
     ShaderProg(const VertexShader& v, const FragmentShader& f) {
-        glAttachShader(handle.value, v.id);
-        glAttachShader(handle.value, f.id);
+        glAttachShader(handle.value, v.handle.value);
+        glAttachShader(handle.value, f.handle.value);
     }
 
     std::string Link() {
         glLinkProgram(handle.value);
-        return Shader::getErrorLog(handle.value, glGetProgramiv, glGetProgramInfoLog);
+        return Shader::getErrorLog(handle.value);
     }
 
     void Use() {

@@ -77,6 +77,17 @@ public:
     }
 };
 
+class ShaderHandle : public GLObjectHandle {
+public:
+    ShaderHandle(ShaderHandle&&) = default;
+    ShaderHandle(GLuint shaderType) {
+        value = glCreateShader(shaderType);
+    }
+    ~ShaderHandle() {
+        glDeleteShader(value);
+    }
+};
+
 class ShaderProgHandle : public GLObjectHandle {
 public:
     ShaderProgHandle(ShaderProgHandle&&) = default;
