@@ -25,10 +25,9 @@ private:
     friend class ShaderProg;
     ShaderHandle handle;
 protected:
-    Shader(const char* file_path, GLuint shaderType) : handle(shaderType) {
-        std::string src = file_utils::readFile(file_path);
-        const char* srcData = src.data();
-        const int srcLen = src.size();
+    Shader(std::string_view source, GLuint shaderType) : handle(shaderType) {
+        const char* srcData = source.data();
+        const int srcLen = source.size();
         glShaderSource(handle.value, 1, &srcData, &srcLen);
     }
 public:
@@ -41,14 +40,14 @@ public:
 
 class VertexShader : public Shader {
 public:
-    explicit VertexShader(const char* file_path)
-        : Shader(file_path, GL_VERTEX_SHADER) { }
+    explicit VertexShader(std::string_view source)
+        : Shader(source, GL_VERTEX_SHADER) { }
 };
 
 class FragmentShader : public Shader {
 public:
-    explicit FragmentShader(const char* file_path)
-        : Shader(file_path, GL_FRAGMENT_SHADER) { }
+    explicit FragmentShader(std::string_view source)
+        : Shader(source, GL_FRAGMENT_SHADER) { }
 };
 
 class ShaderProg {

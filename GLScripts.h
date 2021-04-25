@@ -34,8 +34,8 @@ Mesh make_vao(const T& data) {
 
 ShaderProg make_prog(const char* vert_path, const char* frag_path) {
     ShaderProg prog = [&]() {
-        VertexShader v   (vert_path);
-        FragmentShader f (frag_path);
+        VertexShader v   (file_utils::readFile(vert_path));
+        FragmentShader f (file_utils::readFile(frag_path));
         dp(v.Compile());
         dp(f.Compile());
         return ShaderProg(v, f);
