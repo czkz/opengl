@@ -44,7 +44,7 @@ int main() {
         );
     }
 
-    auto pp_fbo = make_fbo(windowWidth, windowHeight);
+    auto postprocessing = make_fbo(windowWidth, windowHeight);
     ShaderProg screenShader = make_prog("shaders/postprocessing");
     auto screenQuad_mesh = make_vao(model_screen_quad::vertices);
 
@@ -65,15 +65,15 @@ int main() {
         prog.SetVec3("cameraPosition", camera.position);
         prog.SetTexture("texture1", cube_texture, 0, GL_TEXTURE_2D);
 
-        pp_fbo.fbo.Bind();
+        postprocessing.fbo.Bind();
         glEnable(GL_DEPTH_TEST);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         cube_mesh.vao.Bind();
         for (auto& cube : cubes) {
             cube.rotation =
                 Quaternion::Rotation(glfwGetTime() + cube.position.x, {0, 0, 1})
-                * Quaternion::Rotation(M_PI / 2, {1, 0, 0});
+                * Quaternion::Rotation(std::numbers::pi / 2, {1, 0, 0});
             cube.SetUniforms(prog);
             glDrawArrays(GL_TRIANGLES, 0, cube_mesh.n_verts);
         }
@@ -81,7 +81,7 @@ int main() {
 
         Framebuffer::BindDefault();
         glDisable(GL_DEPTH_TEST);
-        screenShader.SetTexture("screenTexture", pp_fbo.color_buffer, 0, GL_TEXTURE_2D);
+        screenShader.SetTexture("screenTexture", postprocessing.color_buffer, 0);
         screenQuad_mesh.vao.Bind();
         glDrawArrays(GL_TRIANGLES, 0, screenQuad_mesh.n_verts);
 
