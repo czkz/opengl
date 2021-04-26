@@ -17,7 +17,7 @@ struct Mesh {
     size_t n_verts;
 };
 template <typename T>
-Mesh make_vao(const T& data) {
+Mesh make_mesh(const T& data) {
     VAO vao;
     {
         auto vbo = VBO(data);

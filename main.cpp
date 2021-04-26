@@ -32,7 +32,7 @@ int main() {
         glfwSetWindowShouldClose(window.handle, true);
     });
 
-    auto cube_mesh = make_vao(model_cube_normals::vertices);
+    auto cube_mesh = make_mesh(model_cube_normals::vertices);
     std::vector<Transform> cubes;
     for (int i = 0; i < 1000; i++) {
         using namespace std::numbers;
@@ -46,7 +46,7 @@ int main() {
 
     auto postprocessing = make_fbo(windowWidth, windowHeight);
     ShaderProg screenShader = make_prog("shaders/postprocessing");
-    auto screenQuad_mesh = make_vao(model_screen_quad::vertices);
+    auto screenQuad_mesh = make_mesh(model_screen_quad::vertices);
 
     auto cube_texture = make_texture("textures/container2.png");
     ShaderProg prog = make_prog("shaders/default");
