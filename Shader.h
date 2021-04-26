@@ -67,9 +67,9 @@ public:
         glUseProgram(handle.value);
     }
 
+// Call Use() before setting uniforms!
 public:
     bool SetFloat(const char* name, float value) {
-        Use();
         GLint uniformLocation = glGetUniformLocation(handle.value, name);
         if (uniformLocation == -1) {
             return false;
@@ -79,7 +79,6 @@ public:
     }
 
     bool SetInt(const char* name, int value) {
-        Use();
         GLint uniformLocation = glGetUniformLocation(handle.value, name);
         if (uniformLocation == -1) {
             return false;
@@ -89,7 +88,6 @@ public:
     }
 
     bool SetVec3(const char* name, const Vector3& value) {
-        Use();
         GLint uniformLocation = glGetUniformLocation(handle.value, name);
         if (uniformLocation == -1) {
             return false;
@@ -99,7 +97,6 @@ public:
     }
 
     bool SetQuaternion(const char* name, const Quaternion& value) {
-        Use();
         GLint uniformLocation = glGetUniformLocation(handle.value, name);
         if (uniformLocation == -1) {
             return false;
@@ -111,7 +108,6 @@ public:
     bool SetTexture(const char* name, Texture& value,
             int index, GLenum target = GL_TEXTURE_2D)
     {
-        Use();
         if (index >= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) {
             return false;
         }

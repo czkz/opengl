@@ -81,6 +81,7 @@ int main() {
 
         Framebuffer::BindDefault();
         glDisable(GL_DEPTH_TEST);
+        screenShader.Use();
         screenShader.SetTexture("screenTexture", postprocessing.color_buffer, 0);
         screenQuad_mesh.vao.Bind();
         glDrawArrays(GL_TRIANGLES, 0, screenQuad_mesh.n_verts);
