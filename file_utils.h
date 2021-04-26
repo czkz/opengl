@@ -1,5 +1,6 @@
 #pragma once
 #include "stb_image.h"
+#include <glad/glad.h>
 #include <string>
 #include <fstream>
 
@@ -19,6 +20,18 @@ namespace file_utils {
     }
 
     class stbi_data {
+    public:
+        static GLenum resolveChannels (int nrChannels) {
+            switch (nrChannels) {
+                case 1: return GL_LUMINANCE;
+                case 2: return GL_LUMINANCE_ALPHA;
+                case 3: return GL_RGB;
+                case 4: return GL_RGBA;
+            }
+            throw std::runtime_error(
+                "stbi returned unexpected nrChannels: " + std::to_string(nrChannels)
+            );
+        }
     public:
         int width, height, nrChannels;
         unsigned char* data;

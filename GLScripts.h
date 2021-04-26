@@ -33,20 +33,31 @@ Mesh make_mesh(const T& data) {
 }
 
 Texture make_texture(const char* filename, std::optional<GLenum> format = std::nullopt) {
-    static constexpr auto resolveChannels = [](int nrChannels) -> GLenum {
-        switch (nrChannels) {
-            case 1: return GL_LUMINANCE;
-            case 2: return GL_LUMINANCE_ALPHA;
-            case 3: return GL_RGB;
-            case 4: return GL_RGBA;
-        }
-        throw std::runtime_error(
-            "stbi returned unexpected nrChannels: " + std::to_string(nrChannels)
-        );
-    };
     file_utils::stbi_data img (filename);
-    auto _format = format.value_or(resolveChannels(img.nrChannels));
-    return Texture (img.width, img.height, _format, _format, GL_UNSIGNED_BYTE, img.data);
+    auto _format = format.value_or(file_utils::stbi_data::resolveChannels(img.nrChannels));
+    return Texture ({img.width, img.height, _format, _format, GL_UNSIGNED_BYTE, img.data});
+}
+
+/// base_path must end with a separator, extension must start with a dot:
+/// make_cubemap("textures/skybox/", ".jpg");
+CubemapTexture make_cubemap(const char* base_path, const char* extension, std::optional<GLenum> format = std::nullopt) {
+    CubemapTexture ret;
+    std::array<const char*, 6> directions = {
+        "right",
+        "left",
+        "top",
+        "bottom",
+        "back",
+        "front"
+    };
+    for (size_t i = 0; i < directions.size(); i++) {
+        const std::string filename = std::string(base_path) + directions[i] + extension;
+        file_utils::stbi_data img (filename.c_str());
+        auto _format = format.value_or(file_utils::stbi_data::resolveChannels(img.nrChannels));
+        ret.LoadSide(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                {img.width, img.height, _format, _format, GL_UNSIGNED_BYTE, img.data});
+    }
+    return ret;
 }
 
 ShaderProg make_prog(const char* vert_path, const char* frag_path) {
@@ -78,12 +89,15 @@ struct FBOStructEx {
 };
 FBOStruct make_fbo(int width, int height) {
     Framebuffer fbo;
-    auto color_buffer          = Texture (width, height, GL_RGB);
-    auto depth_stencil_buffer = Renderbuffer (width, height);
+    auto color_buffer = Texture (width, height, GL_RGB);
+    auto depth_buffer = Renderbuffer (width, height);
 
     fbo.Bind();
     color_buffer.AttachToFramebuffer(GL_COLOR_ATTACHMENT0);
-    depth_stencil_buffer.AttachToFramebuffer();
+    depth_buffer.AttachToFramebuffer();
+    
+    color_buffer.SetWrapType(GL_CLAMP_TO_BORDER);
+    color_buffer.SetBorderColor({1, 0, 0});
     Framebuffer::BindDefault();
 
     return FBOStruct {
@@ -94,11 +108,14 @@ FBOStruct make_fbo(int width, int height) {
 FBOStructEx make_fbo_ex(int width, int height) {
     Framebuffer fbo;
     auto color_buffer = Texture (width, height, GL_RGB);
-    auto depth_buffer = Texture (width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
+    auto depth_buffer = Texture ({width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr});
 
     fbo.Bind();
     color_buffer.AttachToFramebuffer(GL_COLOR_ATTACHMENT0);
     depth_buffer.AttachToFramebuffer(GL_DEPTH_STENCIL_ATTACHMENT);
+
+    color_buffer.SetWrapType(GL_CLAMP_TO_BORDER);
+    color_buffer.SetBorderColor({1, 0, 0});
     Framebuffer::BindDefault();
 
     return FBOStructEx {

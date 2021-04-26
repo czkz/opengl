@@ -63,7 +63,7 @@ int main() {
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("cameraRotation", camera.getRotation());
         prog.SetVec3("cameraPosition", camera.position);
-        prog.SetTexture("texture1", cube_texture, 0, GL_TEXTURE_2D);
+        prog.SetTexture("texture1", cube_texture, 0);
 
         postprocessing.fbo.Bind();
         glEnable(GL_DEPTH_TEST);

@@ -105,14 +105,13 @@ public:
         return true;
     }
 
-    bool SetTexture(const char* name, Texture& value,
-            int index, GLenum target = GL_TEXTURE_2D)
-    {
+    template <typename T>
+    bool SetTexture(const char* name, T& value, int index) {
         if (index >= GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) {
             return false;
         }
         glActiveTexture(GL_TEXTURE0 + index);
-        value.Bind(target);
+        value.Bind();
         if (!SetInt(name, index)) {
             return false;
         }
