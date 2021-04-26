@@ -35,8 +35,8 @@ namespace file_utils {
     public:
         int width, height, nrChannels;
         unsigned char* data;
-        stbi_data(const char* filename) {
-                stbi_set_flip_vertically_on_load(true);
+        stbi_data(const char* filename, bool flip = true) {
+                stbi_set_flip_vertically_on_load(flip);
                 data = stbi_load(filename, &width, &height, &nrChannels, 0);
                 if (data == nullptr) {
                     throw std::runtime_error(

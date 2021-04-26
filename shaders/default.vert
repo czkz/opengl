@@ -41,7 +41,7 @@ vec4 qInverse(vec4 q) {
 }
 
 // Classic projection matrix
-vec4 projx(vec4 v) {
+vec4 projx(vec3 v) {
     float fov = 90. * 3.1415 / 180;
     float near = 0.01;
     float far = 100.;
@@ -54,7 +54,7 @@ vec4 projx(vec4 v) {
 }
 
 // Somehow distance-based fov
-vec4 projxxs(vec4 v) {
+vec4 projxxs(vec3 v) {
     float fov = 15. * 3.1415 / 180;
     float near = 0.01;
     float far = 100.;
@@ -80,5 +80,5 @@ void main() {
     p = qRotate(p, zUp2zBack(qInverse(cameraRotation)));
     sPos = p;
 
-    gl_Position = projx(vec4(p, 1.));
+    gl_Position = projx(p);
 }

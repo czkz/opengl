@@ -51,6 +51,10 @@ int main() {
     auto cube_texture = make_texture("textures/container2.png");
     ShaderProg prog = make_prog("shaders/default");
 
+    auto skybox_prog = make_prog("shaders/skybox");
+    auto skybox = make_cubemap("textures/skybox/", ".jpg");
+    auto skyboxCube_mesh = make_mesh(model_skybox_cube::vertices);
+
     constexpr Vector3 backgroundColor = {0, 0, 0};
     glEnable(GL_CULL_FACE);
     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
@@ -59,16 +63,15 @@ int main() {
         Input::Application::onTick(window.handle);
         Input::Camera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
+        postprocessing.fbo.Bind();
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         prog.Use();
         prog.SetFloat("uTime", glfwGetTime());
         prog.SetQuaternion("cameraRotation", camera.getRotation());
         prog.SetVec3("cameraPosition", camera.position);
         prog.SetTexture("texture1", cube_texture, 0);
-
-        postprocessing.fbo.Bind();
-        glEnable(GL_DEPTH_TEST);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         cube_mesh.vao.Bind();
         for (auto& cube : cubes) {
             cube.rotation =
@@ -77,6 +80,15 @@ int main() {
             cube.SetUniforms(prog);
             glDrawArrays(GL_TRIANGLES, 0, cube_mesh.n_verts);
         }
+        VAO::Unbind();
+
+        skybox_prog.Use();
+        skybox_prog.SetQuaternion("cameraRotation", camera.getRotation());
+        skybox_prog.SetTexture("skybox", skybox, 0);
+        skyboxCube_mesh.vao.Bind();
+        glDepthFunc(GL_LEQUAL);
+        glDrawArrays(GL_TRIANGLES, 0, skyboxCube_mesh.n_verts);
+        glDepthFunc(GL_LESS);
         VAO::Unbind();
 
         Framebuffer::BindDefault();

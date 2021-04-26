@@ -102,3 +102,59 @@ namespace model_screen_quad {
     };
 }
 
+namespace model_skybox_cube {
+    struct vertex {
+        Vector3 pos;
+
+        static size_t registerAttributes() {
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0                   );
+            return 1;
+        }
+    };
+
+    [[maybe_unused]]
+    constexpr std::array vertices = {
+        vertex { {-1.0f,  1.0f, -1.0f} },
+        vertex { {-1.0f, -1.0f, -1.0f} },
+        vertex { { 1.0f, -1.0f, -1.0f} },
+        vertex { { 1.0f, -1.0f, -1.0f} },
+        vertex { { 1.0f,  1.0f, -1.0f} },
+        vertex { {-1.0f,  1.0f, -1.0f} },
+
+        vertex { {-1.0f, -1.0f,  1.0f} },
+        vertex { {-1.0f, -1.0f, -1.0f} },
+        vertex { {-1.0f,  1.0f, -1.0f} },
+        vertex { {-1.0f,  1.0f, -1.0f} },
+        vertex { {-1.0f,  1.0f,  1.0f} },
+        vertex { {-1.0f, -1.0f,  1.0f} },
+
+        vertex { { 1.0f, -1.0f, -1.0f} },
+        vertex { { 1.0f, -1.0f,  1.0f} },
+        vertex { { 1.0f,  1.0f,  1.0f} },
+        vertex { { 1.0f,  1.0f,  1.0f} },
+        vertex { { 1.0f,  1.0f, -1.0f} },
+        vertex { { 1.0f, -1.0f, -1.0f} },
+
+        vertex { {-1.0f, -1.0f,  1.0f} },
+        vertex { {-1.0f,  1.0f,  1.0f} },
+        vertex { { 1.0f,  1.0f,  1.0f} },
+        vertex { { 1.0f,  1.0f,  1.0f} },
+        vertex { { 1.0f, -1.0f,  1.0f} },
+        vertex { {-1.0f, -1.0f,  1.0f} },
+
+        vertex { {-1.0f,  1.0f, -1.0f} },
+        vertex { { 1.0f,  1.0f, -1.0f} },
+        vertex { { 1.0f,  1.0f,  1.0f} },
+        vertex { { 1.0f,  1.0f,  1.0f} },
+        vertex { {-1.0f,  1.0f,  1.0f} },
+        vertex { {-1.0f,  1.0f, -1.0f} },
+
+        vertex { {-1.0f, -1.0f, -1.0f} },
+        vertex { {-1.0f, -1.0f,  1.0f} },
+        vertex { { 1.0f, -1.0f, -1.0f} },
+        vertex { { 1.0f, -1.0f, -1.0f} },
+        vertex { {-1.0f, -1.0f,  1.0f} },
+        vertex { { 1.0f, -1.0f,  1.0f} }
+    };
+}
+

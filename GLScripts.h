@@ -42,19 +42,19 @@ Texture make_texture(const char* filename, std::optional<GLenum> format = std::n
 /// make_cubemap("textures/skybox/", ".jpg");
 CubemapTexture make_cubemap(const char* base_path, const char* extension, std::optional<GLenum> format = std::nullopt) {
     CubemapTexture ret;
-    std::array<const char*, 6> directions = {
-        "right",
-        "left",
-        "top",
-        "bottom",
-        "back",
-        "front"
+    std::array<std::pair<GLenum, const char*>, 6> directions = {
+        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_POSITIVE_X, "right" },
+        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, "left" },
+        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_POSITIVE_Y, "top" },
+        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, "bottom" },
+        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_POSITIVE_Z, "back" },
+        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "front" },
     };
     for (size_t i = 0; i < directions.size(); i++) {
-        const std::string filename = std::string(base_path) + directions[i] + extension;
-        file_utils::stbi_data img (filename.c_str());
+        const std::string filename = std::string(base_path) + directions[i].second + extension;
+        file_utils::stbi_data img (filename.c_str(), false);
         auto _format = format.value_or(file_utils::stbi_data::resolveChannels(img.nrChannels));
-        ret.LoadSide(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+        ret.LoadSide(directions[i].first,
                 {img.width, img.height, _format, _format, GL_UNSIGNED_BYTE, img.data});
     }
     return ret;
