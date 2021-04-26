@@ -1,4 +1,5 @@
 #pragma once
+#include "stb_image.h"
 #include <string>
 #include <fstream>
 
@@ -16,4 +17,20 @@ namespace file_utils {
         f.read(ret.data(), size);
         return ret;
     }
+
+    class stbi_data {
+    public:
+        int width, height, nrChannels;
+        unsigned char* data;
+        stbi_data(const char* filename) {
+                stbi_set_flip_vertically_on_load(true);
+                data = stbi_load(filename, &width, &height, &nrChannels, 0);
+                if (data == nullptr) {
+                    throw std::runtime_error(
+                        std::string("Failed to load texture ") + filename
+                    );
+                }
+            }
+        ~stbi_data() { stbi_image_free(data); };
+    };
 }

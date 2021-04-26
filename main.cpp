@@ -48,7 +48,7 @@ int main() {
     ShaderProg screenShader = make_prog("shaders/postprocessing");
     auto screenQuad_mesh = make_vao(model_screen_quad::vertices);
 
-    Texture cube_texture ("textures/container2.png");
+    auto cube_texture = make_texture("textures/container2.png");
     ShaderProg prog = make_prog("shaders/default");
 
     constexpr Vector3 backgroundColor = {0, 0, 0};

@@ -32,6 +32,23 @@ Mesh make_vao(const T& data) {
     return { std::move(vao), data.size() };
 }
 
+Texture make_texture(const char* filename, std::optional<GLenum> format = std::nullopt) {
+    static constexpr auto resolveChannels = [](int nrChannels) -> GLenum {
+        switch (nrChannels) {
+            case 1: return GL_LUMINANCE;
+            case 2: return GL_LUMINANCE_ALPHA;
+            case 3: return GL_RGB;
+            case 4: return GL_RGBA;
+        }
+        throw std::runtime_error(
+            "stbi returned unexpected nrChannels: " + std::to_string(nrChannels)
+        );
+    };
+    file_utils::stbi_data img (filename);
+    auto _format = format.value_or(resolveChannels(img.nrChannels));
+    return Texture (img.width, img.height, _format, _format, GL_UNSIGNED_BYTE, img.data);
+}
+
 ShaderProg make_prog(const char* vert_path, const char* frag_path) {
     ShaderProg prog = [&]() {
         VertexShader v   (file_utils::readFile(vert_path));
