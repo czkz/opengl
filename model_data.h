@@ -3,7 +3,7 @@
 #include <Vector.h>
 #include <array>
 
-namespace model_cube_normals {
+namespace model_cube_textured {
     struct vertex {
         Vector3 pos;
         Vector2 texCoord;
@@ -53,6 +53,59 @@ namespace model_cube_normals {
         vertex { {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f } },
         vertex { { -0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f } },
         vertex { { -0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f } } 
+    };
+}
+
+namespace model_cube_normals {
+    struct vertex {
+        Vector3 pos;
+        Vector3 normal;
+
+        static size_t registerAttributes() {
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) 0                   );
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)) );
+            return 2;
+        }
+    };
+
+    [[maybe_unused]]
+    constexpr std::array vertices = {
+        vertex { { -0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
+        vertex { {  0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
+        vertex { {  0.5f,  0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
+        vertex { {  0.5f,  0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
+        vertex { { -0.5f,  0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
+        vertex { { -0.5f, -0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
+        vertex { {  0.5f, -0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
+        vertex { {  0.5f,  0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
+        vertex { {  0.5f,  0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
+        vertex { { -0.5f,  0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
+        vertex { { -0.5f, -0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
+        vertex { { -0.5f,  0.5f,  0.5f }, { -1.0f,  0.0f,  0.0f } },
+        vertex { { -0.5f,  0.5f, -0.5f }, { -1.0f,  0.0f,  0.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { -1.0f,  0.0f,  0.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { -1.0f,  0.0f,  0.0f } },
+        vertex { { -0.5f, -0.5f,  0.5f }, { -1.0f,  0.0f,  0.0f } },
+        vertex { { -0.5f,  0.5f,  0.5f }, { -1.0f,  0.0f,  0.0f } },
+        vertex { {  0.5f,  0.5f,  0.5f }, {  1.0f,  0.0f,  0.0f } },
+        vertex { {  0.5f,  0.5f, -0.5f }, {  1.0f,  0.0f,  0.0f } },
+        vertex { {  0.5f, -0.5f, -0.5f }, {  1.0f,  0.0f,  0.0f } },
+        vertex { {  0.5f, -0.5f, -0.5f }, {  1.0f,  0.0f,  0.0f } },
+        vertex { {  0.5f, -0.5f,  0.5f }, {  1.0f,  0.0f,  0.0f } },
+        vertex { {  0.5f,  0.5f,  0.5f }, {  1.0f,  0.0f,  0.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f } },
+        vertex { {  0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f } },
+        vertex { {  0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f } },
+        vertex { {  0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f } },
+        vertex { { -0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f } },
+        vertex { { -0.5f,  0.5f, -0.5f }, {  0.0f,  1.0f,  0.0f } },
+        vertex { {  0.5f,  0.5f, -0.5f }, {  0.0f,  1.0f,  0.0f } },
+        vertex { {  0.5f,  0.5f,  0.5f }, {  0.0f,  1.0f,  0.0f } },
+        vertex { {  0.5f,  0.5f,  0.5f }, {  0.0f,  1.0f,  0.0f } },
+        vertex { { -0.5f,  0.5f,  0.5f }, {  0.0f,  1.0f,  0.0f } },
+        vertex { { -0.5f,  0.5f, -0.5f }, {  0.0f,  1.0f,  0.0f } },
     };
 }
 

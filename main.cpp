@@ -32,7 +32,7 @@ int main() {
         glfwSetWindowShouldClose(window.handle, true);
     });
 
-    auto cube_mesh = make_mesh(model_cube_normals::vertices);
+    auto cube_mesh = make_mesh(model_cube_textured::vertices);
     std::vector<Transform> cubes;
     for (int i = 0; i < 1000; i++) {
         using namespace std::numbers;
@@ -43,6 +43,10 @@ int main() {
             1
         );
     }
+
+    auto reflective_prog = make_prog("shaders/reflective");
+    auto plane_mesh = make_mesh(model_plane_normals::vertices);
+    auto plane_transform = Transform { Vector3 {0, 0, 3}, Quaternion::Identity(), 2 };
 
     auto postprocessing = make_fbo(windowWidth, windowHeight);
     ShaderProg screenShader = make_prog("shaders/postprocessing");
@@ -56,7 +60,7 @@ int main() {
     auto skyboxCube_mesh = make_mesh(model_skybox_cube::vertices);
 
     constexpr Vector3 backgroundColor = {0, 0, 0};
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
@@ -72,14 +76,26 @@ int main() {
         prog.SetQuaternion("cameraRotation", camera.getRotation());
         prog.SetVec3("cameraPosition", camera.position);
         prog.SetTexture("texture1", cube_texture, 0);
+        prog.SetTexture("skybox", skybox, 1);
         cube_mesh.vao.Bind();
         for (auto& cube : cubes) {
             cube.rotation =
-                Quaternion::Rotation(glfwGetTime() + cube.position.x, {0, 0, 1})
+                Quaternion::Rotation(glfwGetTime()/10 + cube.position.x, {0, 0, 1})
                 * Quaternion::Rotation(std::numbers::pi / 2, {1, 0, 0});
             cube.SetUniforms(prog);
             glDrawArrays(GL_TRIANGLES, 0, cube_mesh.n_verts);
         }
+        VAO::Unbind();
+
+        reflective_prog.Use();
+        reflective_prog.SetQuaternion("cameraRotation", camera.getRotation());
+        reflective_prog.SetVec3("cameraPosition", camera.position);
+        reflective_prog.SetTexture("skybox", skybox, 1);
+        plane_mesh.vao.Bind();
+        plane_transform.rotation = Quaternion::Rotation(glfwGetTime()/20, {1, 0, 1})
+            * Quaternion::Rotation(glfwGetTime()/15, {0, -1, -1});
+        plane_transform.SetUniforms(reflective_prog);
+        glDrawArrays(GL_TRIANGLES, 0, plane_mesh.n_verts);
         VAO::Unbind();
 
         skybox_prog.Use();
