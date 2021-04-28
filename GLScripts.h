@@ -7,7 +7,7 @@
 
 #include <dbg.h>
 
-#include "Model.h"
+#include "BufferObject.h"
 #include "Shader.h"
 #include "Framebuffer.h"
 #include "Renderbuffer.h"

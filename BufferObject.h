@@ -65,27 +65,3 @@ public:
     }
 };
 
-
-// class SimpleModel {
-// public:
-//     VAO vao;
-//     VBO vbo;
-//
-//     SimpleModel(const std::ranges::range auto& vertices) {
-//         vbo.LoadData(vertices);
-//         vao.Configure([this](VAO::Config c) {
-//             c.Bind(vbo);
-//             ///TODO automate, make static
-//             size_t nAttrs = std::remove_cvref<decltype(vertices[0])>::type::registerAttributes();
-//             for (size_t i = 0; i < nAttrs; i++) {
-//                 glEnableVertexAttribArray(i);
-//             }
-//         });
-//     }
-//
-//     void Draw(VAO_lock& lock) {
-//         vao.Bind(lock);
-//         glDrawArrays(GL_TRIANGLES, 0, vbo.size());
-//     }
-// };
-
