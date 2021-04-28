@@ -1,7 +1,34 @@
 #pragma once
 #include <glad/glad.h>
-#include <Vector.h>
 #include <array>
+#include <Vector.h>
+#include <Quaternion.h>
+
+class VertexResolver {
+    static consteval std::pair<GLint, GLenum> OpenGL_attributeType(int*)        { return std::make_pair(1, GL_INT); }
+    static consteval std::pair<GLint, GLenum> OpenGL_attributeType(float*)      { return std::make_pair(1, GL_FLOAT); }
+    static consteval std::pair<GLint, GLenum> OpenGL_attributeType(Vector3*)    { return std::make_pair(3, GL_FLOAT); }
+    static consteval std::pair<GLint, GLenum> OpenGL_attributeType(Vector2*)    { return std::make_pair(2, GL_FLOAT); }
+    static consteval std::pair<GLint, GLenum> OpenGL_attributeType(Quaternion*) { return std::make_pair(3, GL_FLOAT); }
+
+    template <typename Curr, typename... Ts>
+    static size_t _registerAttributes(int i = 0, size_t bytes = 0) {
+        std::pair<GLint, GLenum> c = OpenGL_attributeType((Curr*) nullptr);
+        size_t knownStride = bytes + sizeof(Curr);
+        if constexpr (sizeof...(Ts) != 0) {
+            knownStride = _registerAttributes<Ts...>(i + 1, knownStride);
+        }
+        glVertexAttribPointer(i, c.first, c.second, GL_FALSE, knownStride, (void*) bytes);
+        return knownStride;
+    }
+
+public:
+    template <typename... Ts>
+    static size_t Register() {
+        _registerAttributes<Ts...>();
+        return sizeof...(Ts);
+    }
+};
 
 namespace model_cube_textured {
     struct vertex {
@@ -9,9 +36,7 @@ namespace model_cube_textured {
         Vector2 texCoord;
 
         static size_t registerAttributes() {
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) 0                   );
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)) );
-            return 2;
+            return VertexResolver::Register<Vector3, Vector2>();
         }
     };
 
@@ -62,9 +87,7 @@ namespace model_cube_normals {
         Vector3 normal;
 
         static size_t registerAttributes() {
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) 0                   );
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)) );
-            return 2;
+            return VertexResolver::Register<Vector3, Vector3>();
         }
     };
 
@@ -116,10 +139,7 @@ namespace model_plane_normals {
         Vector2 texCoord;
 
         static size_t registerAttributes() {
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) 0                   );
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (3 * sizeof(float)) );
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)) );
-            return 3;
+            return VertexResolver::Register<Vector3, Vector3, Vector2>();
         }
     };
 
@@ -139,8 +159,7 @@ namespace model_screen_quad {
         Vector2 pos;
 
         static size_t registerAttributes() {
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*) 0);
-            return 1;
+            return VertexResolver::Register<Vector2>();
         }
     };
 
@@ -160,8 +179,7 @@ namespace model_skybox_cube {
         Vector3 pos;
 
         static size_t registerAttributes() {
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0                   );
-            return 1;
+            return VertexResolver::Register<Vector3>();
         }
     };
 
