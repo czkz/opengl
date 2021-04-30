@@ -67,6 +67,11 @@ public:
         glUseProgram(handle.value);
     }
 
+    void BindUBO(const char* name, GLuint binding_point) {
+        GLuint index = glGetUniformBlockIndex(handle.value, name);
+        glUniformBlockBinding(handle.value, index, binding_point);
+    }
+
 // Call Use() before setting uniforms!
 public:
     bool SetFloat(const char* name, float value) {

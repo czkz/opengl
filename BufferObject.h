@@ -5,6 +5,7 @@
 #include "GLObjectHandles.h"
 
 class BufferObject {
+protected:
     BufferObjectHandle handle;
     size_t last_n_elems = 0;
 public:
@@ -30,6 +31,15 @@ public:
         glBufferData(type, _data.size_bytes(), _data.data(), usage);
         last_n_elems = _data.size();
     }
+    void LoadStruct(
+        const auto& data,
+        GLenum usage
+    ) {
+        std::span _data (&data, 1);
+        Bind();
+        glBufferData(type, _data.size_bytes(), _data.data(), usage);
+        last_n_elems = _data.size();
+    }
 
 public:
     // friend class VAO;
@@ -47,6 +57,15 @@ class EBO : public BufferObject {
 public:
     EBO() : BufferObject(GL_ELEMENT_ARRAY_BUFFER) { }
     EBO(auto&&... args) : BufferObject(GL_ELEMENT_ARRAY_BUFFER, args...) { }
+};
+class UBO : public BufferObject {
+public:
+    UBO() : BufferObject(GL_UNIFORM_BUFFER) { }
+    UBO(auto&&... args) : BufferObject(GL_UNIFORM_BUFFER, args...) { }
+
+    void BindingPoint(GLuint point) {
+        glBindBufferBase(GL_UNIFORM_BUFFER, point, handle.value);
+    }
 };
 
 
