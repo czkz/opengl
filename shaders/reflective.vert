@@ -1,6 +1,5 @@
 #version 330 core
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec2 aTexCoord;
 layout (location = 1) in vec3 aNormal;
   
 out vec3 sWorldPos;
@@ -74,7 +73,6 @@ vec4 projxxs(vec3 v) {
 
 
 void main() {
-    sTexCoord = aTexCoord;
     sWorldNormal = aNormal;
     sWorldNormal = qRotate(sWorldNormal, zUp2zBack(objectRotation));
 
