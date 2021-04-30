@@ -15,7 +15,7 @@
 #include "KeyboardManager.h"
 #include "Window.h"
 
-int main() {
+int main() try {
     constexpr unsigned int windowWidth = 1000;
     constexpr unsigned int windowHeight = 1000;
     Window window (windowWidth, windowHeight, "Sample Text");
@@ -35,7 +35,7 @@ int main() {
 
     auto cube_mesh = make_mesh(model_cube_textured::vertices);
     std::vector<Transform> cubes;
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 0; i++) {
         using namespace std::numbers;
         cubes.emplace_back(
             Quaternion::Rotation( pi * 2 * phi * i, {0, 0, 1} )
@@ -123,5 +123,7 @@ int main() {
     }
 
     return 0;
+} catch (const std::exception& e) {
+    std::cout << e.what() << std::endl;
 }
 

@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <optional>
+#include <sstream>
 
 #include <dbg.h>
 
@@ -64,11 +65,26 @@ ShaderProg make_prog(const char* vert_path, const char* frag_path) {
     ShaderProg prog = [&]() {
         VertexShader v   (file_utils::readFile(vert_path));
         FragmentShader f (file_utils::readFile(frag_path));
-        dp(v.Compile());
-        dp(f.Compile());
+        std::string v_err = v.Compile();
+        std::string f_err = f.Compile();
+        if (!v_err.empty()) {
+            std::ostringstream ss;
+            ss << "In " << vert_path << ":\n" << v_err << '\n';
+            throw std::runtime_error(ss.str());
+        }
+        if (!f_err.empty()) {
+            std::ostringstream ss;
+            ss << "In " << frag_path << ":\n" << f_err << '\n';
+            throw std::runtime_error(ss.str());
+        }
         return ShaderProg(v, f);
     }();
-    dp(prog.Link());
+    std::string prog_err = prog.Link();
+    if (!prog_err.empty()) {
+        std::ostringstream ss;
+        ss << "Linking (" << vert_path << " + " << frag_path << "): " << prog_err << '\n';
+        throw std::runtime_error(ss.str());
+    }
     return prog;
 }
 ShaderProg make_prog(const char* base_path) {
