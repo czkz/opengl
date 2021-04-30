@@ -3,7 +3,11 @@ layout (location = 0) in vec3 aPos;
 
 out vec3 sTexCoords;
 
-uniform vec4 cameraRotation;
+layout (std140) uniform CAMERA {
+    uniform vec4 rotation;
+    uniform vec3 position;
+} camera;
+
 
 vec4 zUp2zBack(vec4 q) {
     return vec4(q.x, q.z, -q.y, q.w);
@@ -31,7 +35,7 @@ vec4 proj_skybox(vec3 v) {
 }
 
 void main() {
-    vec3 p = qRotate(aPos, zUp2zBack(cameraRotation));
+    vec3 p = qRotate(aPos, zUp2zBack(camera.rotation));
     sTexCoords = p;
     gl_Position = proj_skybox(aPos);
 } 

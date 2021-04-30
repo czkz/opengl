@@ -10,8 +10,10 @@ out vec3 sWorldNormal;
 
 uniform float uTime;
 
-uniform vec4 cameraRotation;
-uniform vec3 cameraPosition;
+layout (std140) uniform CAMERA {
+    uniform vec4 rotation;
+    uniform vec3 position;
+} camera;
 
 uniform vec4 objectRotation;
 uniform vec3 objectPosition;
@@ -81,8 +83,8 @@ void main() {
     p *= objectScale;
     p += zUp2zBack(objectPosition);
     sWorldPos = p;
-    p -= zUp2zBack(cameraPosition);
-    p = qRotate(p, zUp2zBack(qInverse(cameraRotation)));
+    p -= zUp2zBack(camera.position);
+    p = qRotate(p, zUp2zBack(qInverse(camera.rotation)));
 
     gl_Position = projx(p);
 }

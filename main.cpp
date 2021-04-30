@@ -6,6 +6,7 @@
 
 #include "GLScripts.h"
 #include "model_data.h"
+#include "UBOScripts.h"
 
 #include "Transform.h"
 #include "Camera.h"
@@ -59,6 +60,12 @@ int main() {
     auto skybox = make_cubemap("textures/skybox/", ".jpg");
     auto skyboxCube_mesh = make_mesh(model_skybox_cube::vertices);
 
+    UBO camera_ubo;
+    camera_ubo.BindingPoint(0);
+    prog.BindUBO("CAMERA", 0);
+    reflective_prog.BindUBO("CAMERA", 0);
+    skybox_prog.BindUBO("CAMERA", 0);
+
     constexpr Vector3 backgroundColor = {0, 0, 0};
     // glEnable(GL_CULL_FACE);
     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
@@ -67,14 +74,14 @@ int main() {
         Input::Application::onTick(window.handle);
         Input::Camera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
 
+        camera_ubo.LoadStruct(UBOStruct::make_camera(camera), GL_DYNAMIC_DRAW);
+
         postprocessing.fbo.Bind();
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         prog.Use();
         prog.SetFloat("uTime", glfwGetTime());
-        prog.SetQuaternion("cameraRotation", camera.getRotation());
-        prog.SetVec3("cameraPosition", camera.position);
         prog.SetTexture("texture1", cube_texture, 0);
         prog.SetTexture("skybox", skybox, 1);
         cube_mesh.vao.Bind();
@@ -88,8 +95,6 @@ int main() {
         VAO::Unbind();
 
         reflective_prog.Use();
-        reflective_prog.SetQuaternion("cameraRotation", camera.getRotation());
-        reflective_prog.SetVec3("cameraPosition", camera.position);
         reflective_prog.SetTexture("skybox", skybox, 1);
         plane_mesh.vao.Bind();
         plane_transform.rotation = Quaternion::Rotation(glfwGetTime()/20, {1, 0, 1})
@@ -99,7 +104,6 @@ int main() {
         VAO::Unbind();
 
         skybox_prog.Use();
-        skybox_prog.SetQuaternion("cameraRotation", camera.getRotation());
         skybox_prog.SetTexture("skybox", skybox, 0);
         skyboxCube_mesh.vao.Bind();
         glDepthFunc(GL_LEQUAL);
