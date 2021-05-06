@@ -32,6 +32,27 @@ Mesh make_mesh(const T& data) {
     }
     return { std::move(vao), data.size() };
 }
+struct MeshEx {
+    VAO vao;
+    size_t n_indices;
+};
+template <typename T1, typename T2>
+MeshEx make_mesh_ex(const T1& vertices, const T2& indices) {
+    VAO vao;
+    {
+        auto vbo = VBO(vertices);
+        auto ebo = EBO(indices);
+        vao.Bind();
+        vbo.Bind();
+        ebo.Bind();
+        size_t nAttrs = T1::value_type::registerAttributes();
+        for (size_t i = 0; i < nAttrs; i++) {
+            glEnableVertexAttribArray(i);
+        }
+        VAO::Unbind();
+    }
+    return { std::move(vao), indices.size() };
+}
 
 Texture make_texture(const char* filename, std::optional<GLenum> format = std::nullopt) {
     file_utils::stbi_data img (filename);

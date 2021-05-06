@@ -7,6 +7,7 @@
 #include "GLScripts.h"
 #include "model_data.h"
 #include "UBOScripts.h"
+#include "assimp.h"
 
 #include "Transform.h"
 #include "Camera.h"
@@ -60,6 +61,14 @@ int main() try {
     auto skybox = make_cubemap("textures/skybox/", ".jpg");
     auto skyboxCube_mesh = make_mesh(model_skybox_cube::vertices);
 
+    auto model_meshes = std::vector<MeshEx>();
+    {
+        auto meshes_ai = assimp::loadModel("textures/test_model/model.obj");
+        for (const auto& e : meshes_ai) {
+            model_meshes.push_back(make_mesh_ex(e.vertices, e.indices));
+        }
+    }
+
     UBO camera_ubo;
     camera_ubo.BindingPoint(0);
     prog.BindUBO("CAMERA", 0);
@@ -100,8 +109,13 @@ int main() try {
         plane_transform.rotation = Quaternion::Rotation(glfwGetTime()/20, {1, 0, 1})
             * Quaternion::Rotation(glfwGetTime()/15, {0, -1, -1});
         plane_transform.SetUniforms(reflective_prog);
-        glDrawArrays(GL_TRIANGLES, 0, plane_mesh.n_verts);
+        // glDrawArrays(GL_TRIANGLES, 0, plane_mesh.n_verts);
         VAO::Unbind();
+
+        for (auto& e : model_meshes) {
+            e.vao.Bind();
+            glDrawElements(GL_TRIANGLES, e.n_indices, GL_UNSIGNED_INT, 0);
+        }
 
         skybox_prog.Use();
         skybox_prog.SetTexture("skybox", skybox, 0);
