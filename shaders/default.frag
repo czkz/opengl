@@ -35,7 +35,7 @@ vec3 phong(vec3 pos, vec3 lightPos, vec3 cameraPos, vec3 normal, vec3 objectColo
     vec3 toLight = lightPos - pos;
     float distMod = attenuation(length(toLight) / lightIntensity);
 
-    float ambientStrengthMod = 0.0;
+    float ambientStrengthMod = 0.1;
     float ambientStrength = ambientStrengthMod * distMod;
     vec3 ambientColor = ambientStrength * objectColor;
 
@@ -47,7 +47,6 @@ vec3 phong(vec3 pos, vec3 lightPos, vec3 cameraPos, vec3 normal, vec3 objectColo
     vec3 toEyeDir = normalize(cameraPos - pos);
     vec3 reflectDir = reflect(-toLightDir, normal);
     float specularStrength = specularStrengthMod * pow(max(0.0, dot(reflectDir, toEyeDir)), material.shininess) * distMod;
-    // float specularStrength = 0.0;
     vec3 specularColor = specularStrength * texture(material.specular, sTexCoord).rgb;
 
     vec3 c = ambientColor + diffuseColor + specularColor;

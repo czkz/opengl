@@ -56,22 +56,6 @@ vec4 projx(vec3 v) {
     return vec4(v.xyz, w);
 }
 
-// Somehow distance-based fov
-vec4 projxxs(vec3 v) {
-    float fov = 15. * 3.1415 / 180;
-    float near = 0.01;
-    float far = 100.;
-    float n = near;
-    float f = far;
-
-    float pr = (-v.z) * (length(v.xyz) - near);
-    float w = (fov/2.) * pr;
-    // v.z = (-v.z - near) / (far - near) * w;
-    v.z = (2*n*f/(f-n)/v.z + (f+n)/(f-n))*w;
-    return vec4(v.xyz, w);
-}
-
-
 void main() {
     sTexCoord = aTexCoord;
     sNormal = qRotate(aNormal, zUp2zBack(objectRotation));
