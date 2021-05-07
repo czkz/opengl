@@ -10,8 +10,7 @@ public:
     GLuint value = 0;
     GLObjectHandle(const GLObjectHandle&) = delete;
     GLObjectHandle(GLObjectHandle&& other) {
-        value = other.value;
-        other.value = 0;
+        std::swap(value, other.value);
     }
     GLObjectHandle& operator=(GLObjectHandle&& other) {
         std::swap(value, other.value);
@@ -25,6 +24,7 @@ public:
 class BufferObjectHandle : public GLObjectHandle {
 public:
     BufferObjectHandle(BufferObjectHandle&&) = default;
+    BufferObjectHandle& operator=(BufferObjectHandle&&) = default;
     BufferObjectHandle() {
         glGenBuffers(1, &value);
     }
@@ -36,6 +36,7 @@ public:
 class VAOHandle : public GLObjectHandle {
 public:
     VAOHandle(VAOHandle&&) = default;
+    VAOHandle& operator=(VAOHandle&&) = default;
     VAOHandle() {
         glGenVertexArrays(1, &value);
     }
@@ -47,6 +48,7 @@ public:
 class FramebufferHandle : public GLObjectHandle {
 public:
     FramebufferHandle(FramebufferHandle&&) = default;
+    FramebufferHandle& operator=(FramebufferHandle&&) = default;
     FramebufferHandle() {
         glGenFramebuffers(1, &value);
     }
@@ -58,6 +60,7 @@ public:
 class RenderbufferHandle : public GLObjectHandle {
 public:
     RenderbufferHandle(RenderbufferHandle&&) = default;
+    RenderbufferHandle& operator=(RenderbufferHandle&&) = default;
     RenderbufferHandle() {
         glGenRenderbuffers(1, &value);
     }
@@ -69,6 +72,7 @@ public:
 class TextureHandle : public GLObjectHandle {
 public:
     TextureHandle(TextureHandle&&) = default;
+    TextureHandle& operator=(TextureHandle&&) = default;
     TextureHandle() {
         glGenTextures(1, &value);
     }
@@ -80,6 +84,7 @@ public:
 class ShaderHandle : public GLObjectHandle {
 public:
     ShaderHandle(ShaderHandle&&) = default;
+    ShaderHandle& operator=(ShaderHandle&&) = default;
     ShaderHandle(GLuint shaderType) {
         value = glCreateShader(shaderType);
     }
@@ -91,6 +96,7 @@ public:
 class ShaderProgHandle : public GLObjectHandle {
 public:
     ShaderProgHandle(ShaderProgHandle&&) = default;
+    ShaderProgHandle& operator=(ShaderProgHandle&&) = default;
     ShaderProgHandle() {
         value = glCreateProgram();
     }

@@ -63,7 +63,7 @@ int main() try {
 
     auto model_meshes = std::vector<MeshEx>();
     {
-        auto meshes_ai = assimp::loadModel("textures/test_model/model.obj");
+        auto meshes_ai = assimp::loadModel("textures/backpack/backpack.obj");
         for (const auto& e : meshes_ai) {
             model_meshes.push_back(make_mesh_ex(e.vertices, e.indices));
         }

@@ -2,8 +2,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
+#include <memory>
 #include <Vector.h>
 #include "model_data.h"
+#include "file_utils.h"
+#include "GLScripts.h"
 #include <dbg.h>
 
 #include <assimp/Importer.hpp>
@@ -22,20 +26,51 @@ namespace assimp {
     };
 
     struct Texture {
-        unsigned int id;
+        std::shared_ptr<::Texture> _texture;
         std::string type;
+        std::string path;
     };
 
     struct Mesh {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
-        std::vector<Texture> textures;
+        std::vector<Texture> textures_diffuse;
+        std::vector<Texture> textures_specular;
     };
 
-    Mesh processMesh(aiMesh* mesh, const aiScene*) {
+    std::map<std::string, std::weak_ptr<::Texture>> texture_cache;
+
+
+    std::vector<Texture> loadMaterialTextures(aiMaterial *mat, std::string_view directory, aiTextureType type, std::string typeName)
+    {
+        std::vector<Texture> textures;
+        for(unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
+            aiString str;
+            mat->GetTexture(type, i, &str);
+            std::string fullPath = std::string(directory) + "/" + str.C_Str();
+            dp(fullPath);
+
+            std::shared_ptr<::Texture> tex_ptr;
+            auto cache_it = texture_cache.find(fullPath);
+            if (cache_it == texture_cache.end()) {
+                tex_ptr = std::make_shared<::Texture>(make_texture(fullPath.c_str()));
+                texture_cache[fullPath] = tex_ptr;
+            } else {
+                tex_ptr = cache_it->second.lock();
+            }
+
+            textures.emplace_back(
+                std::move(tex_ptr),
+                std::move(typeName),
+                std::move(fullPath)
+            );
+        }
+        return textures;
+    }
+
+    Mesh processMesh(aiMesh* mesh, std::string_view directory, const aiScene* scene) {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
-        std::vector<Texture> textures;
 
         for(unsigned int i = 0; i < mesh->mNumVertices; i++) {
             Vertex vertex;
@@ -45,7 +80,7 @@ namespace assimp {
             vertex.normal.x = mesh->mNormals[i].x;
             vertex.normal.y = mesh->mNormals[i].y;
             vertex.normal.z = mesh->mNormals[i].z;
-            // Assimp mesh can contain up to 8 texCoords
+            /// TODO Assimp mesh can contain up to 8 texCoords
             if(mesh->mTextureCoords[0]) {
                 vertex.texCoords.x = mesh->mTextureCoords[0][i].x;
                 vertex.texCoords.y = mesh->mTextureCoords[0][i].y;
@@ -62,10 +97,19 @@ namespace assimp {
             }
         }
         // process material
-        // if(mesh->mMaterialIndex >=??? 0) {
-        // }
+        dp("process material");
+        aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+        std::vector<Texture> diffuseMaps = loadMaterialTextures(material,
+                directory, aiTextureType_DIFFUSE, "texture_diffuse");
+        std::vector<Texture> specularMaps = loadMaterialTextures(material,
+                directory, aiTextureType_SPECULAR, "texture_specular");
 
-        return Mesh { vertices, indices, textures };
+        return Mesh {
+            std::move(vertices),
+            std::move(indices),
+            std::move(diffuseMaps),
+            std::move(specularMaps)
+        };
     }
 
     std::vector<Mesh> loadModel(std::string path) {
@@ -86,7 +130,7 @@ namespace assimp {
         // processNode(scene->mRootNode, scene);
         std::vector<Mesh> ret;
         for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-            ret.push_back(processMesh(scene->mMeshes[i], scene));
+            ret.push_back(processMesh(scene->mMeshes[i], directory, scene));
         }
         return ret;
     }
