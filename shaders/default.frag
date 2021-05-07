@@ -17,7 +17,8 @@ float line(float d) {
 
 void main() {
     vec4 texClr = texture(texture1, sTexCoord);
-    vec4 texClr2 = texture(texture2, sTexCoord);
-    vec3 c = mix(texClr.rgb, texClr2.rgb, 0.5);
+    // vec4 texClr2 = texture(texture2, sTexCoord);
+    // vec3 c = mix(texClr.rgb, texClr2.rgb, 0.5);
+    vec3 c = texClr.rgb;
     FragColor = vec4(c, 1.0f);
 }

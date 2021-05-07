@@ -1,9 +1,10 @@
 #version 330 core
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec2 aTexCoord;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoord;
   
 out vec3 sPos;
-out vec3 sColor;
+out vec3 sNormal;
 out vec2 sTexCoord;
 
 uniform float uTime;
@@ -73,6 +74,7 @@ vec4 projxxs(vec3 v) {
 
 void main() {
     sTexCoord = aTexCoord;
+    sNormal = qRotate(aNormal, zUp2zBack(objectRotation));
 
     vec3 p = aPos;
     p = qRotate(p, zUp2zBack(objectRotation));

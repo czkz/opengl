@@ -107,8 +107,14 @@ int main() try {
 
         for (auto& e : model_meshes) {
             e.vao.Bind();
+            prog.Use();
+            Transform {{0, 0, 0}, Quaternion::Identity()}.SetUniforms(prog);
+            if (!e.textures_diffuse.empty()) {
+                prog.SetTexture("texture1", *e.textures_diffuse[0], 0);
+            }
             glDrawElements(GL_TRIANGLES, e.ebo.size(), GL_UNSIGNED_INT, 0);
         }
+        VAO::Unbind();
 
         skybox_prog.Use();
         skybox_prog.SetTexture("skybox", skybox, 0);
