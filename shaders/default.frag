@@ -2,23 +2,66 @@
 out vec4 FragColor;
 
 in vec3 sPos;
+in vec3 sNormal;
 in vec2 sTexCoord;
 
 uniform float uTime;
-uniform sampler2D texture1;
-uniform sampler2D texture2;
 
+layout (std140) uniform CAMERA {
+    uniform vec4 rotation;
+    uniform vec3 position;
+} camera;
 
-float line(float d) {
-    const float c = 0.001;
-    const float l = 0.01;
-    return smoothstep(-l, -(l-c), d) - smoothstep(l-c, l, d);
+const vec3 lightPos = vec3(10, 10, 10);
+const vec3 lightColor = vec3(1, 1, 1);
+const float lightIntensity = 10;
+
+struct Material {
+    sampler2D diffuse;
+    sampler2D specular;
+    float shininess;
+};
+uniform Material material;
+
+float attenuation(float d) {
+    const float c = 1.0;
+    const float l = 0.045;
+    const float q = 0.0075;
+
+    return 1.0 / (c + l*d + q*d*d);
 }
 
+vec3 phong(vec3 pos, vec3 lightPos, vec3 cameraPos, vec3 normal, vec3 objectColor) {
+    vec3 toLight = lightPos - pos;
+    float distMod = attenuation(length(toLight) / lightIntensity);
+
+    float ambientStrengthMod = 0.0;
+    float ambientStrength = ambientStrengthMod * distMod;
+    vec3 ambientColor = ambientStrength * objectColor;
+
+    vec3 toLightDir = normalize(toLight);
+    float diffuseStrength = max(0.0, dot(toLightDir, normal)) * distMod;
+    vec3 diffuseColor = objectColor * diffuseStrength;
+
+    float specularStrengthMod = 1.0;
+    vec3 toEyeDir = normalize(cameraPos - pos);
+    vec3 reflectDir = reflect(-toLightDir, normal);
+    float specularStrength = specularStrengthMod * pow(max(0.0, dot(reflectDir, toEyeDir)), material.shininess) * distMod;
+    // float specularStrength = 0.0;
+    vec3 specularColor = specularStrength * texture(material.specular, sTexCoord).rgb;
+
+    vec3 c = ambientColor + diffuseColor + specularColor;
+
+    return c;
+}
+
+vec3 zUp2zBack(vec3 p) {
+    return vec3(p.x, p.z, -p.y);
+}
+
+
 void main() {
-    vec4 texClr = texture(texture1, sTexCoord);
-    // vec4 texClr2 = texture(texture2, sTexCoord);
-    // vec3 c = mix(texClr.rgb, texClr2.rgb, 0.5);
-    vec3 c = texClr.rgb;
+    vec3 diffuseColor = texture(material.diffuse, sTexCoord).rgb;
+    vec3 c = phong(sPos, lightPos, zUp2zBack(camera.position), sNormal, diffuseColor);
     FragColor = vec4(c, 1.0f);
 }

@@ -80,9 +80,9 @@ void main() {
     p = qRotate(p, zUp2zBack(objectRotation));
     p *= objectScale;
     p += zUp2zBack(objectPosition);
+    sPos = p;
     p -= zUp2zBack(camera.position);
     p = qRotate(p, zUp2zBack(qInverse(camera.rotation)));
-    sPos = p;
 
     gl_Position = projx(p);
 }

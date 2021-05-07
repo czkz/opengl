@@ -109,20 +109,20 @@ int main() try {
             e.vao.Bind();
             prog.Use();
             Transform {{0, 0, 0}, Quaternion::Identity()}.SetUniforms(prog);
-            if (!e.textures_diffuse.empty()) {
-                prog.SetTexture("texture1", *e.textures_diffuse[0], 0);
-            }
+            prog.SetTexture("material.diffuse", *e.textures_diffuse.at(0), 0);
+            prog.SetTexture("material.specular", *e.textures_specular.at(0), 1);
+            prog.SetFloat("material.shininess", 32);
             glDrawElements(GL_TRIANGLES, e.ebo.size(), GL_UNSIGNED_INT, 0);
         }
         VAO::Unbind();
 
-        skybox_prog.Use();
-        skybox_prog.SetTexture("skybox", skybox, 0);
-        skyboxCube_mesh.vao.Bind();
-        glDepthFunc(GL_LEQUAL);
-        glDrawArrays(GL_TRIANGLES, 0, skyboxCube_mesh.n_verts);
-        glDepthFunc(GL_LESS);
-        VAO::Unbind();
+        // skybox_prog.Use();
+        // skybox_prog.SetTexture("skybox", skybox, 0);
+        // skyboxCube_mesh.vao.Bind();
+        // glDepthFunc(GL_LEQUAL);
+        // glDrawArrays(GL_TRIANGLES, 0, skyboxCube_mesh.n_verts);
+        // glDepthFunc(GL_LESS);
+        // VAO::Unbind();
 
         Framebuffer::BindDefault();
         glDisable(GL_DEPTH_TEST);
