@@ -8,10 +8,12 @@
 
 #include <dbg.h>
 
+#include "model_loader.h"
 #include "BufferObject.h"
-#include "Shader.h"
 #include "Framebuffer.h"
 #include "Renderbuffer.h"
+#include "Shader.h"
+#include "Texture.h"
 
 struct Mesh {
     VAO vao;
@@ -32,29 +34,13 @@ Mesh make_mesh(const T& data) {
     }
     return { std::move(vao), data.size() };
 }
-struct MeshEx {
-    VAO vao;
-    size_t n_indices;
-};
-template <typename T1, typename T2>
-MeshEx make_mesh_ex(const T1& vertices, const T2& indices) {
-    VAO vao;
-    {
-        auto vbo = VBO(vertices);
-        auto ebo = EBO(indices);
-        vao.Bind();
-        vbo.Bind();
-        ebo.Bind();
-        size_t nAttrs = T1::value_type::registerAttributes();
-        for (size_t i = 0; i < nAttrs; i++) {
-            glEnableVertexAttribArray(i);
-        }
-        VAO::Unbind();
-    }
-    return { std::move(vao), indices.size() };
+
+// See MeshEx in assimp.h
+inline std::vector<MeshEx> make_model(std::string path) {
+    return model_loader::loadModel(std::move(path));
 }
 
-Texture make_texture(const char* filename, std::optional<GLenum> format = std::nullopt) {
+inline Texture make_texture(const char* filename, std::optional<GLenum> format = std::nullopt) {
     file_utils::stbi_data img (filename);
     auto _format = format.value_or(file_utils::stbi_data::resolveChannels(img.nrChannels));
     return Texture ({img.width, img.height, _format, _format, GL_UNSIGNED_BYTE, img.data});
@@ -62,7 +48,7 @@ Texture make_texture(const char* filename, std::optional<GLenum> format = std::n
 
 /// base_path must end with a separator, extension must start with a dot:
 /// make_cubemap("textures/skybox/", ".jpg");
-CubemapTexture make_cubemap(const char* base_path, const char* extension, std::optional<GLenum> format = std::nullopt) {
+inline CubemapTexture make_cubemap(const char* base_path, const char* extension, std::optional<GLenum> format = std::nullopt) {
     CubemapTexture ret;
     std::array<std::pair<GLenum, const char*>, 6> directions = {
         std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_POSITIVE_X, "right" },
@@ -82,7 +68,7 @@ CubemapTexture make_cubemap(const char* base_path, const char* extension, std::o
     return ret;
 }
 
-ShaderProg make_prog(const char* vert_path, const char* frag_path) {
+inline ShaderProg make_prog(const char* vert_path, const char* frag_path) {
     ShaderProg prog = [&]() {
         VertexShader v   (file_utils::readFile(vert_path));
         FragmentShader f (file_utils::readFile(frag_path));
@@ -108,7 +94,7 @@ ShaderProg make_prog(const char* vert_path, const char* frag_path) {
     }
     return prog;
 }
-ShaderProg make_prog(const char* base_path) {
+inline ShaderProg make_prog(const char* base_path) {
     return make_prog(
         (base_path + std::string(".vert")).c_str(),
         (base_path + std::string(".frag")).c_str()
@@ -124,7 +110,7 @@ struct FBOStructEx {
     Texture color_buffer;
     Texture depth_stencil_buffer;
 };
-FBOStruct make_fbo(int width, int height) {
+inline FBOStruct make_fbo(int width, int height) {
     Framebuffer fbo;
     auto color_buffer = Texture (width, height, GL_RGB);
     auto depth_buffer = Renderbuffer (width, height);
@@ -142,7 +128,7 @@ FBOStruct make_fbo(int width, int height) {
         std::move(color_buffer),
     };
 }
-FBOStructEx make_fbo_ex(int width, int height) {
+inline FBOStructEx make_fbo_ex(int width, int height) {
     Framebuffer fbo;
     auto color_buffer = Texture (width, height, GL_RGB);
     auto depth_buffer = Texture ({width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr});

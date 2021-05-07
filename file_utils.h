@@ -5,7 +5,7 @@
 #include <fstream>
 
 namespace file_utils {
-    std::string readFile(const char* path) {
+    inline std::string readFile(const char* path) {
         std::ifstream f(path);
         std::string ret;
         if (!f.good()) {

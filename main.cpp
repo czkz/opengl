@@ -7,7 +7,6 @@
 #include "GLScripts.h"
 #include "model_data.h"
 #include "UBOScripts.h"
-#include "assimp.h"
 
 #include "Transform.h"
 #include "Camera.h"
@@ -61,13 +60,7 @@ int main() try {
     auto skybox = make_cubemap("textures/skybox/", ".jpg");
     auto skyboxCube_mesh = make_mesh(model_skybox_cube::vertices);
 
-    auto model_meshes = std::vector<MeshEx>();
-    {
-        auto meshes_ai = assimp::loadModel("textures/backpack/backpack.obj");
-        for (const auto& e : meshes_ai) {
-            model_meshes.push_back(make_mesh_ex(e.vertices, e.indices));
-        }
-    }
+    auto model_meshes = make_model("textures/backpack/backpack.obj");
 
     UBO camera_ubo;
     camera_ubo.BindingPoint(0);
@@ -114,7 +107,7 @@ int main() try {
 
         for (auto& e : model_meshes) {
             e.vao.Bind();
-            glDrawElements(GL_TRIANGLES, e.n_indices, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, e.ebo.size(), GL_UNSIGNED_INT, 0);
         }
 
         skybox_prog.Use();

@@ -12,7 +12,7 @@ subdir('glad')
 
 executable (
   'opengl',
-  'main.cpp', 'stb_image/stb_image.cpp',
+  'main.cpp', 'stb_image/stb_image.cpp', 'model_loader.cpp',
   install : false,
   dependencies : [opengl, glfw, assimp],
   include_directories: [glad_inc, include_directories('../cp')],
