@@ -9,6 +9,8 @@
 #include <dbg.h>
 
 #include "model_loader.h"
+#include "ShaderParser.h"
+
 #include "BufferObject.h"
 #include "Framebuffer.h"
 #include "Renderbuffer.h"
@@ -70,8 +72,8 @@ inline CubemapTexture make_cubemap(const char* base_path, const char* extension,
 
 inline ShaderProg make_prog(const char* vert_path, const char* frag_path) {
     ShaderProg prog = [&]() {
-        VertexShader v   (file_utils::readFile(vert_path));
-        FragmentShader f (file_utils::readFile(frag_path));
+        VertexShader v   (ShaderParser().parse(vert_path));
+        FragmentShader f (ShaderParser().parse(frag_path));
         std::string v_err = v.Compile();
         std::string f_err = f.Compile();
         if (!v_err.empty()) {

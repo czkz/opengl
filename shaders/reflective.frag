@@ -12,10 +12,7 @@ layout (std140) uniform CAMERA {
     uniform vec3 position;
 } camera;
 
-
-vec3 zUp2zBack(vec3 p) {
-    return vec3(p.x, p.z, -p.y);
-}
+##include linalg.glsl
 
 void main() {
     vec3 I = normalize(sWorldPos - zUp2zBack(camera.position));

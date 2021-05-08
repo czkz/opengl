@@ -23,6 +23,8 @@ struct Material {
 };
 uniform Material material;
 
+##include linalg.glsl
+
 float attenuation(float d) {
     const float c = 1.0;
     const float l = 0.045;
@@ -53,11 +55,6 @@ vec3 phong(vec3 pos, vec3 lightPos, vec3 cameraPos, vec3 normal, vec3 objectColo
 
     return c;
 }
-
-vec3 zUp2zBack(vec3 p) {
-    return vec3(p.x, p.z, -p.y);
-}
-
 
 void main() {
     vec3 diffuseColor = texture(material.diffuse, sTexCoord).rgb;

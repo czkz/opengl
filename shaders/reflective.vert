@@ -18,30 +18,7 @@ uniform vec4 objectRotation;
 uniform vec3 objectPosition;
 uniform float objectScale;
 
-float rand(vec2 pos) {
-    return fract(sin(dot(pos, vec2(12.9898,78.233))) * 43758.5453123);
-}
-
-vec3 zUp2zBack(vec3 p) {
-    return vec3(p.x, p.z, -p.y);
-}
-
-vec4 zUp2zBack(vec4 q) {
-    return vec4(q.x, q.z, -q.y, q.w);
-}
-
-vec3 qRotate(vec3 p, vec4 q) {
-    float qs = q.w;
-    vec3 qv = q.xyz;
-    float s12 = -dot(qv, p);
-    vec3 v12 = p * qs + cross(qv, p);
-    vec3 v3 = -qv;
-    return v3 * s12 + v12 * qs + cross(v12, v3);
-}
-
-vec4 qInverse(vec4 q) {
-    return vec4(-q.xyz, q.w);
-}
+##include linalg.glsl
 
 // Classic projection matrix
 vec4 projx(vec3 v) {
@@ -55,22 +32,6 @@ vec4 projx(vec3 v) {
     v.z = (2*n*f/(f-n)/v.z + (f+n)/(f-n))*w;
     return vec4(v.xyz, w);
 }
-
-// Somehow distance-based fov
-vec4 projxxs(vec3 v) {
-    float fov = 15. * 3.1415 / 180;
-    float near = 0.01;
-    float far = 100.;
-    float n = near;
-    float f = far;
-
-    float pr = (-v.z) * (length(v.xyz) - near);
-    float w = (fov/2.) * pr;
-    // v.z = (-v.z - near) / (far - near) * w;
-    v.z = (2*n*f/(f-n)/v.z + (f+n)/(f-n))*w;
-    return vec4(v.xyz, w);
-}
-
 
 void main() {
     sWorldNormal = aNormal;
