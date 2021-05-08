@@ -38,11 +38,11 @@ namespace {
             aiString str;
             mat->GetTexture(type, i, &str);
             std::string fullPath = std::string(directory) + "/" + str.C_Str();
-            dp(fullPath);
 
             std::shared_ptr<Texture> tex_ptr;
             auto cache_it = texture_cache.find(fullPath);
             if (cache_it == texture_cache.end()) {
+                dp(fullPath);
                 tex_ptr = std::make_shared<Texture>(make_texture(fullPath.c_str()));
                 texture_cache[fullPath] = tex_ptr;
             } else {
@@ -107,7 +107,6 @@ namespace {
             }
         }
         // process material
-        dp("process material");
         aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
         std::vector<MeshEx::CachedTexture> diffuseMaps = loadMaterialTextures(material,
                 directory, aiTextureType_DIFFUSE);
@@ -141,6 +140,7 @@ namespace model_loader {
         if (path.empty() || path[0] != '/') { path = "./" + path; }
         std::string directory = path.substr(0, path.find_last_of('/'));
 
+        // Not using Assimp tree structure, just parsing everything
         // processNode(scene->mRootNode, scene);
         std::vector<MeshEx> ret;
         for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
