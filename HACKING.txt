@@ -1,0 +1,44 @@
+## When using, modify:
+- main.cpp
+- shaders/
+- textures/
+- maybe GLScripts.h
+Access everything else only via GoToDefinition
+
+
+
+## By importance:  
+
+main.cpp        Non-generic code
+GLScripts.h     Use in main.cpp instead of gl_objects/ ctors
+world_scripts/  Scripts for world/
+world/          Vector3, Transform, Camera, etc
+shaders/        Shaders source
+textures/       Textures, models, etc
+model_data.h    Vertex data for simple meshes
+                
+gl_objects/     Use in GLScripts.h
+utils/          Use in GLScripts.h
+window/         Use in main.cpp and world_scripts/
+third_party/    Third party libraries
+                
+meson.build     Build system settings
+HACKING.txt     This file
+                
+                
+                
+## Alphabetic   
+                
+world_scripts/  world/ integration
+gl_objects/     OpenGL object wrappers
+world/          Self-contained world entities
+shaders/        Shaders source
+textures/       Textures, models, etc
+third_party/    Third party libraries
+utils/          Classes for use in scripts
+window/         Window management backend (GLFW)
+GLScripts.h     Rendering backend
+HACKING.txt     This file
+main.cpp        Non-generic code
+meson.build     Build system settings
+model_data.h    Vertex data for simple meshes

@@ -8,13 +8,21 @@ glfw = dependency('glfw3')
 opengl = dependency('GL')
 assimp = dependency('assimp')
 
-subdir('glad')
+subdir('third_party/glad')
 
 executable (
   'opengl',
-  'main.cpp', 'stb_image/stb_image.cpp', 'model_loader.cpp',
-  install : false,
+  'main.cpp', 'third_party/stb_image/stb_image.cpp', 'utils/model_loader.cpp',
+  install : true,
   dependencies : [opengl, glfw, assimp],
-  include_directories: [glad_inc, include_directories('../cp')],
+  include_directories: [
+    glad_inc, include_directories('../cp'),
+    include_directories('world_scripts/'),
+    include_directories('gl_objects/'),
+    include_directories('logic/'),
+    include_directories('third_party/'),
+    include_directories('utils/'),
+    include_directories('window/'),
+  ],
   link_with: [glad_lib]
 )
