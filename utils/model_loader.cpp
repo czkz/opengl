@@ -29,6 +29,17 @@ namespace {
         }
     };
 
+    void refreshCache() {
+        for (auto it = texture_cache.begin(); it != texture_cache.end(); ) {
+            if (it->second.expired()) {
+                dp(it->first);
+                it = texture_cache.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
     std::vector<MeshEx::CachedTexture> loadMaterialTextures(aiMaterial *mat,
             std::string_view directory,
             aiTextureType type)
@@ -40,6 +51,7 @@ namespace {
             std::string fullPath = std::string(directory) + "/" + str.C_Str();
 
             std::shared_ptr<Texture> tex_ptr;
+            refreshCache();
             auto cache_it = texture_cache.find(fullPath);
             if (cache_it == texture_cache.end()) {
                 dp(fullPath);
