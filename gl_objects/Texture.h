@@ -17,6 +17,7 @@ public:
         GLenum type;
         unsigned char* data;
     };
+
 public:
     static constexpr GLenum texture_target = GL_TEXTURE_2D;
     TextureHandle handle;
@@ -79,7 +80,10 @@ public:
 
     /// @arg attach_type GL_COLOR_ATTACHMENT0, GL_DEPTH_STENCIL_ATTACHMENT, etc.
     void AttachToFramebuffer(GLenum attach_type) {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, attach_type,
-                GL_TEXTURE_2D, handle.value, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER,
+                               attach_type,
+                               GL_TEXTURE_2D,
+                               handle.value,
+                               0);
     }
 };

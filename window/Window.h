@@ -21,7 +21,8 @@ public:
 
     Window(int width, int height, const char* title)
         : CallbackCapture(create_window(width, height, title))
-        , handle(CallbackCapture::windowHandle) {
+        , handle(CallbackCapture::windowHandle)
+    {
         registerAllCallbacks();
         MakeContextCurrent();
         if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {

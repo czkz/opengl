@@ -22,27 +22,24 @@ public:
 
     size_t size() const { return last_n_elems; }
 
-    void LoadData(
-        const std::ranges::range auto& data,
-        GLenum usage = GL_STATIC_DRAW
-    ) {
+    void LoadData(const std::ranges::range auto& data,
+                  GLenum usage = GL_STATIC_DRAW)
+    {
         std::span _data = data;
         Bind();
         glBufferData(type, _data.size_bytes(), _data.data(), usage);
         last_n_elems = _data.size();
     }
-    void LoadStruct(
-        const auto& data,
-        GLenum usage
-    ) {
+
+    void LoadStruct(const auto& data,
+                    GLenum usage)
+    {
         std::span _data (&data, 1);
         Bind();
         glBufferData(type, _data.size_bytes(), _data.data(), usage);
         last_n_elems = _data.size();
     }
 
-public:
-    // friend class VAO;
     void Bind() {
         glBindBuffer(type, handle.value);
     }
@@ -74,7 +71,6 @@ class VAO {
 public:
     VAO() = default;
 
-    /// VAO_lock is just to make it harder to forget
     void Bind() {
         glBindVertexArray(handle.value);
     }

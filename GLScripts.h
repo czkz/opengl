@@ -5,6 +5,7 @@
 #include <memory>
 #include <optional>
 #include <sstream>
+#include <filesystem>
 
 #include <dbg.h>
 
@@ -48,20 +49,21 @@ inline Texture make_texture(const char* filename, std::optional<GLenum> format =
     return Texture ({img.width, img.height, _format, _format, GL_UNSIGNED_BYTE, img.data});
 }
 
-/// base_path must end with a separator, extension must start with a dot:
-/// make_cubemap("textures/skybox/", ".jpg");
-inline CubemapTexture make_cubemap(const char* base_path, const char* extension, std::optional<GLenum> format = std::nullopt) {
+/// make_cubemap("textures/skybox/front.png");
+inline CubemapTexture make_cubemap(std::filesystem::path path_front, std::optional<GLenum> format = std::nullopt) {
     CubemapTexture ret;
-    std::array<std::pair<GLenum, const char*>, 6> directions = {
-        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_POSITIVE_X, "right" },
-        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, "left" },
-        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_POSITIVE_Y, "top" },
-        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, "bottom" },
-        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_POSITIVE_Z, "back" },
-        std::pair<GLenum, const char*> { GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "front" },
+    using direction_t = std::pair<GLenum, std::filesystem::path>;
+    std::array<direction_t, 6> directions = {
+        direction_t { GL_TEXTURE_CUBE_MAP_POSITIVE_X, "right" },
+        direction_t { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, "left" },
+        direction_t { GL_TEXTURE_CUBE_MAP_POSITIVE_Y, "top" },
+        direction_t { GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, "bottom" },
+        direction_t { GL_TEXTURE_CUBE_MAP_POSITIVE_Z, "back" },
+        direction_t { GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "front" },
     };
+    const auto ext = path_front.extension();
     for (size_t i = 0; i < directions.size(); i++) {
-        const std::string filename = std::string(base_path) + directions[i].second + extension;
+        const std::string filename = path_front.replace_filename(directions[i].second.replace_extension(ext));
         file_utils::stbi_data img (filename.c_str(), false);
         auto _format = format.value_or(file_utils::stbi_data::resolveChannels(img.nrChannels));
         ret.LoadSide(directions[i].first,
@@ -91,7 +93,8 @@ inline ShaderProg make_prog(const char* vert_path, const char* frag_path) {
     std::string prog_err = prog.Link();
     if (!prog_err.empty()) {
         std::ostringstream ss;
-        ss << "Linking (" << vert_path << " + " << frag_path << "): " << prog_err << '\n';
+        ss << "Linking (" << vert_path << " + ";
+        ss << frag_path << "): " << prog_err << '\n';
         throw std::runtime_error(ss.str());
     }
     return prog;

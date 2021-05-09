@@ -20,12 +20,10 @@ public:
     }
 
     void AttachToFramebuffer() {
-        glFramebufferRenderbuffer(
-            GL_FRAMEBUFFER,
-            GL_DEPTH_STENCIL_ATTACHMENT,
-            GL_RENDERBUFFER,
-            handle.value
-        );
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                  GL_DEPTH_STENCIL_ATTACHMENT,
+                                  GL_RENDERBUFFER,
+                                  handle.value);
     }
 };
 

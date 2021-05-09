@@ -40,9 +40,10 @@ namespace {
         }
     }
 
-    std::vector<MeshEx::CachedTexture> loadMaterialTextures(aiMaterial *mat,
-            std::string_view directory,
-            aiTextureType type)
+    std::vector<MeshEx::CachedTexture>
+    loadMaterialTextures(aiMaterial *mat,
+                         std::string_view directory,
+                         aiTextureType type)
     {
         std::vector<MeshEx::CachedTexture> textures;
         for(unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
@@ -67,9 +68,10 @@ namespace {
     }
 
     template <typename T1, typename T2>
-    MeshEx make_mesh_ex(const T1& vertices, const T2& indices,
-            std::vector<MeshEx::CachedTexture> textures_diffuse,
-            std::vector<MeshEx::CachedTexture> textures_specular)
+    MeshEx make_mesh_ex(const T1& vertices,
+                        const T2& indices,
+                        std::vector<MeshEx::CachedTexture> textures_diffuse,
+                        std::vector<MeshEx::CachedTexture> textures_specular)
     {
         VAO vao;
         VBO vbo (vertices);
@@ -90,7 +92,10 @@ namespace {
         };
     }
 
-    MeshEx processMesh(aiMesh* mesh, std::string_view directory, const aiScene* scene) {
+    MeshEx processMesh(aiMesh* mesh,
+                       std::string_view directory,
+                       const aiScene* scene)
+    {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
 
@@ -125,12 +130,10 @@ namespace {
         std::vector<MeshEx::CachedTexture> specularMaps = loadMaterialTextures(material,
                 directory, aiTextureType_SPECULAR);
 
-        return make_mesh_ex (
-            std::move(vertices),
-            std::move(indices),
-            std::move(diffuseMaps),
-            std::move(specularMaps)
-        );
+        return make_mesh_ex (std::move(vertices),
+                             std::move(indices),
+                             std::move(diffuseMaps),
+                             std::move(specularMaps));
     }
 
 }
@@ -143,11 +146,10 @@ namespace model_loader {
                 aiProcess_Triangulate | aiProcess_FlipUVs);
 
         if(!scene ||
-                scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
-                !scene->mRootNode)
+           scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
+           !scene->mRootNode)
         {
-            std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
-            throw 123;
+            throw std::runtime_error(std::string("Assimp loading error: ") + importer.GetErrorString());
         }
         if (path.empty() || path[0] != '/') { path = "./" + path; }
         std::string directory = path.substr(0, path.find_last_of('/'));
