@@ -6,7 +6,7 @@
 #include <map>
 #include <memory>
 #include <Vector.h>
-#include "model_data.h"
+#include "VertexResolver.h"
 #include "file_utils.h"
 #include "GLScripts.h"
 #include <dbg.h>
