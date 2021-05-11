@@ -14,12 +14,11 @@ layout (std140) uniform Camera {
     uniform vec3 position;
 } camera;
 
-struct Object {
+layout (std140) uniform Transform {
     vec4 rotation;
     vec3 position;
     float scale;
-};
-uniform Object u_object;
+} u_object;
 
 ##include linalg.glsl
 ##include projection.glsl

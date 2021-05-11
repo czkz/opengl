@@ -1,5 +1,6 @@
 #pragma once
 #include "Camera.h"
+#include "Transform.h"
 
 namespace UBOStruct {
 
@@ -7,10 +8,23 @@ namespace UBOStruct {
         alignas(16) Quaternion rotation;
         alignas(16) Vector3 position;
     };
-    Camera make_camera(const auto& camera) {
+    Camera make_camera(const auto& v) {
         return {
-            camera.getRotation(),
-            camera.position
+            v.getRotation(),
+            v.position
+        };
+    }
+
+    struct Transform {
+        alignas(16) Quaternion rotation;
+        alignas(16) Vector3 position;
+        alignas(4) float scale;
+    };
+    Transform make_transform(const ::Transform& v) {
+        return {
+            v.rotation,
+            v.position,
+            v.scale
         };
     }
 
