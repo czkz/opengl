@@ -7,8 +7,6 @@ in SHARED {
     vec2 texCoord;
 } _in;
 
-uniform float uTime;
-
 layout (std140) uniform Camera {
     uniform vec4 rotation;
     uniform vec3 position;

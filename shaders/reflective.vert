@@ -7,8 +7,6 @@ out vec3 sColor;
 out vec2 sTexCoord;
 out vec3 sWorldNormal;
 
-uniform float uTime;
-
 layout (std140) uniform Camera {
     uniform vec4 rotation;
     uniform vec3 position;

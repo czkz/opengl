@@ -61,7 +61,7 @@ int main() try {
         for (auto& e : model_meshes) {
             e.vao.Bind();
             prog.Use();
-            prog.SetFloat("uTime", glfwGetTime());
+            prog.SetFloat("u_time", glfwGetTime());
             Transform {{0, 0, 0}, Quaternion::Rotation(glfwGetTime(), {0, 0, 1})}.SetUniforms(prog);
             prog.SetTexture("material.diffuse", *e.textures_diffuse.at(0), 0);
             prog.SetTexture("material.specular", *e.textures_specular.at(0), 1);

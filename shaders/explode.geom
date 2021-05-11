@@ -14,7 +14,7 @@ out SHARED {
     vec2 texCoord;
 } _out;
 
-uniform float uTime;
+uniform float u_time;
 
 ##include projection.glsl
 
@@ -28,7 +28,7 @@ vec3 get_normal() {
 }
 
 vec3 explode(vec3 position, vec3 normal) {
-    float magnitude = 1.0 * (sin(uTime) / 2.0 + 0.5);
+    float magnitude = 1.0 * (sin(u_time) / 2.0 + 0.5);
     return position + normal * magnitude;
 }
 
