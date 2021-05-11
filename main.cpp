@@ -63,9 +63,9 @@ int main() try {
             prog.Use();
             prog.SetFloat("u_time", glfwGetTime());
             Transform {{0, 0, 0}, Quaternion::Rotation(glfwGetTime(), {0, 0, 1})}.SetUniforms(prog);
-            prog.SetTexture("material.diffuse", *e.textures_diffuse.at(0), 0);
-            prog.SetTexture("material.specular", *e.textures_specular.at(0), 1);
-            prog.SetFloat("material.shininess", 32);
+            prog.SetTexture("u_material.diffuse", *e.textures_diffuse.at(0), 0);
+            prog.SetTexture("u_material.specular", *e.textures_specular.at(0), 1);
+            prog.SetFloat("u_material.shininess", 32);
             glDrawElements(GL_TRIANGLES, e.ebo.size(), GL_UNSIGNED_INT, 0);
         }
         VAO::Unbind();

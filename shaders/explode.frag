@@ -21,7 +21,7 @@ struct Material {
     sampler2D specular;
     float shininess;
 };
-uniform Material material;
+uniform Material u_material;
 
 ##include linalg.glsl
 ##include lighting.glsl
@@ -31,10 +31,10 @@ void main() {
     if (!gl_FrontFacing) {
         normal *= -1;
     }
-    vec3 diffuse = texture(material.diffuse, _in.texCoord).rgb;
-    vec3 specular = texture(material.specular, _in.texCoord).rgb;
+    vec3 diffuse = texture(u_material.diffuse, _in.texCoord).rgb;
+    vec3 specular = texture(u_material.specular, _in.texCoord).rgb;
     vec3 c = phong(_in.pos, lightPos, zUp2zBack(camera.position), normal,
-                   diffuse, specular, material.shininess,
+                   diffuse, specular, u_material.shininess,
                    lightIntensity);
     FragColor = vec4(c, 1.0f);
 }
