@@ -11,7 +11,7 @@ out SHARED {
 
 uniform float uTime;
 
-layout (std140) uniform CAMERA {
+layout (std140) uniform Camera {
     uniform vec4 rotation;
     uniform vec3 position;
 } camera;

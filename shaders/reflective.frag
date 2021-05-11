@@ -7,7 +7,7 @@ in vec3 sWorldNormal;
 
 uniform samplerCube skybox;
 
-layout (std140) uniform CAMERA {
+layout (std140) uniform Camera {
     uniform vec4 rotation;
     uniform vec3 position;
 } camera;

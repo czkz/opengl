@@ -3,7 +3,7 @@ layout (location = 0) in vec3 aPos;
 
 out vec3 sTexCoords;
 
-layout (std140) uniform CAMERA {
+layout (std140) uniform Camera {
     uniform vec4 rotation;
     uniform vec3 position;
 } camera;

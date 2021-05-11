@@ -43,7 +43,7 @@ int main() try {
 
     UBO camera_ubo;
     camera_ubo.BindingPoint(0);
-    prog.BindUBO("CAMERA", 0);
+    prog.BindUBO("Camera", 0);
 
     constexpr Vector3 backgroundColor = {0, 0, 0};
     glEnable(GL_DEPTH_TEST);
