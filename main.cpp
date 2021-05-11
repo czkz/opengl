@@ -33,7 +33,7 @@ int main() try {
         glfwSetWindowShouldClose(window.handle, true);
     });
 
-    ShaderProg prog = make_prog("shaders/default");
+    ShaderProg prog = make_prog("shaders/explode");
     auto model_meshes = make_model("textures/backpack/backpack.obj");
 
     UBO camera_ubo;
