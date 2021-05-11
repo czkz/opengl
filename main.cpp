@@ -38,7 +38,7 @@ int main() try {
         glPolygonMode(GL_FRONT_AND_BACK, wireframeEnabled ? GL_LINE : GL_FILL);
     });
 
-    ShaderProg prog = make_prog("shaders/explode");
+    ShaderProg prog = make_prog("shaders/default");
     auto model_meshes = make_model("textures/backpack/backpack.obj");
 
     UBO camera_ubo;
