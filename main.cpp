@@ -29,8 +29,13 @@ int main() try {
         Input::Camera::onMouseMove(camera, x, y);
     };
     KeyboardManager kbManager (window.handle);
-    kbManager.on(GLFW_KEY_ENTER, [&window](int, bool, int) {
+    kbManager.onDown(GLFW_KEY_ENTER, [&window](int, bool, int) {
         glfwSetWindowShouldClose(window.handle, true);
+    });
+    bool wireframeEnabled = false;
+    kbManager.onDown(GLFW_KEY_EQUAL, [&wireframeEnabled](int, bool, int) {
+        wireframeEnabled = !wireframeEnabled;
+        glPolygonMode(GL_FRONT_AND_BACK, wireframeEnabled ? GL_LINE : GL_FILL);
     });
 
     ShaderProg prog = make_prog("shaders/explode");

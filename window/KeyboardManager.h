@@ -16,8 +16,16 @@ public:
         glfwSetKeyCallback(windowHandle, key_callback);
     }
 
-    void on(int key, callback_t handler) {
+    void onAny(int key, callback_t handler) {
         any[key] = handler;
+    }
+
+    void onDown(int key, callback_t handler) {
+        down[key] = handler;
+    }
+
+    void onUp(int key, callback_t handler) {
+        up[key] = handler;
     }
 
     void on(std::initializer_list<int> keys, callback_t handler) {
