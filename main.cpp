@@ -42,7 +42,7 @@ int main() try {
 
     constexpr Vector3 backgroundColor = {0, 0, 0};
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
@@ -56,6 +56,7 @@ int main() try {
         for (auto& e : model_meshes) {
             e.vao.Bind();
             prog.Use();
+            prog.SetFloat("uTime", glfwGetTime());
             Transform {{0, 0, 0}, Quaternion::Identity()}.SetUniforms(prog);
             prog.SetTexture("material.diffuse", *e.textures_diffuse.at(0), 0);
             prog.SetTexture("material.specular", *e.textures_specular.at(0), 1);

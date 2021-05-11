@@ -10,7 +10,7 @@
 #include <dbg.h>
 
 #include "model_loader.h"
-#include "ShaderParser.h"
+#include "make_shader.h"
 
 #include "BufferObject.h"
 #include "Framebuffer.h"
@@ -73,37 +73,38 @@ inline CubemapTexture make_cubemap(std::filesystem::path path_front, std::option
 }
 
 inline ShaderProg make_prog(const char* vert_path, const char* frag_path) {
-    ShaderProg prog = [&]() {
-        VertexShader v   (ShaderParser().parse(vert_path));
-        FragmentShader f (ShaderParser().parse(frag_path));
-        std::string v_err = v.Compile();
-        std::string f_err = f.Compile();
-        if (!v_err.empty()) {
-            std::ostringstream ss;
-            ss << "In " << vert_path << ":\n" << v_err << '\n';
-            throw std::runtime_error(ss.str());
-        }
-        if (!f_err.empty()) {
-            std::ostringstream ss;
-            ss << "In " << frag_path << ":\n" << f_err << '\n';
-            throw std::runtime_error(ss.str());
-        }
-        return ShaderProg(v, f);
-    }();
-    std::string prog_err = prog.Link();
-    if (!prog_err.empty()) {
-        std::ostringstream ss;
-        ss << "Linking (" << vert_path << " + ";
-        ss << frag_path << "): " << prog_err << '\n';
-        throw std::runtime_error(ss.str());
-    }
+    ShaderProg prog;
+    prog.Attach(make_shader(vert_path, GL_VERTEX_SHADER));
+    prog.Attach(make_shader(frag_path, GL_FRAGMENT_SHADER));
+    link_prog(prog, std::to_array({vert_path, frag_path}));
     return prog;
 }
-inline ShaderProg make_prog(const char* base_path) {
-    return make_prog(
-        (base_path + std::string(".vert")).c_str(),
-        (base_path + std::string(".frag")).c_str()
-    );
+inline ShaderProg make_prog(std::filesystem::path base_path) {
+    namespace fs = std::filesystem;
+    using fs::path;
+
+    using ext_pair = std::pair<std::string_view, GLuint>;
+    static constexpr std::array<ext_pair, 3> exts = {
+        std::make_pair ( "vert", GL_VERTEX_SHADER ),
+        // std::make_pair ( "tesc", GL_TESS_CONTROL_SHADER ),
+        // std::make_pair ( "tese", GL_TESS_EVALUATION_SHADER ),
+        std::make_pair ( "geom", GL_GEOMETRY_SHADER ),
+        std::make_pair ( "frag", GL_FRAGMENT_SHADER ),
+        // std::make_pair ( "comp", GL_COMPUTE_SHADER ),
+    };
+
+    ShaderProg prog;
+    std::vector<path> found;
+    for (const auto& [ext, type] : exts) {
+        path f = base_path;
+        f.replace_extension(ext);
+        if (fs::exists(f)) {
+            prog.Attach(make_shader(f, type));
+            found.push_back(std::move(f));
+        }
+    }
+    link_prog(prog, found);
+    return prog;
 }
 
 struct FBOStruct {

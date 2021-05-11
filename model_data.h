@@ -129,7 +129,7 @@ namespace model_plane_normals {
     };
 }
 
-namespace model_screen_quad {
+namespace model_ndc_quad {
     struct vertex {
         Vector2 pos;
 
@@ -146,6 +146,24 @@ namespace model_screen_quad {
         vertex { {  1.0f, -1.0f } },
         vertex { {  1.0f,  1.0f } },
         vertex { { -1.0f,  1.0f } },
+    };
+}
+
+namespace model_ndc_points {
+    struct vertex {
+        Vector2 pos;
+
+        static size_t registerAttributes() {
+            return VertexResolver::Register<Vector2>();
+        }
+    };
+
+    [[maybe_unused]]
+    constexpr std::array vertices = {
+        vertex { { -0.5f, -0.5f } },
+        vertex { {  0.5f, -0.5f } },
+        vertex { {  0.5f,  0.5f } },
+        vertex { { -0.5f,  0.5f } },
     };
 }
 

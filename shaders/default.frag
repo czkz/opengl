@@ -1,9 +1,11 @@
 #version 330 core
 out vec4 FragColor;
 
-in vec3 sPos;
-in vec3 sNormal;
-in vec2 sTexCoord;
+in SHARED {
+    vec3 pos;
+    vec3 normal;
+    vec2 texCoord;
+} _in;
 
 uniform float uTime;
 
@@ -49,7 +51,7 @@ vec3 phong(vec3 pos, vec3 lightPos, vec3 cameraPos, vec3 normal, vec3 objectColo
     vec3 toEyeDir = normalize(cameraPos - pos);
     vec3 reflectDir = reflect(-toLightDir, normal);
     float specularStrength = specularStrengthMod * pow(max(0.0, dot(reflectDir, toEyeDir)), material.shininess) * distMod;
-    vec3 specularColor = specularStrength * texture(material.specular, sTexCoord).rgb;
+    vec3 specularColor = specularStrength * texture(material.specular, _in.texCoord).rgb;
 
     vec3 c = ambientColor + diffuseColor + specularColor;
 
@@ -57,7 +59,7 @@ vec3 phong(vec3 pos, vec3 lightPos, vec3 cameraPos, vec3 normal, vec3 objectColo
 }
 
 void main() {
-    vec3 diffuseColor = texture(material.diffuse, sTexCoord).rgb;
-    vec3 c = phong(sPos, lightPos, zUp2zBack(camera.position), sNormal, diffuseColor);
+    vec3 diffuseColor = texture(material.diffuse, _in.texCoord).rgb;
+    vec3 c = phong(_in.pos, lightPos, zUp2zBack(camera.position), _in.normal, diffuseColor);
     FragColor = vec4(c, 1.0f);
 }

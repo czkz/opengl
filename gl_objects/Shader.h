@@ -24,7 +24,7 @@ class Shader {
 private:
     friend class ShaderProg;
     ShaderHandle handle;
-protected:
+public:
     Shader(std::string_view source, GLuint shaderType) : handle(shaderType) {
         const char* srcData = source.data();
         const int srcLen = source.size();
@@ -50,12 +50,19 @@ public:
         : Shader(source, GL_FRAGMENT_SHADER) { }
 };
 
+class GeometryShader : public Shader {
+public:
+    explicit GeometryShader(std::string_view source)
+        : Shader(source, GL_GEOMETRY_SHADER) { }
+};
+
 class ShaderProg {
     ShaderProgHandle handle;
 public:
-    ShaderProg(const VertexShader& v, const FragmentShader& f) {
-        glAttachShader(handle.value, v.handle.value);
-        glAttachShader(handle.value, f.handle.value);
+    ShaderProg() = default;
+
+    void Attach(const Shader& s) {
+        glAttachShader(handle.value, s.handle.value);
     }
 
     std::string Link() {

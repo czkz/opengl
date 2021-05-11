@@ -3,9 +3,11 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoord;
   
-out vec3 sPos;
-out vec3 sNormal;
-out vec2 sTexCoord;
+out SHARED {
+    vec3 pos;
+    vec3 normal;
+    vec2 texCoord;
+} _out;
 
 uniform float uTime;
 
@@ -34,14 +36,14 @@ vec4 projx(vec3 v) {
 }
 
 void main() {
-    sTexCoord = aTexCoord;
-    sNormal = qRotate(aNormal, zUp2zBack(objectRotation));
+    _out.texCoord = aTexCoord;
+    _out.normal = qRotate(aNormal, zUp2zBack(objectRotation));
 
     vec3 p = aPos;
     p = qRotate(p, zUp2zBack(objectRotation));
     p *= objectScale;
     p += zUp2zBack(objectPosition);
-    sPos = p;
+    _out.pos = p;
     p -= zUp2zBack(camera.position);
     p = qRotate(p, zUp2zBack(qInverse(camera.rotation)));
 
