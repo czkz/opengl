@@ -10,9 +10,9 @@ public:
     float scale = 1;
 
     void SetUniforms(ShaderProg& c) {
-        c.SetVec3("objectPosition", position);
-        c.SetQuaternion("objectRotation", rotation);
-        c.SetFloat("objectScale", scale);
+        c.SetVec3("u_object.position", position);
+        c.SetQuaternion("u_object.rotation", rotation);
+        c.SetFloat("u_object.scale", scale);
     }
 };
 

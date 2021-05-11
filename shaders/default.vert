@@ -16,21 +16,24 @@ layout (std140) uniform CAMERA {
     uniform vec3 position;
 } camera;
 
-uniform vec4 objectRotation;
-uniform vec3 objectPosition;
-uniform float objectScale;
+struct Object {
+    vec4 rotation;
+    vec3 position;
+    float scale;
+};
+uniform Object u_object;
 
 ##include linalg.glsl
 ##include projection.glsl
 
 void main() {
     _out.texCoord = aTexCoord;
-    _out.normal = qRotate(aNormal, zUp2zBack(objectRotation));
+    _out.normal = qRotate(aNormal, zUp2zBack(u_object.rotation));
 
     vec3 p = aPos;
-    p = qRotate(p, zUp2zBack(objectRotation));
-    p *= objectScale;
-    p += zUp2zBack(objectPosition);
+    p = qRotate(p, zUp2zBack(u_object.rotation));
+    p *= u_object.scale;
+    p += zUp2zBack(u_object.position);
     _out.pos = p;
     p -= zUp2zBack(camera.position);
     p = qRotate(p, zUp2zBack(qInverse(camera.rotation)));

@@ -38,7 +38,7 @@ int main() try {
         glPolygonMode(GL_FRONT_AND_BACK, wireframeEnabled ? GL_LINE : GL_FILL);
     });
 
-    ShaderProg prog = make_prog("shaders/default");
+    ShaderProg prog = make_prog("shaders/explode");
     auto model_meshes = make_model("textures/backpack/backpack.obj");
 
     UBO camera_ubo;
@@ -62,7 +62,7 @@ int main() try {
             e.vao.Bind();
             prog.Use();
             prog.SetFloat("uTime", glfwGetTime());
-            Transform {{0, 0, 0}, Quaternion::Identity()}.SetUniforms(prog);
+            Transform {{0, 0, 0}, Quaternion::Rotation(glfwGetTime(), {0, 0, 1})}.SetUniforms(prog);
             prog.SetTexture("material.diffuse", *e.textures_diffuse.at(0), 0);
             prog.SetTexture("material.specular", *e.textures_specular.at(0), 1);
             prog.SetFloat("material.shininess", 32);
