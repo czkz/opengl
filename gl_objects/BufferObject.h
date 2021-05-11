@@ -8,6 +8,22 @@ class BufferObject {
 protected:
     BufferObjectHandle handle;
     size_t last_n_elems = 0;
+    size_t bytes_allocated = 0;
+
+    template <typename T, size_t N>
+    void loadData(std::span<T, N> data,
+                  GLenum usage,
+                  bool force_realloc)
+    {
+        Bind();
+        if (force_realloc || bytes_allocated < data.size_bytes()) {
+            glBufferData(type, data.size_bytes(), data.data(), usage);
+            bytes_allocated = data.size_bytes();
+        } else {
+            glBufferSubData(type, 0, data.size_bytes(), data.data());
+        }
+        last_n_elems = data.size();
+    }
 public:
     const GLenum type;
     /// See https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml
@@ -21,23 +37,22 @@ public:
     ) : BufferObject(type) { LoadData(data, usage); }
 
     size_t size() const { return last_n_elems; }
+    size_t size_bytes() const { return bytes_allocated; }
 
-    void LoadData(const std::ranges::range auto& data,
-                  GLenum usage = GL_STATIC_DRAW)
-    {
-        std::span _data = data;
-        Bind();
-        glBufferData(type, _data.size_bytes(), _data.data(), usage);
-        last_n_elems = _data.size();
+    /// @arg usage unused if storage is not reallocated
+    void LoadData(const std::ranges::range auto& data, GLenum usage = GL_STATIC_DRAW) {
+        return loadData(std::span(data), usage, false);
+    }
+    void LoadData_ForceRealloc(const std::ranges::range auto& data, GLenum usage) {
+        return loadData(std::span(data), usage, true);
     }
 
-    void LoadStruct(const auto& data,
-                    GLenum usage)
-    {
-        std::span _data (&data, 1);
-        Bind();
-        glBufferData(type, _data.size_bytes(), _data.data(), usage);
-        last_n_elems = _data.size();
+    /// @arg usage unused if storage is not reallocated
+    void LoadStruct(const auto& value, GLenum usage) {
+        return loadData(std::span(&value, 1), usage, false);
+    }
+    void LoadStruct_ForceRealloc(const auto& value, GLenum usage) {
+        return loadData(std::span(&value, 1), usage, true);
     }
 
     void Bind() {
