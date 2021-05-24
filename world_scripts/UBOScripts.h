@@ -8,7 +8,7 @@ namespace UBOStruct {
         alignas(16) Quaternion rotation;
         alignas(16) Vector3 position;
     };
-    Camera make_camera(const auto& v) {
+    inline Camera make_camera(const auto& v) {
         return {
             v.getRotation(),
             v.position
@@ -20,7 +20,7 @@ namespace UBOStruct {
         alignas(16) Vector3 position;
         alignas(4) float scale;
     };
-    Transform make_transform(const ::Transform& v) {
+    inline Transform make_transform(const ::Transform& v) {
         return {
             v.rotation,
             v.position,

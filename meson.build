@@ -24,5 +24,6 @@ executable (
     include_directories('utils/'),
     include_directories('window/'),
   ],
-  link_with: [glad_lib]
+  link_with: [glad_lib],
+  cpp_pch: 'pch/pch.h'
 )
