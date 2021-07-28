@@ -38,8 +38,10 @@ int main() try {
         glPolygonMode(GL_FRONT_AND_BACK, wireframeEnabled ? GL_LINE : GL_FILL);
     });
 
-    ShaderProg prog = make_prog("shaders/explode");
-    auto model_meshes = make_model("textures/backpack/backpack.obj");
+    ShaderProg prog = make_prog("shaders/default");
+    auto cube_mesh = make_mesh(model_cube::vertices);
+    auto cube_diffuse = make_texture("textures/container2.png");
+    auto cube_specular = make_texture("textures/container2_specular.png");
 
     UBO camera_ubo;
     camera_ubo.BindingPoint(0);
@@ -51,7 +53,7 @@ int main() try {
 
     constexpr Vector3 backgroundColor = {0, 0, 0};
     glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
@@ -62,16 +64,17 @@ int main() try {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for (auto& e : model_meshes) {
+        {
+            auto& e = cube_mesh;
             e.vao.Bind();
             prog.Use();
             prog.SetFloat("u_time", glfwGetTime());
             Transform tr {{0, 0, 0}, Quaternion::Rotation(glfwGetTime(), {0, 0, 1})};
             transform_ubo.LoadStruct(UBOStruct::make_transform(tr), GL_DYNAMIC_DRAW);
-            prog.SetTexture("u_material.diffuse", *e.textures_diffuse.at(0), 0);
-            prog.SetTexture("u_material.specular", *e.textures_specular.at(0), 1);
+            prog.SetTexture("u_material.diffuse", cube_diffuse, 0);
+            prog.SetTexture("u_material.specular", cube_specular, 1);
             prog.SetFloat("u_material.shininess", 32);
-            glDrawElements(GL_TRIANGLES, e.ebo.size(), GL_UNSIGNED_INT, 0);
+            glDrawArrays(GL_TRIANGLES, 0, e.vbo.size());
         }
         VAO::Unbind();
 

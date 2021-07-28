@@ -20,22 +20,22 @@
 
 struct Mesh {
     VAO vao;
-    size_t n_verts;
+    VBO vbo;
 };
 template <typename T>
 Mesh make_mesh(const T& data) {
     VAO vao;
+    VBO vbo (data);
     {
-        auto vbo = VBO(data);
         vao.Bind();
         vbo.Bind();
         size_t nAttrs = T::value_type::registerAttributes();
         for (size_t i = 0; i < nAttrs; i++) {
             glEnableVertexAttribArray(i);
         }
-        VAO::Unbind();
     }
-    return { std::move(vao), data.size() };
+    VAO::Unbind();
+    return Mesh { std::move(vao), std::move(vbo) };
 }
 
 // See MeshEx in assimp.h

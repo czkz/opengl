@@ -5,105 +5,55 @@
 #include <Quaternion.h>
 #include "VertexResolver.h"
 
-namespace model_cube_textured {
-    struct vertex {
-        Vector3 pos;
-        Vector2 texCoord;
-
-        static size_t registerAttributes() {
-            return VertexResolver::Register<Vector3, Vector2>();
-        }
-    };
-
-    [[maybe_unused]]
-    constexpr std::array vertices = {
-        vertex { { -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f } },
-        vertex { {  0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f } },
-        vertex { {  0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f } },
-        vertex { {  0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f } },
-        vertex { { -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f } },
-        vertex { { -0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f } },
-        vertex { { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f } },
-        vertex { {  0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, { 1.0f, 1.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, { 1.0f, 1.0f } },
-        vertex { { -0.5f,  0.5f,  0.5f }, { 0.0f, 1.0f } },
-        vertex { { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f } },
-        vertex { { -0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f } },
-        vertex { { -0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f } },
-        vertex { { -0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f } },
-        vertex { { -0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f } },
-        vertex { { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f } },
-        vertex { { -0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f } },
-        vertex { {  0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f } },
-        vertex { {  0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f } },
-        vertex { {  0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f } },
-        vertex { {  0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f } },
-        vertex { { -0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f } },
-        vertex { {  0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f } },
-        vertex { {  0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f } },
-        vertex { {  0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f } },
-        vertex { { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f } },
-        vertex { { -0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f } },
-        vertex { { -0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f } },
-        vertex { {  0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f } },
-        vertex { { -0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f } },
-        vertex { { -0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f } } 
-    };
-}
-
-namespace model_cube_normals {
+namespace model_cube {
     struct vertex {
         Vector3 pos;
         Vector3 normal;
+        Vector2 texCoord;
 
         static size_t registerAttributes() {
-            return VertexResolver::Register<Vector3, Vector3>();
+            return VertexResolver::Register<Vector3, Vector3, Vector2>();
         }
     };
 
     [[maybe_unused]]
     constexpr std::array vertices = {
-        vertex { { -0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
-        vertex { {  0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
-        vertex { {  0.5f,  0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
-        vertex { {  0.5f,  0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
-        vertex { { -0.5f,  0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
-        vertex { { -0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
-        vertex { { -0.5f, -0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
-        vertex { {  0.5f, -0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
-        vertex { { -0.5f,  0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
-        vertex { { -0.5f, -0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
-        vertex { { -0.5f,  0.5f,  0.5f }, { -1.0f,  0.0f,  0.0f } },
-        vertex { { -0.5f,  0.5f, -0.5f }, { -1.0f,  0.0f,  0.0f } },
-        vertex { { -0.5f, -0.5f, -0.5f }, { -1.0f,  0.0f,  0.0f } },
-        vertex { { -0.5f, -0.5f, -0.5f }, { -1.0f,  0.0f,  0.0f } },
-        vertex { { -0.5f, -0.5f,  0.5f }, { -1.0f,  0.0f,  0.0f } },
-        vertex { { -0.5f,  0.5f,  0.5f }, { -1.0f,  0.0f,  0.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, {  1.0f,  0.0f,  0.0f } },
-        vertex { {  0.5f,  0.5f, -0.5f }, {  1.0f,  0.0f,  0.0f } },
-        vertex { {  0.5f, -0.5f, -0.5f }, {  1.0f,  0.0f,  0.0f } },
-        vertex { {  0.5f, -0.5f, -0.5f }, {  1.0f,  0.0f,  0.0f } },
-        vertex { {  0.5f, -0.5f,  0.5f }, {  1.0f,  0.0f,  0.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, {  1.0f,  0.0f,  0.0f } },
-        vertex { { -0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f } },
-        vertex { {  0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f } },
-        vertex { {  0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f } },
-        vertex { {  0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f } },
-        vertex { { -0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f } },
-        vertex { { -0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f } },
-        vertex { { -0.5f,  0.5f, -0.5f }, {  0.0f,  1.0f,  0.0f } },
-        vertex { {  0.5f,  0.5f, -0.5f }, {  0.0f,  1.0f,  0.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, {  0.0f,  1.0f,  0.0f } },
-        vertex { {  0.5f,  0.5f,  0.5f }, {  0.0f,  1.0f,  0.0f } },
-        vertex { { -0.5f,  0.5f,  0.5f }, {  0.0f,  1.0f,  0.0f } },
-        vertex { { -0.5f,  0.5f, -0.5f }, {  0.0f,  1.0f,  0.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f }, { 0.0f, 0.0f } },
+        vertex { { +0.5f, +0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f }, { 1.0f, 1.0f } },
+        vertex { { +0.5f, -0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f }, { 1.0f, 0.0f } },
+        vertex { { +0.5f, +0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f }, { 1.0f, 1.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f }, { 0.0f, 0.0f } },
+        vertex { { -0.5f, +0.5f, -0.5f }, { +0.0f, +0.0f, -1.0f }, { 0.0f, 1.0f } },
+        vertex { { -0.5f, -0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f }, { 0.0f, 0.0f } },
+        vertex { { +0.5f, -0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f }, { 1.0f, 0.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f }, { 1.0f, 1.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f }, { 1.0f, 1.0f } },
+        vertex { { -0.5f, +0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f }, { 0.0f, 1.0f } },
+        vertex { { -0.5f, -0.5f, +0.5f }, { +0.0f, +0.0f, +1.0f }, { 0.0f, 0.0f } },
+        vertex { { -0.5f, +0.5f, +0.5f }, { -1.0f, +0.0f, +0.0f }, { 1.0f, 0.0f } },
+        vertex { { -0.5f, +0.5f, -0.5f }, { -1.0f, +0.0f, +0.0f }, { 1.0f, 1.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { -1.0f, +0.0f, +0.0f }, { 0.0f, 1.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { -1.0f, +0.0f, +0.0f }, { 0.0f, 1.0f } },
+        vertex { { -0.5f, -0.5f, +0.5f }, { -1.0f, +0.0f, +0.0f }, { 0.0f, 0.0f } },
+        vertex { { -0.5f, +0.5f, +0.5f }, { -1.0f, +0.0f, +0.0f }, { 1.0f, 0.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +1.0f, +0.0f, +0.0f }, { 1.0f, 0.0f } },
+        vertex { { +0.5f, -0.5f, -0.5f }, { +1.0f, +0.0f, +0.0f }, { 0.0f, 1.0f } },
+        vertex { { +0.5f, +0.5f, -0.5f }, { +1.0f, +0.0f, +0.0f }, { 1.0f, 1.0f } },
+        vertex { { +0.5f, -0.5f, -0.5f }, { +1.0f, +0.0f, +0.0f }, { 0.0f, 1.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +1.0f, +0.0f, +0.0f }, { 1.0f, 0.0f } },
+        vertex { { +0.5f, -0.5f, +0.5f }, { +1.0f, +0.0f, +0.0f }, { 0.0f, 0.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { +0.0f, -1.0f, +0.0f }, { 0.0f, 1.0f } },
+        vertex { { +0.5f, -0.5f, -0.5f }, { +0.0f, -1.0f, +0.0f }, { 1.0f, 1.0f } },
+        vertex { { +0.5f, -0.5f, +0.5f }, { +0.0f, -1.0f, +0.0f }, { 1.0f, 0.0f } },
+        vertex { { +0.5f, -0.5f, +0.5f }, { +0.0f, -1.0f, +0.0f }, { 1.0f, 0.0f } },
+        vertex { { -0.5f, -0.5f, +0.5f }, { +0.0f, -1.0f, +0.0f }, { 0.0f, 0.0f } },
+        vertex { { -0.5f, -0.5f, -0.5f }, { +0.0f, -1.0f, +0.0f }, { 0.0f, 1.0f } },
+        vertex { { -0.5f, +0.5f, -0.5f }, { +0.0f, +1.0f, +0.0f }, { 0.0f, 1.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +0.0f, +1.0f, +0.0f }, { 1.0f, 0.0f } },
+        vertex { { +0.5f, +0.5f, -0.5f }, { +0.0f, +1.0f, +0.0f }, { 1.0f, 1.0f } },
+        vertex { { +0.5f, +0.5f, +0.5f }, { +0.0f, +1.0f, +0.0f }, { 1.0f, 0.0f } },
+        vertex { { -0.5f, +0.5f, -0.5f }, { +0.0f, +1.0f, +0.0f }, { 0.0f, 1.0f } },
+        vertex { { -0.5f, +0.5f, +0.5f }, { +0.0f, +1.0f, +0.0f }, { 0.0f, 0.0f } },
     };
 }
 
