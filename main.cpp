@@ -43,6 +43,33 @@ int main() try {
     auto cube_diffuse = make_texture("textures/container2.png");
     auto cube_specular = make_texture("textures/container2_specular.png");
 
+    VBO cube_instances;
+    {
+        std::vector<Transform> v;
+        v.push_back({{0, 0, 0}, Quaternion::Rotation(0, {0, 0, 1})});
+        v.push_back({{0, 0, 2}, Quaternion::Rotation(0, {0, 0, 1})});
+        v.push_back({{0, 2, 0}, Quaternion::Rotation(0, {0, 0, 1})});
+        v.push_back({{0, 2, 2}, Quaternion::Rotation(0, {0, 0, 1})});
+        v.push_back({{2, 0, 0}, Quaternion::Rotation(0, {0, 0, 1})});
+        v.push_back({{2, 0, 2}, Quaternion::Rotation(0, {0, 0, 1})});
+        v.push_back({{2, 2, 0}, Quaternion::Rotation(0, {0, 0, 1})});
+        v.push_back({{2, 2, 2}, Quaternion::Rotation(0, {0, 0, 1})});
+        cube_instances.LoadData(v, GL_DYNAMIC_DRAW);
+
+        cube_mesh.vao.Bind();
+        cube_instances.Bind();
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 8*4, (void*)(0*4));
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 8*4, (void*)(3*4));
+        glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 8*4, (void*)(7*4));
+        glEnableVertexAttribArray(3);
+        glEnableVertexAttribArray(4);
+        glEnableVertexAttribArray(5);
+        glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisor(4, 1);
+        glVertexAttribDivisor(5, 1);
+        cube_mesh.vao.Unbind();
+    }
+
     UBO camera_ubo;
     camera_ubo.BindingPoint(0);
     prog.BindUBO("Camera", 0);
@@ -74,7 +101,7 @@ int main() try {
             prog.SetTexture("u_material.diffuse", cube_diffuse, 0);
             prog.SetTexture("u_material.specular", cube_specular, 1);
             prog.SetFloat("u_material.shininess", 32);
-            glDrawArrays(GL_TRIANGLES, 0, e.vbo.size());
+            glDrawArraysInstanced(GL_TRIANGLES, 0, e.vbo.size(), 8);
         }
         VAO::Unbind();
 
