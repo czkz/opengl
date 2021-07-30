@@ -44,33 +44,19 @@ int main() try {
     auto cube_diffuse = make_texture("textures/container2.png");
     auto cube_specular = make_texture("textures/container2_specular.png");
 
-    VBO cube_instances;
-    {
-        std::vector<Transform> v;
-        for (int i = 0; i < 10000; i++) {
-            using namespace std::numbers;
-            v.push_back({Quaternion::Rotation(i * 2 * pi * phi, {0, 0, 1}).Rotate({std::sqrt(i*2.0f), 0, 0}), Quaternion::Rotation(i * 2 * pi * phi, {0, 0, 1})});
-        }
-        cube_instances.LoadData(v, GL_DYNAMIC_DRAW);
-
-        cube_mesh.vao.Bind();
-        cube_instances.Bind();
-        size_t n = registerAttributes<Transform>(3);
-        for (size_t i = 0; i < n; i++) {
-            glEnableVertexAttribArray(3+i);
-            glVertexAttribDivisor(3+i, 1);
-        }
-
-        cube_mesh.vao.Unbind();
+    std::vector<Transform> cube_transforms;
+    for (int i = 0; i < 10000; i++) {
+        using namespace std::numbers;
+        const Quaternion rot = Quaternion::Rotation(i * 2 * pi * phi, {0, 0, 1});
+        const Vector3 pos = rot.Rotate({std::sqrt(i*2.0f), 0, 0});
+        cube_transforms.push_back({ std::move(pos), std::move(rot) });
     }
+    auto cube_instances = make_instance_vbo(cube_mesh, cube_transforms);
+    cube_instances.LoadData(cube_transforms, GL_DYNAMIC_DRAW);
 
     UBO camera_ubo;
     camera_ubo.BindingPoint(0);
     prog.BindUBO("Camera", 0);
-
-    UBO transform_ubo;
-    transform_ubo.BindingPoint(1);
-    prog.BindUBO("Transform", 1);
 
     constexpr Vector3 backgroundColor = {0, 0, 0};
     glEnable(GL_DEPTH_TEST);
@@ -90,8 +76,6 @@ int main() try {
             e.vao.Bind();
             prog.Use();
             prog.SetFloat("u_time", glfwGetTime());
-            Transform tr {{0, 0, 0}, Quaternion::Rotation(glfwGetTime(), {0, 0, 1})};
-            transform_ubo.LoadStruct(UBOStruct::make_transform(tr), GL_DYNAMIC_DRAW);
             prog.SetTexture("u_material.diffuse", cube_diffuse, 0);
             prog.SetTexture("u_material.specular", cube_specular, 1);
             prog.SetFloat("u_material.shininess", 32);
