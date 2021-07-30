@@ -20,9 +20,10 @@ int main() try {
     constexpr unsigned int windowWidth = 1000;
     constexpr unsigned int windowHeight = 1000;
     Window window (windowWidth, windowHeight, "Sample Text");
-    FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
-    // SpaceCamera camera = { {0, 0, 0}, Quaternion::Identity() };
+    // FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
+    SpaceCamera camera = { {0, -2000, 0}, Quaternion::Identity() };
     FrameCounter frameCounter;
+    float cameraSpeed = 20;
     window.onSizeChanged = [](int width, int height) {
         glViewport(0, 0, width, height);
     };
@@ -33,6 +34,12 @@ int main() try {
     kbManager.onDown(GLFW_KEY_ENTER, [&window](int, bool, int) {
         glfwSetWindowShouldClose(window.handle, true);
     });
+    kbManager.onDown(GLFW_KEY_9, [&cameraSpeed](int, bool, int) {
+        cameraSpeed /= 1.5;
+    });
+    kbManager.onDown(GLFW_KEY_0, [&cameraSpeed](int, bool, int) {
+        cameraSpeed *= 1.5;
+    });
     bool wireframeEnabled = false;
     kbManager.onDown(GLFW_KEY_EQUAL, [&wireframeEnabled](int, bool, int) {
         wireframeEnabled = !wireframeEnabled;
@@ -40,19 +47,7 @@ int main() try {
     });
 
     ShaderProg prog = make_prog("shaders/default");
-    auto cube_mesh = make_mesh(model_cube::vertices);
-    auto cube_diffuse = make_texture("textures/container2.png");
-    auto cube_specular = make_texture("textures/container2_specular.png");
-
-    std::vector<Transform> cube_transforms;
-    for (int i = 0; i < 10000; i++) {
-        using namespace std::numbers;
-        const Quaternion rot = Quaternion::Rotation(i * 2 * pi * phi, {0, 0, 1});
-        const Vector3 pos = rot.Rotate({std::sqrt(i*2.0f), 0, 0});
-        cube_transforms.push_back({ std::move(pos), std::move(rot) });
-    }
-    auto cube_instances = make_instance_vbo(cube_mesh, cube_transforms);
-    cube_instances.LoadData(cube_transforms, GL_DYNAMIC_DRAW);
+    auto cube_mesh = make_mesh(model_point::vertices);
 
     UBO camera_ubo;
     camera_ubo.BindingPoint(0);
@@ -64,8 +59,9 @@ int main() try {
     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
+        // dp(frameCounter.deltaTime);
         Input::Application::onTick(window.handle);
-        Input::Camera::onTick(window.handle, camera, frameCounter.deltaTime / 16);
+        Input::Camera::onTick(window.handle, camera, frameCounter.deltaTime / 16, cameraSpeed);
 
         camera_ubo.LoadStruct(UBOStruct::make_camera(camera), GL_DYNAMIC_DRAW);
 
@@ -76,10 +72,7 @@ int main() try {
             e.vao.Bind();
             prog.Use();
             prog.SetFloat("u_time", glfwGetTime());
-            prog.SetTexture("u_material.diffuse", cube_diffuse, 0);
-            prog.SetTexture("u_material.specular", cube_specular, 1);
-            prog.SetFloat("u_material.shininess", 32);
-            glDrawArraysInstanced(GL_TRIANGLES, 0, e.vbo.size(), cube_instances.size());
+            glDrawArraysInstanced(GL_POINTS, 0, e.vbo.size(), 1000000);
         }
         VAO::Unbind();
 

@@ -1,8 +1,8 @@
 // Classic projection matrix
 vec4 projx(vec3 v) {
     float fov = 90. * 3.1415 / 180;
-    float near = 0.01;
-    float far = 100.;
+    float near = 0.1;
+    float far = 1000.;
     float n = near;
     float f = far;
 

@@ -173,3 +173,18 @@ size_t registerAttributes<model_skybox_cube::vertex>(int i) {
     return VertexResolver::Register<Vector3, Vector3, Vector2>(i);
 }
 
+namespace model_point {
+    struct vertex {
+        Vector3 pos;
+    };
+
+    [[maybe_unused]]
+    constexpr std::array vertices = {
+        vertex { { 0.0f, 0.0f, 0.0f } },
+    };
+}
+template <>
+size_t registerAttributes<model_point::vertex>(int i) {
+    return VertexResolver::Register<Vector3>(i);
+}
+
