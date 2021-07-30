@@ -7,6 +7,7 @@
 #include "GLScripts.h"
 #include "model_data.h"
 #include "UBOScripts.h"
+#include "attributes.h"
 
 #include "Transform.h"
 #include "Camera.h"
@@ -54,7 +55,7 @@ int main() try {
 
         cube_mesh.vao.Bind();
         cube_instances.Bind();
-        size_t n = VertexResolver::Register<Vector3, Quaternion, float>(3);
+        size_t n = registerAttributes<Transform>(3);
         for (size_t i = 0; i < n; i++) {
             glEnableVertexAttribArray(3+i);
             glVertexAttribDivisor(3+i, 1);

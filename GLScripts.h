@@ -18,6 +18,8 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#include "registerAttributes.h"
+
 struct Mesh {
     VAO vao;
     VBO vbo;
@@ -29,7 +31,7 @@ Mesh make_mesh(const T& data) {
     {
         vao.Bind();
         vbo.Bind();
-        size_t nAttrs = T::value_type::registerAttributes();
+        size_t nAttrs = registerAttributes<typename T::value_type>(0);
         for (size_t i = 0; i < nAttrs; i++) {
             glEnableVertexAttribArray(i);
         }

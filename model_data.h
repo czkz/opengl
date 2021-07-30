@@ -4,16 +4,13 @@
 #include <Vector.h>
 #include <Quaternion.h>
 #include "VertexResolver.h"
+#include "registerAttributes.h"
 
 namespace model_cube {
     struct vertex {
         Vector3 pos;
         Vector3 normal;
         Vector2 texCoord;
-
-        static size_t registerAttributes() {
-            return VertexResolver::Register<Vector3, Vector3, Vector2>();
-        }
     };
 
     [[maybe_unused]]
@@ -56,16 +53,16 @@ namespace model_cube {
         vertex { { -0.5f, +0.5f, +0.5f }, { +0.0f, +1.0f, +0.0f }, { 0.0f, 0.0f } },
     };
 }
+template <>
+size_t registerAttributes<model_cube::vertex>(int i) {
+    return VertexResolver::Register<Vector3, Vector3, Vector2>(i);
+}
 
 namespace model_plane_normals {
     struct vertex {
         Vector3 pos;
         Vector3 normal;
         Vector2 texCoord;
-
-        static size_t registerAttributes() {
-            return VertexResolver::Register<Vector3, Vector3, Vector2>();
-        }
     };
 
     [[maybe_unused]]
@@ -78,14 +75,14 @@ namespace model_plane_normals {
         vertex { { -0.5f,  0.0f, -0.5f },  { 0.0f,  1.0f,  0.0f },  { 0.0f, 1.0f } }
     };
 }
+template <>
+size_t registerAttributes<model_plane_normals::vertex>(int i) {
+    return VertexResolver::Register<Vector3, Vector3, Vector2>(i);
+}
 
 namespace model_ndc_quad {
     struct vertex {
         Vector2 pos;
-
-        static size_t registerAttributes() {
-            return VertexResolver::Register<Vector2>();
-        }
     };
 
     [[maybe_unused]]
@@ -98,14 +95,14 @@ namespace model_ndc_quad {
         vertex { { -1.0f,  1.0f } },
     };
 }
+template <>
+size_t registerAttributes<model_ndc_quad::vertex>(int i) {
+    return VertexResolver::Register<Vector3, Vector3, Vector2>(i);
+}
 
 namespace model_ndc_points {
     struct vertex {
         Vector2 pos;
-
-        static size_t registerAttributes() {
-            return VertexResolver::Register<Vector2>();
-        }
     };
 
     [[maybe_unused]]
@@ -116,14 +113,14 @@ namespace model_ndc_points {
         vertex { { -0.5f,  0.5f } },
     };
 }
+template <>
+size_t registerAttributes<model_ndc_points::vertex>(int i) {
+    return VertexResolver::Register<Vector3, Vector3, Vector2>(i);
+}
 
 namespace model_skybox_cube {
     struct vertex {
         Vector3 pos;
-
-        static size_t registerAttributes() {
-            return VertexResolver::Register<Vector3>();
-        }
     };
 
     [[maybe_unused]]
@@ -170,5 +167,9 @@ namespace model_skybox_cube {
         vertex { {-1.0f, -1.0f,  1.0f} },
         vertex { { 1.0f, -1.0f,  1.0f} }
     };
+}
+template <>
+size_t registerAttributes<model_skybox_cube::vertex>(int i) {
+    return VertexResolver::Register<Vector3, Vector3, Vector2>(i);
 }
 
