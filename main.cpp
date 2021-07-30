@@ -46,27 +46,20 @@ int main() try {
     VBO cube_instances;
     {
         std::vector<Transform> v;
-        v.push_back({{0, 0, 0}, Quaternion::Rotation(0, {0, 0, 1})});
-        v.push_back({{0, 0, 2}, Quaternion::Rotation(0, {0, 0, 1})});
-        v.push_back({{0, 2, 0}, Quaternion::Rotation(0, {0, 0, 1})});
-        v.push_back({{0, 2, 2}, Quaternion::Rotation(0, {0, 0, 1})});
-        v.push_back({{2, 0, 0}, Quaternion::Rotation(0, {0, 0, 1})});
-        v.push_back({{2, 0, 2}, Quaternion::Rotation(0, {0, 0, 1})});
-        v.push_back({{2, 2, 0}, Quaternion::Rotation(0, {0, 0, 1})});
-        v.push_back({{2, 2, 2}, Quaternion::Rotation(0, {0, 0, 1})});
+        for (int i = 0; i < 10000; i++) {
+            using namespace std::numbers;
+            v.push_back({Quaternion::Rotation(i * 2 * pi * phi, {0, 0, 1}).Rotate({std::sqrt(i*2.0f), 0, 0}), Quaternion::Rotation(i * 2 * pi * phi, {0, 0, 1})});
+        }
         cube_instances.LoadData(v, GL_DYNAMIC_DRAW);
 
         cube_mesh.vao.Bind();
         cube_instances.Bind();
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 8*4, (void*)(0*4));
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 8*4, (void*)(3*4));
-        glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 8*4, (void*)(7*4));
-        glEnableVertexAttribArray(3);
-        glEnableVertexAttribArray(4);
-        glEnableVertexAttribArray(5);
-        glVertexAttribDivisor(3, 1);
-        glVertexAttribDivisor(4, 1);
-        glVertexAttribDivisor(5, 1);
+        size_t n = VertexResolver::Register<Vector3, Quaternion, float>(3);
+        for (size_t i = 0; i < n; i++) {
+            glEnableVertexAttribArray(3+i);
+            glVertexAttribDivisor(3+i, 1);
+        }
+
         cube_mesh.vao.Unbind();
     }
 
@@ -101,7 +94,7 @@ int main() try {
             prog.SetTexture("u_material.diffuse", cube_diffuse, 0);
             prog.SetTexture("u_material.specular", cube_specular, 1);
             prog.SetFloat("u_material.shininess", 32);
-            glDrawArraysInstanced(GL_TRIANGLES, 0, e.vbo.size(), 8);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, e.vbo.size(), cube_instances.size());
         }
         VAO::Unbind();
 

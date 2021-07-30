@@ -8,7 +8,7 @@ class VertexResolver {
     static consteval std::pair<GLint, GLenum> OpenGL_attributeType(float*)      { return std::make_pair(1, GL_FLOAT); }
     static consteval std::pair<GLint, GLenum> OpenGL_attributeType(Vector3*)    { return std::make_pair(3, GL_FLOAT); }
     static consteval std::pair<GLint, GLenum> OpenGL_attributeType(Vector2*)    { return std::make_pair(2, GL_FLOAT); }
-    static consteval std::pair<GLint, GLenum> OpenGL_attributeType(Quaternion*) { return std::make_pair(3, GL_FLOAT); }
+    static consteval std::pair<GLint, GLenum> OpenGL_attributeType(Quaternion*) { return std::make_pair(4, GL_FLOAT); }
 
     template <typename Curr, typename... Ts>
     static size_t _registerAttributes(int i = 0, size_t bytes = 0) {
@@ -23,8 +23,8 @@ class VertexResolver {
 
 public:
     template <typename... Ts>
-    static size_t Register() {
-        _registerAttributes<Ts...>();
+    static size_t Register(int i = 0) {
+        _registerAttributes<Ts...>(i);
         return sizeof...(Ts);
     }
 };
