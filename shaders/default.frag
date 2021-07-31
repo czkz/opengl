@@ -11,8 +11,11 @@ layout (std140) uniform Camera {
 } camera;
 
 ##include linalg.glsl
+##include projection.glsl
 
 void main() {
-    vec3 c = vec3(50.0 / distance(_in.pos, zUp2zBack(camera.position)));
+    float f = distance(_in.pos, zUp2zBack(camera.position));
+    f = pow(f / projx_far, 0.5);
+    vec3 c = vec3(1.0 - f);
     FragColor = vec4(c, 1.0f);
 }
