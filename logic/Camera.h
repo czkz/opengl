@@ -5,8 +5,13 @@
 
 class SpaceCamera {
 public:
-    Vector3 position;
+    Vector3 targetPosition;
+    Vector3 currentPosition;
     Quaternion rotation;
+
+    SpaceCamera(Vector3 position, Quaternion rotation)
+        : targetPosition(position), currentPosition(position), rotation(rotation)
+    { }
 
     const Quaternion& getRotation() const {
         return rotation;
@@ -25,36 +30,12 @@ public:
     }
 
     void Move(const Vector3& localSpaceTranslation) {
-        position += rotation.Rotate(localSpaceTranslation);
-    }
-};
-
-class FPSCamera {
-public:
-    Vector3 position;
-    Vector3 euler;
-    /// Negative = no limit
-    float maxPitch = 90 / 180.f * M_PI;
-
-    const Quaternion getRotation() const {
-        return Quaternion::Euler(euler);
+        targetPosition += rotation.Rotate(localSpaceTranslation);
     }
 
-    void ClampPitch() {
-        if (maxPitch > 0) {
-            euler.x = std::clamp<VEC_REAL_T>(euler.x, -maxPitch, +maxPitch);
-        }
-    }
-
-    /// Avoids float precision loss at high values by avoiding high values
-    void WrapYaw() {
-        euler.z = fmod(euler.z, 4);
-    }
-
-    void Move(Vector3 localMovement) {
-        Vector3& v = localMovement;
-        const Vector2 i (cos(euler.z), sin(euler.z));
-        position += Vector3(v.x*i.x - v.y*i.y, v.y*i.x + v.x*i.y, v.z);
+    void onTick(float deltaTime) {
+        static constexpr float t = 0.005;
+        currentPosition = Vector3::Lerp(currentPosition, targetPosition, 1 - pow(1 - t, deltaTime));
     }
 };
 

@@ -33,7 +33,7 @@ int main() try {
     // FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
     SpaceCamera camera = { camInitialPos, camInitialRot };
     FrameCounter frameCounter;
-    float cameraSpeed = 20;
+    float cameraSpeed = 100;
     window.onSizeChanged = [](int width, int height) {
         glViewport(0, 0, width, height);
     };

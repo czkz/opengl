@@ -11,7 +11,7 @@ namespace UBOStruct {
     inline Camera make_camera(const auto& v) {
         return {
             v.getRotation(),
-            v.position
+            v.currentPosition
         };
     }
 

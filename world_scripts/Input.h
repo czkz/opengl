@@ -50,30 +50,6 @@ namespace Input {
     }
 
     namespace Camera {
-        inline void onMouseMove(class FPSCamera& camera, float x, float y) {
-            static Vector2 prev (x, y);
-            const Vector2 curr (x, y);
-            Vector2 v = curr - prev;
-            prev = curr;
-
-            constexpr float sensitivity = 0.002;
-            v *= sensitivity;
-
-            camera.euler += {-v.y, 0, -v.x};
-            camera.ClampPitch();
-        }
-
-        inline void onTick(GLFWwindow* window, class FPSCamera& camera, float deltaTime, float speed = 1) {
-            if (const auto move = inputMove(window)) {
-                camera.Move(move * deltaTime * 0.05 * speed);
-            }
-            if (const auto rot = inputRot(window)) {
-                camera.euler += rot * deltaTime * 0.05;
-                camera.ClampPitch();
-            }
-        }
-
-
         inline void onMouseMove(class SpaceCamera& camera, float x, float y) {
             static Vector2 prev (x, y);
             const Vector2 curr (x, y);
@@ -94,6 +70,7 @@ namespace Input {
             if (const auto rot = inputRot(window)) {
                 camera.rotation = camera.rotation * Quaternion::Euler(rot * deltaTime * 0.05);
             }
+            camera.onTick(deltaTime);
         }
     }
 }
