@@ -34,7 +34,7 @@ public:
     }
 
     void onTick(float deltaTime) {
-        static constexpr float t = 0.005;
+        static constexpr float t = 0.1;
         currentPosition = Vector3::Lerp(currentPosition, targetPosition, 1 - pow(1 - t, deltaTime));
     }
 };
