@@ -26,13 +26,13 @@ int main() try {
     };
     const Vector3 camInitialPos = Quaternion::Euler({
         rndAng(), rndAng(), rndAng()
-    }).Rotate({ 1500, 0, 0 });
+    }).Rotate({ 150, 0, 0 });
     const Quaternion camInitialRot = Quaternion::Euler({
         rndAng(), rndAng(), rndAng()
     });
     SpaceCamera camera = { camInitialPos, camInitialRot };
     FrameCounter frameCounter;
-    float cameraSpeed = 100;
+    float cameraSpeed = 10;
     window.onSizeChanged = [](int width, int height) {
         glViewport(0, 0, width, height);
     };
