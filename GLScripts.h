@@ -9,7 +9,6 @@
 
 #include <dbg.h>
 
-#include "model_loader.h"
 #include "make_shader.h"
 
 #include "BufferObject.h"
@@ -40,11 +39,6 @@ Mesh make_mesh(const T& data) {
     }
     VAO::Unbind();
     return Mesh { std::move(vao), std::move(vbo), nAttrs };
-}
-
-// See MeshEx in assimp.h
-inline std::vector<MeshEx> make_model(std::string path) {
-    return model_loader::loadModel(std::move(path));
 }
 
 /// Does not load data
