@@ -27,21 +27,14 @@ void main() {
     position = qRotate(position, rotation1);
     position = qRotate(position, rotation2);
 
-    // position.z += sin(u_time + gl_InstanceID * 0.1);
-
-    // position.x += snoise(vec4(position*0.5, (u_time + 100.0)*0.1));
-    // position.y += snoise(vec4(position*0.5, (u_time + 200.0)*0.1));
-    // position.z += snoise(vec4(position*0.5, (u_time + 300.0)*0.1));
-
-    vec4 rotation3;
-    rotation3.x += snoise(vec4(position*0.01, (u_time + 100.0)*0.001));
-    rotation3.y += snoise(vec4(position*0.01, (u_time + 200.0)*0.001));
-    rotation3.z += snoise(vec4(position*0.01, (u_time + 300.0)*0.001));
-    rotation3.w += snoise(vec4(position*0.01, (u_time + 400.0)*0.001));
+    vec4 rotation3 = vec4(
+        snoise(vec4(position*1.0, 10.)),
+        snoise(vec4(position*1.0, 20.)),
+        snoise(vec4(position*1.0, 30.)),
+        snoise(vec4(position*1.0, 40.))
+    );
     position = qRotate(position, rotation3);
 
-    // p = qRotate(p, zUp2zBack(rotation));
-    // p *= scale;
     vec3 p = zUp2zBack(position);
     _out.pos = p;
     p -= zUp2zBack(camera.position);
