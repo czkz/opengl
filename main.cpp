@@ -20,8 +20,18 @@ int main() try {
     constexpr unsigned int windowWidth = 1000;
     constexpr unsigned int windowHeight = 1000;
     Window window (windowWidth, windowHeight, "Sample Text");
+    srand(time(0));
+    const auto rndAng = []() -> float {
+        return rand()/RAND_MAX*2*std::numbers::pi;
+    };
+    const Vector3 camInitialPos = Quaternion::Euler({
+        rndAng(), rndAng(), rndAng()
+    }).Rotate({ 1500, 0, 0 });
+    const Quaternion camInitialRot = Quaternion::Euler({
+        rndAng(), rndAng(), rndAng()
+    });
     // FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
-    SpaceCamera camera = { {0, -2000, 0}, Quaternion::Identity() };
+    SpaceCamera camera = { camInitialPos, camInitialRot };
     FrameCounter frameCounter;
     float cameraSpeed = 20;
     window.onSizeChanged = [](int width, int height) {
