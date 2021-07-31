@@ -6,15 +6,14 @@ add_project_arguments('-std=c++20', language : 'cpp')
 
 glfw = dependency('glfw3')
 opengl = dependency('GL')
-assimp = dependency('assimp')
 
 subdir('third_party/glad')
 
 executable (
   'opengl',
-  'main.cpp', 'third_party/stb_image/stb_image.cpp', 'utils/model_loader.cpp',
+  'main.cpp', 'third_party/stb_image/stb_image.cpp',
   install : true,
-  dependencies : [opengl, glfw, assimp],
+  dependencies : [opengl, glfw],
   include_directories: [
     glad_inc, include_directories('../cp'),
     include_directories('world_scripts/'),
