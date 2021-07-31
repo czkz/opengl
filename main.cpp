@@ -22,7 +22,7 @@ int main() try {
     Window window (windowWidth, windowHeight, "Sample Text");
     srand(time(0));
     const auto rndAng = []() -> float {
-        return rand()/RAND_MAX*2*std::numbers::pi;
+        return (float) rand() / (float) RAND_MAX * 2 * std::numbers::pi;
     };
     const Vector3 camInitialPos = Quaternion::Euler({
         rndAng(), rndAng(), rndAng()
@@ -30,7 +30,6 @@ int main() try {
     const Quaternion camInitialRot = Quaternion::Euler({
         rndAng(), rndAng(), rndAng()
     });
-    // FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
     SpaceCamera camera = { camInitialPos, camInitialRot };
     FrameCounter frameCounter;
     float cameraSpeed = 100;
@@ -57,7 +56,6 @@ int main() try {
     });
 
     ShaderProg prog = make_prog("shaders/default");
-    auto cube_mesh = make_mesh(model_point::vertices);
 
     UBO camera_ubo;
     camera_ubo.BindingPoint(0);
@@ -67,6 +65,10 @@ int main() try {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
+
+    VAO vao;
+    vao.Bind();
+    prog.Use();
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
         // dp(frameCounter.deltaTime);
@@ -77,18 +79,13 @@ int main() try {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        {
-            auto& e = cube_mesh;
-            e.vao.Bind();
-            prog.Use();
-            prog.SetFloat("u_time", glfwGetTime());
-            glDrawArraysInstanced(GL_POINTS, 0, e.vbo.size(), 1000000);
-        }
-        VAO::Unbind();
+        prog.SetFloat("u_time", glfwGetTime());
+        glDrawArraysInstanced(GL_POINTS, 0, 1, 1000000);
 
         glfwSwapBuffers(window.handle);
         glfwPollEvents();
     }
+    VAO::Unbind();
 
     return 0;
 } catch (const std::exception& e) {

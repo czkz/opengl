@@ -1,5 +1,4 @@
 #version 330 core
-layout (location = 0) in vec3 aPos;
 
 out SHARED {
     vec3 pos;
@@ -20,10 +19,11 @@ const float pi = 3.1415926535897932384626433833;
 const float phi = 1.618033988749894848204586834;
 
 void main() {
-    float halfang = fract(sqrt(gl_InstanceID) * phi) * pi;
+    float si = sqrt(gl_InstanceID);
+    float halfang = fract(si * phi) * pi;
     vec4 rotation1 = vec4(vec3(0.0, 0.0, 1.0) * sin(halfang), cos(halfang));
-    vec4 rotation2 = vec4(vec3(0.0, 1.0, 0.0) * sin(halfang), cos(halfang));
-    vec3 position = vec3(sqrt(gl_InstanceID), 0.0, 0.0);
+    vec4 rotation2 = vec4(vec3(0.0, 1.0, 0.0) * sin(halfang*pi), cos(halfang*pi));
+    vec3 position = vec3(si, 0.0, 0.0);
     position = qRotate(position, rotation1);
     position = qRotate(position, rotation2);
 
@@ -40,10 +40,9 @@ void main() {
     rotation3.w += snoise(vec4(position*0.01, (u_time + 400.0)*0.001));
     position = qRotate(position, rotation3);
 
-    vec3 p = aPos;
     // p = qRotate(p, zUp2zBack(rotation));
     // p *= scale;
-    p += zUp2zBack(position);
+    vec3 p = zUp2zBack(position);
     _out.pos = p;
     p -= zUp2zBack(camera.position);
     p = qRotate(p, zUp2zBack(qInverse(camera.rotation)));
