@@ -19,8 +19,8 @@ public:
     /// TODO move to private
     GLFWwindow* handle;
 
-    Window(int width, int height, const char* title)
-        : CallbackCapture(create_window(width, height, title))
+    Window(int width, int height, const char* title, int samples = 1)
+        : CallbackCapture(create_window(width, height, title, samples))
         , handle(CallbackCapture::windowHandle)
     {
         registerAllCallbacks();
@@ -44,13 +44,14 @@ public:
     std::function<void(int width, int height)> onSizeChanged = nullptr;
 
 private:
-    static GLFWwindow* create_window(int width, int height, const char* title) {
+    static GLFWwindow* create_window(int width, int height, const char* title, int samples) {
         // Init on first Window, terminate on program termination
         static glfwSystem _glfw = glfwSystem();
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_SAMPLES, samples);
         #ifdef __APPLE__
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         #endif

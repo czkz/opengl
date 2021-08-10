@@ -19,7 +19,7 @@
 int main() try {
     constexpr unsigned int windowWidth = 1000;
     constexpr unsigned int windowHeight = 1000;
-    Window window (windowWidth, windowHeight, "Sample Text");
+    Window window (windowWidth, windowHeight, "Sample Text", 4);
     FPSCamera camera = { {0, 0, 0}, {0, 0, 0} };
     // SpaceCamera camera = { {0, 0, 0}, Quaternion::Identity() };
     FrameCounter frameCounter;
@@ -61,6 +61,7 @@ int main() try {
     constexpr Vector3 backgroundColor = {0, 0, 0};
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
