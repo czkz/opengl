@@ -76,19 +76,20 @@ namespace {
         VAO vao;
         VBO vbo (vertices);
         EBO ebo (indices);
+
         vao.Bind();
-        {
-            vbo.Bind();
-            ebo.Bind();
-            size_t nAttrs = T1::value_type::registerAttributes();
-            for (size_t i = 0; i < nAttrs; i++) {
-                glEnableVertexAttribArray(i);
-            }
+        vbo.Bind();
+        ebo.Bind();
+        size_t nAttrs = T1::value_type::registerAttributes();
+        for (size_t i = 0; i < nAttrs; i++) {
+            glEnableVertexAttribArray(i);
         }
         VAO::Unbind();
+
         return MeshEx {
             std::move(vao), std::move(vbo), std::move(ebo),
-            std::move(textures_diffuse), std::move(textures_specular)
+            std::move(textures_diffuse), std::move(textures_specular),
+            nAttrs
         };
     }
 

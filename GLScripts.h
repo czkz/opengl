@@ -47,15 +47,13 @@ inline std::vector<MeshEx> make_model(std::string path) {
     return model_loader::loadModel(std::move(path));
 }
 
-/// Does not load data
-template <typename T>
-VBO make_instance_vbo(auto& mesh, const T& data) {
+template <typename VBOElement>
+void make_mesh_instanced(auto& mesh, VBO& instance_vbo) {
     int initialAttrs = mesh.n_attributes;
-    VBO instance_vbo (data);
     {
         mesh.vao.Bind();
         instance_vbo.Bind();
-        size_t nAttrs = registerAttributes<typename T::value_type>(initialAttrs);
+        size_t nAttrs = registerAttributes<VBOElement>(initialAttrs);
         for (size_t i = 0; i < nAttrs; i++) {
             glEnableVertexAttribArray(initialAttrs + i);
             glVertexAttribDivisor(initialAttrs + i, 1);
@@ -63,7 +61,6 @@ VBO make_instance_vbo(auto& mesh, const T& data) {
         mesh.n_attributes += nAttrs;
     }
     VAO::Unbind();
-    return instance_vbo;
 }
 
 inline Texture make_texture(const char* filename, std::optional<GLenum> format = std::nullopt) {

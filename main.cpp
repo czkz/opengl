@@ -40,23 +40,16 @@ int main() try {
     });
 
     ShaderProg prog = make_prog("shaders/default");
-    auto cube_mesh = make_mesh(model_cube::vertices);
-    auto cube_diffuse = make_texture("textures/container2.png");
-    auto cube_specular = make_texture("textures/container2_specular.png");
-
-    std::vector<Transform> cube_transforms;
-    for (int i = 0; i < 10000; i++) {
-        using namespace std::numbers;
-        const Quaternion rot = Quaternion::Rotation(i * 2 * pi * phi, {0, 0, 1});
-        const Vector3 pos = rot.Rotate({std::sqrt(i*2.0f), 0, 0});
-        cube_transforms.push_back({ std::move(pos), std::move(rot) });
-    }
-    auto cube_instances = make_instance_vbo(cube_mesh, cube_transforms);
-    cube_instances.LoadData(cube_transforms, GL_DYNAMIC_DRAW);
+    auto model_meshes = make_model("textures/backpack/backpack.obj");
 
     UBO camera_ubo;
     camera_ubo.BindingPoint(0);
     prog.BindUBO("Camera", 0);
+
+    auto model_instances = VBO();
+    for (auto& e : model_meshes) {
+        make_mesh_instanced<Transform>(e, model_instances);
+    }
 
     constexpr Vector3 backgroundColor = {0, 0, 0};
     glEnable(GL_DEPTH_TEST);
@@ -72,15 +65,17 @@ int main() try {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        {
-            auto& e = cube_mesh;
+        model_instances.LoadData(std::to_array({
+            Transform {{0, 0, 0}, Quaternion::Rotation(glfwGetTime() / 10, {0, 0, 1})},
+        }), GL_DYNAMIC_DRAW);
+        for (auto& e : model_meshes) {
             e.vao.Bind();
             prog.Use();
             prog.SetFloat("u_time", glfwGetTime());
-            prog.SetTexture("u_material.diffuse", cube_diffuse, 0);
-            prog.SetTexture("u_material.specular", cube_specular, 1);
+            prog.SetTexture("u_material.diffuse", *e.textures_diffuse.at(0), 0);
+            prog.SetTexture("u_material.specular", *e.textures_specular.at(0), 1);
             prog.SetFloat("u_material.shininess", 32);
-            glDrawArraysInstanced(GL_TRIANGLES, 0, e.vbo.size(), cube_instances.size());
+            glDrawElementsInstanced(GL_TRIANGLES, e.ebo.size(), GL_UNSIGNED_INT, 0, model_instances.size());
         }
         VAO::Unbind();
 
