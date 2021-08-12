@@ -71,7 +71,8 @@ namespace {
     MeshEx make_mesh_ex(const T1& vertices,
                         const T2& indices,
                         std::vector<MeshEx::CachedTexture> textures_diffuse,
-                        std::vector<MeshEx::CachedTexture> textures_specular)
+                        std::vector<MeshEx::CachedTexture> textures_specular,
+                        std::vector<MeshEx::CachedTexture> textures_normals)
     {
         VAO vao;
         VBO vbo (vertices);
@@ -88,7 +89,9 @@ namespace {
 
         return MeshEx {
             std::move(vao), std::move(vbo), std::move(ebo),
-            std::move(textures_diffuse), std::move(textures_specular),
+            std::move(textures_diffuse),
+            std::move(textures_specular),
+            std::move(textures_normals),
             nAttrs
         };
     }
@@ -130,11 +133,14 @@ namespace {
                 directory, aiTextureType_DIFFUSE);
         std::vector<MeshEx::CachedTexture> specularMaps = loadMaterialTextures(material,
                 directory, aiTextureType_SPECULAR);
+        std::vector<MeshEx::CachedTexture> normalMaps = loadMaterialTextures(material,
+                directory, aiTextureType_NORMALS);
 
         return make_mesh_ex (std::move(vertices),
                              std::move(indices),
                              std::move(diffuseMaps),
-                             std::move(specularMaps));
+                             std::move(specularMaps),
+                             std::move(normalMaps));
     }
 
 }

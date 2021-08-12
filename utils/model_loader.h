@@ -13,6 +13,7 @@ struct MeshEx {
     EBO ebo;
     std::vector<CachedTexture> textures_diffuse;
     std::vector<CachedTexture> textures_specular;
+    std::vector<CachedTexture> textures_normals;
     size_t n_attributes = 0;
 };
 
