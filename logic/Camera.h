@@ -42,7 +42,7 @@ public:
 
     void ClampPitch() {
         if (maxPitch > 0) {
-            euler.x = std::clamp<VEC_REAL_T>(euler.x, -maxPitch, +maxPitch);
+            euler.x = std::clamp<decltype(Vector3::x)>(euler.x, -maxPitch, +maxPitch);
         }
     }
 

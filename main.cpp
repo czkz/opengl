@@ -62,6 +62,7 @@ int main() try {
     glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
+    glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     while(!glfwWindowShouldClose(window.handle)) {
         frameCounter.tick();
         Input::Application::onTick(window.handle);
@@ -96,7 +97,7 @@ int main() try {
             prog.SetTexture("u_material.diffuse", floor_diffuse, 0);
             prog.SetTexture("u_material.specular", floor_specular, 1);
             prog.SetFloat("u_material.shininess", 16);
-            glDrawArraysInstanced(GL_TRIANGLES, 0, e.vbo.size(), model_instances.size());
+            glDrawArraysInstanced(GL_TRIANGLES, 0, e.vbo.size(), floor_instances.size());
         }
         VAO::Unbind();
 

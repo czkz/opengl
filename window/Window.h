@@ -16,7 +16,6 @@ class Window : public CallbackCapture<Window> {
     };
 
 public:
-    /// TODO move to private
     GLFWwindow* handle;
 
     Window(int width, int height, const char* title, int samples = 1)
@@ -60,8 +59,6 @@ private:
         if (handle == nullptr) {
             throw std::runtime_error("Failed to create window!");
         }
-
-        glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         if (glfwRawMouseMotionSupported()) {
             glfwSetInputMode(handle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
