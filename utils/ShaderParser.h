@@ -6,7 +6,7 @@
 #include <string_view>
 
 /// Parses include directives, use each instance once!
-class ShaderParser {
+class _ShaderParser {
 public:
     static constexpr std::string_view directive = "##include ";
 private:
@@ -52,3 +52,9 @@ public:
         }
     }
 };
+
+/// parse_shader preprocesses shader code (include support).
+/// Throws std::runtime_error.
+std::string parse_shader(std::filesystem::path file) {
+    return _ShaderParser().parse(std::move(file));
+}
