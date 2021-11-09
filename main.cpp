@@ -4,8 +4,7 @@
 #include "KeyboardManager.h"
 #include "Window.h"
 
-#include "utils/ShaderParser.h"
-#include "scripts.h"
+#include "gl/shaders.h"
 
 int main() try {
     constexpr unsigned int windowWidth = 1000;
@@ -32,27 +31,14 @@ int main() try {
         +0.0f, +0.5f
     };
 
-    GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    std::string vertex_shader_code = parse_shader("shader.vert");
-    const char* vertex_shader_code_cstr = vertex_shader_code.c_str();
-    int vertex_shader_code_len = vertex_shader_code.length();
-    glShaderSource(vertex_shader, 1, &vertex_shader_code_cstr, &vertex_shader_code_len);
-    glCompileShader(vertex_shader);
-    dp(getErrorLog(vertex_shader));
-
-    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    std::string fragment_shader_code = parse_shader("shader.frag");
-    const char* fragment_shader_code_cstr = fragment_shader_code.c_str();
-    int fragment_shader_code_len = fragment_shader_code.length();
-    glShaderSource(fragment_shader, 1, &fragment_shader_code_cstr, &fragment_shader_code_len);
-    glCompileShader(fragment_shader);
-    dp(getErrorLog(fragment_shader));
+    GLuint vertex_shader = gl::create_shader(GL_VERTEX_SHADER, "shader.vert");
+    GLuint fragment_shader = gl::create_shader(GL_FRAGMENT_SHADER, "shader.frag");
 
     GLuint shader_prog = glCreateProgram();
     glAttachShader(shader_prog, vertex_shader);
     glAttachShader(shader_prog, fragment_shader);
     glLinkProgram(shader_prog);
-    dp(getProgErrorLog(shader_prog));
+    gl::assert_link_successful(shader_prog);
 
     GLuint vao;
     glGenVertexArrays(1, &vao);
@@ -72,7 +58,6 @@ int main() try {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shader_prog);
-
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window.handle);
