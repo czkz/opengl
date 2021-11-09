@@ -10,7 +10,7 @@
 int main() try {
     constexpr unsigned int windowWidth = 1000;
     constexpr unsigned int windowHeight = 1000;
-    Window window (windowWidth, windowHeight, "Sample Text", 4);
+    Window window (windowWidth, windowHeight, "Sample Text", 4, true);
     window.onSizeChanged = [](int width, int height) {
         glViewport(0, 0, width, height);
     };
@@ -27,7 +27,7 @@ int main() try {
 
     int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-        dp("Debug context");
+        dp("Debug context active");
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(gl::debug_callback, nullptr);

@@ -18,8 +18,8 @@ class Window : public CallbackCapture<Window> {
 public:
     GLFWwindow* handle;
 
-    Window(int width, int height, const char* title, int samples = 1)
-        : CallbackCapture(create_window(width, height, title, samples))
+    Window(int width, int height, const char* title, int samples = 1, bool debug = false)
+        : CallbackCapture(create_window(width, height, title, samples, debug))
         , handle(CallbackCapture::windowHandle)
     {
         registerAllCallbacks();
@@ -43,7 +43,7 @@ public:
     std::function<void(int width, int height)> onSizeChanged = nullptr;
 
 private:
-    static GLFWwindow* create_window(int width, int height, const char* title, int samples) {
+    static GLFWwindow* create_window(int width, int height, const char* title, int samples, bool debug) {
         // Init on first Window, terminate on program termination
         static glfwSystem _glfw = glfwSystem();
 
@@ -51,7 +51,9 @@ private:
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_SAMPLES, samples);
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+        if (debug) {
+            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+        }
         #ifdef __APPLE__
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         #endif
