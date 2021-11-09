@@ -50,6 +50,8 @@ int main() try {
     glLinkProgram(shader_prog);
     gl::assert_link_successful(shader_prog);
 
+    GLint u_time_location = glGetUniformLocation(shader_prog, "u_time");
+
     GLuint vao;
     glGenVertexArrays(1, &vao);
 
@@ -68,6 +70,7 @@ int main() try {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shader_prog);
+        glUniform1f(u_time_location, glfwGetTime());
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window.handle);
