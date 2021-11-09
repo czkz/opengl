@@ -56,6 +56,8 @@ int main() try {
     gl::assert_link_successful(shader_prog);
 
     GLint u_time_location = glGetUniformLocation(shader_prog, "u_time");
+    GLint tex0_location = glGetUniformLocation(shader_prog, "tex0");
+    GLint tex1_location = glGetUniformLocation(shader_prog, "tex1");
 
     //////// VAO, VBO
     GLuint vao;
@@ -73,19 +75,33 @@ int main() try {
     glEnableVertexAttribArray(1);
 
     //////// Textures
-    util::image img = util::load_image("wood.png");
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img.w, img.h, 0, img.format, GL_UNSIGNED_BYTE, img.data);
+    util::image wood_img = util::load_image("wood.png");
+    GLuint wood_texture;
+    glGenTextures(1, &wood_texture);
+    glBindTexture(GL_TEXTURE_2D, wood_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wood_img.w, wood_img.h, 0, wood_img.format, GL_UNSIGNED_BYTE, wood_img.data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    util::image dev_img = util::load_image("checkerboard.png");
+    GLuint dev_texture;
+    glGenTextures(1, &dev_texture);
+    glBindTexture(GL_TEXTURE_2D, dev_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dev_img.w, dev_img.h, 0, dev_img.format, GL_UNSIGNED_BYTE, dev_img.data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    //////// Bind textures
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, wood_texture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, dev_texture);
 
     glClearColor(0.1, 0.1, 0.1, 1.0);
     while(!glfwWindowShouldClose(window.handle)) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shader_prog);
+        glUniform1i(tex0_location, 0);
+        glUniform1i(tex1_location, 1);
         glUniform1f(u_time_location, glfwGetTime());
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
