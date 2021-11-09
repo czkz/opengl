@@ -9,6 +9,8 @@
 
 #include <Vector.h>
 
+#include "util/load_image.h"
+
 int main() try {
     constexpr unsigned int windowWidth = 1000;
     constexpr unsigned int windowHeight = 1000;
@@ -38,11 +40,12 @@ int main() try {
 
 
     constexpr auto tri_data = std::to_array({
-        std::make_pair(Vector2{-0.5f, -0.5f}, Vector3{1.0f, 0.0f, 0.0f}),
-        std::make_pair(Vector2{+0.5f, -0.5f}, Vector3{0.0f, 1.0f, 0.0f}),
-        std::make_pair(Vector2{+0.0f, +0.5f}, Vector3{0.0f, 0.0f, 1.0f}),
+        std::make_pair(Vector2{-0.5f, -0.5f}, Vector2{0.0f, 0.0f}),
+        std::make_pair(Vector2{+0.5f, -0.5f}, Vector2{1.0f, 0.0f}),
+        std::make_pair(Vector2{+0.0f, +0.5f}, Vector2{0.5f, 1.0f}),
     });
 
+    //////// Shaders
     GLuint vertex_shader = gl::create_shader(GL_VERTEX_SHADER, "shader.vert");
     GLuint fragment_shader = gl::create_shader(GL_FRAGMENT_SHADER, "shader.frag");
 
@@ -54,6 +57,7 @@ int main() try {
 
     GLint u_time_location = glGetUniformLocation(shader_prog, "u_time");
 
+    //////// VAO, VBO
     GLuint vao;
     glGenVertexArrays(1, &vao);
 
@@ -63,10 +67,18 @@ int main() try {
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(tri_data), tri_data.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(0));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(0));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+
+    //////// Textures
+    util::image img = util::load_image("wood.png");
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img.w, img.h, 0, img.format, GL_UNSIGNED_BYTE, img.data);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
 
     glClearColor(0.1, 0.1, 0.1, 1.0);
