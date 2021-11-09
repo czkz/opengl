@@ -7,6 +7,8 @@
 #include "gl/shaders.h"
 #include "gl/debug.h"
 
+#include <Vector.h>
+
 int main() try {
     constexpr unsigned int windowWidth = 1000;
     constexpr unsigned int windowHeight = 1000;
@@ -35,10 +37,10 @@ int main() try {
     }
 
 
-    constexpr float tri_data[] = {
-        -0.5f, -0.5f,
-        +0.5f, -0.5f,
-        +0.0f, +0.5f
+    constexpr Vector2 tri_data[] = {
+        Vector2{-0.5f, -0.5f},
+        Vector2{+0.5f, -0.5f},
+        Vector2{+0.0f, +0.5f},
     };
 
     GLuint vertex_shader = gl::create_shader(GL_VERTEX_SHADER, "shader.vert");
