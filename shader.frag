@@ -1,8 +1,13 @@
 #version 330 core
 out vec4 FragColor;
 
+in SHARED {
+    vec3 color;
+} _in;
+
 uniform float u_time;
 
 void main() {
-    FragColor = vec4(sin(u_time)*.5+.5, 0.0, 0.0, 1.0);
+    float t = abs(sin(u_time));
+    FragColor = vec4(_in.color * t, 1.0);
 }

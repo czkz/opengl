@@ -38,9 +38,9 @@ int main() try {
 
 
     constexpr auto tri_data = std::to_array({
-        std::make_tuple(Vector2{-0.5f, -0.5f}),
-        std::make_tuple(Vector2{+0.5f, -0.5f}),
-        std::make_tuple(Vector2{+0.0f, +0.5f}),
+        std::make_pair(Vector2{-0.5f, -0.5f}, Vector3{1.0f, 0.0f, 0.0f}),
+        std::make_pair(Vector2{+0.5f, -0.5f}, Vector3{0.0f, 1.0f, 0.0f}),
+        std::make_pair(Vector2{+0.0f, +0.5f}, Vector3{0.0f, 0.0f, 1.0f}),
     });
 
     GLuint vertex_shader = gl::create_shader(GL_VERTEX_SHADER, "shader.vert");
@@ -63,8 +63,10 @@ int main() try {
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(tri_data), tri_data.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(0));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
 
 
     glClearColor(0.1, 0.1, 0.1, 1.0);
