@@ -11,6 +11,9 @@
 
 #include "util/load_image.h"
 
+#include <Matrix.h>
+#include <Quaternion.h>
+
 int main() try {
     constexpr unsigned int windowWidth = 1000;
     constexpr unsigned int windowHeight = 1000;
@@ -58,6 +61,7 @@ int main() try {
     GLint u_time_location = glGetUniformLocation(shader_prog, "u_time");
     GLint tex0_location = glGetUniformLocation(shader_prog, "tex0");
     GLint tex1_location = glGetUniformLocation(shader_prog, "tex1");
+    GLint u_transform_location = glGetUniformLocation(shader_prog, "u_transform");
 
     //////// VAO, VBO
     GLuint vao;
@@ -103,6 +107,15 @@ int main() try {
         glUniform1i(tex0_location, 0);
         glUniform1i(tex1_location, 1);
         glUniform1f(u_time_location, glfwGetTime());
+        {
+            float t = glfwGetTime();
+            float sint = abs(sin(t));
+            MatrixS transform =
+                Vector3(0.5, 0, 0).TranslationMatrix() *
+                Quaternion::Rotation(t, Vector3(0, 0, 1)).RotationMatrix() *
+                Vector3(1, sint, 1).ScaleMatrix();
+            glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.data.data());
+        }
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window.handle);

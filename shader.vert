@@ -6,7 +6,11 @@ out SHARED {
     vec2 st;
 } _out;
 
+uniform mat4 u_transform;
+
 void main() {
     _out.st = aTexCoord;
-    gl_Position = vec4(aPos, 0.0, 1.0);
+    vec4 p = vec4(aPos, 0.0, 1.0);
+    p = u_transform * p;
+    gl_Position = p;
 }
