@@ -11,8 +11,7 @@
 
 #include "util/load_image.h"
 
-#include <Matrix.h>
-#include <Quaternion.h>
+#include <Transform.h>
 
 int main() try {
     constexpr unsigned int windowWidth = 1000;
@@ -110,11 +109,12 @@ int main() try {
         {
             float t = glfwGetTime();
             float sint = abs(sin(t));
-            MatrixS transform =
-                Vector3(0.5, 0, 0).TranslationMatrix() *
-                Quaternion::Rotation(t, Vector3(0, 0, 1)).RotationMatrix() *
-                Vector3(1, sint, 1).ScaleMatrix();
-            glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.data.data());
+            Transform transform {
+                .position = Vector3(0.5, 0, 0),
+                .rotation = Quaternion::Rotation(t, Vector3(0, 0, 1)),
+                .scale = sint
+            };
+            glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.Matrix().data.data());
         }
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
