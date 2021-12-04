@@ -15,6 +15,8 @@
 
 #include <Camera.h>
 #include "util/input/input.h"
+#include "util/math/projection.h"
+
 
 int main() try {
     constexpr unsigned int windowWidth = 1000;
@@ -65,6 +67,7 @@ int main() try {
     GLint tex1_location = glGetUniformLocation(shader_prog, "tex1");
     GLint u_transform_location = glGetUniformLocation(shader_prog, "u_transform");
     GLint u_camera_location = glGetUniformLocation(shader_prog, "u_camera");
+    GLint u_projection = glGetUniformLocation(shader_prog, "u_projection");
 
     //////// VAO, VBO
     GLuint vao;
@@ -139,6 +142,7 @@ int main() try {
             };
             glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.Matrix().data.data());
         }
+        glUniformMatrix4fv(u_projection, 1, GL_TRUE, math::projection(90, float(windowWidth) / windowHeight).data.data());
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window.handle);
