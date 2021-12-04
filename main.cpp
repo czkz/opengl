@@ -13,6 +13,9 @@
 
 #include <Transform.h>
 
+#include <Camera.h>
+#include "util/input/input.h"
+
 int main() try {
     constexpr unsigned int windowWidth = 1000;
     constexpr unsigned int windowHeight = 1000;
@@ -61,6 +64,7 @@ int main() try {
     GLint tex0_location = glGetUniformLocation(shader_prog, "tex0");
     GLint tex1_location = glGetUniformLocation(shader_prog, "tex1");
     GLint u_transform_location = glGetUniformLocation(shader_prog, "u_transform");
+    GLint u_camera_location = glGetUniformLocation(shader_prog, "u_camera");
 
     //////// VAO, VBO
     GLuint vao;
@@ -98,21 +102,40 @@ int main() try {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, dev_texture);
 
+    //////// Configure user input
+    SpaceCamera camera {{
+        .position = Vector3(0, 0, -0.5),
+        .rotation = Quaternion::Identity(),
+        .scale = 1
+    }};
+    { // Mouse rotation
+        Vector2 mouse_prev {0, 0};
+        window.onMouseMove = [&camera, mouse_prev](float x, float y) mutable {
+            Vector2 mouse_curr {x, y};
+            Vector2 move = mouse_curr - mouse_prev;
+            camera.RotateX(-move.y / 50);
+            camera.RotateZ(-move.x / 50);
+            mouse_prev = mouse_curr;
+        };
+    }
+
     glClearColor(0.1, 0.1, 0.1, 1.0);
     while(!glfwWindowShouldClose(window.handle)) {
+        camera.rotation = camera.rotation * Quaternion::Euler(input::get_rotation(window.handle) * 0.05);
+        camera.position += camera.rotation.Rotate(input::get_move(window.handle) * 0.05);
+
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shader_prog);
         glUniform1i(tex0_location, 0);
         glUniform1i(tex1_location, 1);
         glUniform1f(u_time_location, glfwGetTime());
+        glUniformMatrix4fv(u_camera_location, 1, GL_TRUE, camera.Matrix().Inverse().data.data());
         {
-            float t = glfwGetTime();
-            float sint = abs(sin(t));
             Transform transform {
-                .position = Vector3(0.5, 0, 0),
-                .rotation = Quaternion::Rotation(t, Vector3(0, 0, 1)),
-                .scale = sint
+                .position = Vector3(0, 0, 0),
+                .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
+                .scale = 0.5
             };
             glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.Matrix().data.data());
         }
