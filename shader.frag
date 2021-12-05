@@ -2,6 +2,7 @@
 out vec4 FragColor;
 
 in SHARED {
+    vec3 normal;
     vec2 st;
 } _in;
 
