@@ -63,6 +63,7 @@ int main() try {
     GLint tex1_location = glGetUniformLocation(shader_prog, "tex1");
     GLint u_transform_location = glGetUniformLocation(shader_prog, "u_transform");
     GLint u_camera_location = glGetUniformLocation(shader_prog, "u_camera");
+    GLint u_camera_world_pos_location = glGetUniformLocation(shader_prog, "u_camera_world_pos");
     GLint u_projection = glGetUniformLocation(shader_prog, "u_projection");
 
     //////// VAO, VBO
@@ -133,6 +134,7 @@ int main() try {
         glUniform1i(tex1_location, 1);
         glUniform1f(u_time_location, glfwGetTime());
         glUniformMatrix4fv(u_camera_location, 1, GL_TRUE, camera.Matrix().Inverse().data.data());
+        glUniform3f(u_camera_world_pos_location, camera.position.x, camera.position.y, camera.position.z);
         {
             Transform transform {
                 .position = Vector3(0, 0, 0),
