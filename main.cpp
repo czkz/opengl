@@ -106,7 +106,7 @@ int main() try {
 
     //////// Configure user input
     SpaceCamera camera {{
-        .position = Vector3(0, 0, -0.5),
+        .position = Vector3(0, -1, 0),
         .rotation = Quaternion::Identity(),
         .scale = 1
     }};
@@ -121,7 +121,8 @@ int main() try {
         };
     }
 
-    glClearColor(0.1, 0.1, 0.1, 1.0);
+    // glClearColor(0.1, 0.1, 0.1, 1.0);
+    glClearColor(0, 0, 0, 1.0);
     glEnable(GL_DEPTH_TEST);
     while(!glfwWindowShouldClose(window.handle)) {
         camera.rotation = camera.rotation * Quaternion::Euler(input::get_rotation(window.handle) * 0.05);
@@ -138,7 +139,7 @@ int main() try {
         {
             Transform transform {
                 .position = Vector3(0, 0, 0),
-                .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
+                .rotation = Quaternion::Rotation(glfwGetTime(), Vector3(0, 0, 1)),
                 .scale = 0.5
             };
             glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.Matrix().data.data());

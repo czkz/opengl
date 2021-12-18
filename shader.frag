@@ -20,7 +20,7 @@ void main() {
     vec3 diffuseColor = texture(tex0, _in.st).rgb;
     diffuseColor *= texture(tex1, _in.st).rgb;
 
-    vec3 L = normalize(vec3(0.3, 0.7, 1));
+    vec3 L = normalize(vec3(0.3, -0.7, 1));
     vec3 N = normalize(_in.normalW);
     vec3 V = normalize(u_camera_world_pos - _in.posW);
     vec3 R = reflect(-L, N);
