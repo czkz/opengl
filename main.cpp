@@ -69,7 +69,7 @@ int main() try {
     //////// VAO, VBO
     std::vector<Vector3> cube_data;
     std::vector<Vector3> cube_normals;
-    math::generate_cube(cube_data, cube_normals, 16);
+    math::generate_sphere(cube_data, cube_normals, 16);
     GLuint vao;
     glGenVertexArrays(1, &vao);
 
