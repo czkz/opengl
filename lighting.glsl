@@ -10,3 +10,10 @@ vec3 phong(vec3 diffuseColor, vec3 specularColor, vec3 toLight, vec3 normal, vec
 
     return diffuseStrength * diffuseColor + specularStrength * specularColor;
 }
+
+float fresnel(vec3 normal, vec3 toEye) {
+    vec3 N = normalize(normal);
+    vec3 V = normalize(toEye);
+
+    return dot(N, V);
+}
