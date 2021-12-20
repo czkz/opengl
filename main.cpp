@@ -17,7 +17,7 @@
 #include "util/input/input.h"
 #include "util/math/projection.h"
 
-#include "cube_data.h"
+#include "util/math/gen.h"
 
 
 int main() try {
@@ -67,6 +67,7 @@ int main() try {
     GLint u_projection = glGetUniformLocation(shader_prog, "u_projection");
 
     //////// VAO, VBO
+    const std::vector<Vector3> cube_data = math::generate_cube(16);
     GLuint vao;
     glGenVertexArrays(1, &vao);
 
@@ -75,13 +76,13 @@ int main() try {
 
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(model_cube::vertex) * model_cube::vertices.size(), model_cube::vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(0));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glBufferData(GL_ARRAY_BUFFER, sizeof(decltype(cube_data)::value_type) * cube_data.size(), cube_data.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(0));
+    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
+    // glEnableVertexAttribArray(1);
+    // glEnableVertexAttribArray(2);
 
     //////// Textures
     util::image wood_img = util::load_image("wood.png");
@@ -121,8 +122,8 @@ int main() try {
         };
     }
 
-    // glClearColor(0.1, 0.1, 0.1, 1.0);
-    glClearColor(0, 0, 0, 1.0);
+    glClearColor(0.1, 0.1, 0.1, 1.0);
+    // glClearColor(0, 0, 0, 1.0);
     glEnable(GL_DEPTH_TEST);
     while(!glfwWindowShouldClose(window.handle)) {
         camera.rotation = camera.rotation * Quaternion::Euler(input::get_rotation(window.handle) * 0.05);
@@ -145,7 +146,7 @@ int main() try {
             glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.Matrix().data.data());
         }
         glUniformMatrix4fv(u_projection, 1, GL_TRUE, math::projection(90, float(windowWidth) / windowHeight).data.data());
-        glDrawArrays(GL_TRIANGLES, 0, model_cube::vertices.size());
+        glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
 
         glfwSwapBuffers(window.handle);
         glfwPollEvents();
