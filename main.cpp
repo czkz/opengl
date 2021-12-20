@@ -67,22 +67,29 @@ int main() try {
     GLint u_projection = glGetUniformLocation(shader_prog, "u_projection");
 
     //////// VAO, VBO
-    const std::vector<Vector3> cube_data = math::generate_cube(16);
+    std::vector<Vector3> cube_data;
+    std::vector<Vector3> cube_normals;
+    math::generate_cube(cube_data, cube_normals, 16);
     GLuint vao;
     glGenVertexArrays(1, &vao);
 
     GLuint vbo;
     glGenBuffers(1, &vbo);
 
+    GLuint vbo_normals;
+    glGenBuffers(1, &vbo_normals);
+
     glBindVertexArray(vao);
+
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(decltype(cube_data)::value_type) * cube_data.size(), cube_data.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(0));
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
-    // glEnableVertexAttribArray(1);
-    // glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(decltype(cube_normals)::value_type) * cube_normals.size(), cube_normals.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(1);
 
     //////// Textures
     util::image wood_img = util::load_image("wood.png");
