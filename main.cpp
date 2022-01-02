@@ -19,6 +19,8 @@
 
 #include "util/math/gen.h"
 
+#include "util/make_buffer.h"
+
 
 int main() try {
     constexpr unsigned int windowWidth = 1000;
@@ -67,29 +69,17 @@ int main() try {
     GLint u_projection = glGetUniformLocation(shader_prog, "u_projection");
 
     //////// VAO, VBO
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
     std::vector<Vector3> cube_data;
     std::vector<Vector3> cube_normals;
     math::generate_sphere(cube_data, cube_normals, 16);
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-
-    GLuint vbo_normals;
-    glGenBuffers(1, &vbo_normals);
-
-    glBindVertexArray(vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(decltype(cube_data)::value_type) * cube_data.size(), cube_data.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(decltype(cube_normals)::value_type) * cube_normals.size(), cube_normals.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(1);
+    GLuint vbo         = util::make_buffer(0, cube_data);
+    GLuint vbo_normals = util::make_buffer(1, cube_data);
+    (void) vbo;
+    (void) vbo_normals;
 
     //////// Textures
     util::image wood_img = util::load_image("wood.png");
