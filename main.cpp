@@ -23,18 +23,19 @@
 
 
 int main() try {
-    constexpr unsigned int windowWidth = 1000;
-    constexpr unsigned int windowHeight = 1000;
+    unsigned int windowWidth = 1000;
+    unsigned int windowHeight = 1000;
     Window window (windowWidth, windowHeight, "Sample Text", 4, true);
-    window.onSizeChanged = [](int width, int height) {
+    window.onSizeChanged = [&windowWidth, &windowHeight](int width, int height) {
         glViewport(0, 0, width, height);
+        windowWidth = width;
+        windowHeight = height;
     };
     KeyboardManager kbManager (window.handle);
     kbManager.onDown(GLFW_KEY_ENTER, [&window](int, bool, int) {
         glfwSetWindowShouldClose(window.handle, true);
     });
-    bool wireframeEnabled = false;
-    kbManager.onDown(GLFW_KEY_EQUAL, [&wireframeEnabled](int, bool, int) {
+    kbManager.onDown(GLFW_KEY_EQUAL, [wireframeEnabled = false](int, bool, int) mutable {
         wireframeEnabled = !wireframeEnabled;
         glPolygonMode(GL_FRONT_AND_BACK, wireframeEnabled ? GL_LINE : GL_FILL);
     });
@@ -58,7 +59,7 @@ int main() try {
     GLint u_transform_location = glGetUniformLocation(shader_prog, "u_transform");
     GLint u_camera_location = glGetUniformLocation(shader_prog, "u_camera");
     GLint u_camera_world_pos_location = glGetUniformLocation(shader_prog, "u_camera_world_pos");
-    GLint u_projection = glGetUniformLocation(shader_prog, "u_projection");
+    GLint u_projection_location = glGetUniformLocation(shader_prog, "u_projection");
 
     //////// VAO, VBO
     GLuint vao;
@@ -129,12 +130,12 @@ int main() try {
         {
             Transform transform {
                 .position = Vector3(0, 0, 0),
-                .rotation = Quaternion::Rotation(glfwGetTime(), Vector3(0, 0, 1)),
+                .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
                 .scale = 0.5
             };
             glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.Matrix().data.data());
         }
-        glUniformMatrix4fv(u_projection, 1, GL_TRUE, math::projection(90, float(windowWidth) / windowHeight).data.data());
+        glUniformMatrix4fv(u_projection_location, 1, GL_TRUE, math::projection(90, float(windowWidth) / windowHeight).data.data());
         glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
 
         glfwSwapBuffers(window.handle);
