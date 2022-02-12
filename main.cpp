@@ -79,7 +79,7 @@ int main() try {
     GLuint wood_texture;
     glGenTextures(1, &wood_texture);
     glBindTexture(GL_TEXTURE_2D, wood_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wood_img.w, wood_img.h, 0, wood_img.format, GL_UNSIGNED_BYTE, wood_img.data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, wood_img.w, wood_img.h, 0, wood_img.format, GL_UNSIGNED_BYTE, wood_img.data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     util::image dev_img = util::load_image("checkerboard.png");
