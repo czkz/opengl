@@ -59,14 +59,14 @@ namespace gl {
     bool enable_debug_context() {
         int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
         if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-            std::cerr << "Debug context active";
+            std::cerr << "Debug context active\n";
             glEnable(GL_DEBUG_OUTPUT);
             glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
             glDebugMessageCallback(_debug_callback, nullptr);
             glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
             return true;
         } else {
-            std::cerr << "Debug context not available";
+            std::cerr << "Debug context not available\n";
             return false;
         }
     }

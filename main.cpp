@@ -132,9 +132,9 @@ int main() try {
     Transform light {
         .position = Vector3(1, 2, 3),
         .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
-        .scale = 0.1
+        .scale = 0.01
     };
-    float light_intensity = 5;
+    float light_intensity = 1;
     Vector3 light_color { 1, 1, 1 };
 
     //////// Light shader
@@ -160,7 +160,7 @@ int main() try {
         camera.rotation = camera.rotation * Quaternion::Euler(input::get_rotation(window.handle) * 0.05);
         camera.position += camera.rotation.Rotate(input::get_move(window.handle) * 0.05);
 
-        light.position = Quaternion::Rotation(glfwGetTime(), {0, 0, 1}).Rotate({1, 0, 3});
+        light.position = Quaternion::Rotation(0, {0, 0, 1}).Rotate({1, 0, (float)(std::sin(glfwGetTime()) + 0.75) });
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
