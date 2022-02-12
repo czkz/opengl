@@ -17,7 +17,7 @@ uniform sampler2D tex1;
 
 void main() {
     // vec3 diffuseColor = texture(tex0, _in.st).rgb;
-    vec3 diffuseColor = vec3(0.9, 0.6, 0.3);
+    vec3 diffuseColor = vec3(0.8, 0.2, 0.05);
     vec3 specularColor = vec3(1, 1, 1);
     vec3 lightPos = vec3(0.3, -0.7, 1);
 

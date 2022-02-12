@@ -112,9 +112,10 @@ int main() try {
         };
     }
 
-    glClearColor(0.1, 0.1, 0.1, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     // glClearColor(0, 0, 0, 1.0);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_FRAMEBUFFER_SRGB);
     while(!glfwWindowShouldClose(window.handle)) {
         camera.rotation = camera.rotation * Quaternion::Euler(input::get_rotation(window.handle) * 0.05);
         camera.position += camera.rotation.Rotate(input::get_move(window.handle) * 0.05);
