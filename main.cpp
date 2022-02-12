@@ -62,6 +62,7 @@ int main() try {
     GLint u_projection_location = glGetUniformLocation(shader_prog, "u_projection");
     GLint u_light_pos_location = glGetUniformLocation(shader_prog, "u_light_pos");
     GLint u_light_color_location = glGetUniformLocation(shader_prog, "u_light_color");
+    GLint u_light_intensity_location = glGetUniformLocation(shader_prog, "u_light_intensity");
 
     //////// Sphere VAO, VBO
     GLuint sphere_vao;
@@ -133,6 +134,7 @@ int main() try {
         .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
         .scale = 0.1
     };
+    float light_intensity = 5;
     Vector3 light_color { 1, 1, 1 };
 
     //////// Light shader
@@ -171,6 +173,7 @@ int main() try {
         glUniformMatrix4fv(u_projection_location, 1, GL_TRUE, math::projection(90, float(windowWidth) / windowHeight).data.data());
         glUniform3f(u_light_pos_location, light.position.x, light.position.y, light.position.z);
         glUniform3f(u_light_color_location, light_color.x, light_color.y, light_color.z);
+        glUniform1f(u_light_intensity_location, light_intensity);
 
         // Draw sphere
         {
