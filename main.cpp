@@ -70,7 +70,7 @@ int main() try {
     std::vector<Vector3> cube_normals;
     math::generate_sphere(cube_data, cube_normals, 16);
     GLuint vbo         = util::make_buffer(0, cube_data);
-    GLuint vbo_normals = util::make_buffer(1, cube_data);
+    GLuint vbo_normals = util::make_buffer(1, cube_normals);
     (void) vbo;
     (void) vbo_normals;
 
