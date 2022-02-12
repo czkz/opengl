@@ -61,18 +61,31 @@ int main() try {
     GLint u_camera_world_pos_location = glGetUniformLocation(shader_prog, "u_camera_world_pos");
     GLint u_projection_location = glGetUniformLocation(shader_prog, "u_projection");
 
-    //////// VAO, VBO
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    //////// Sphere VAO, VBO
+    GLuint sphere_vao;
+    glGenVertexArrays(1, &sphere_vao);
+    glBindVertexArray(sphere_vao);
+
+    std::vector<Vector3> sphere_data;
+    std::vector<Vector3> sphere_normals;
+    math::generate_sphere(sphere_data, sphere_normals, 16);
+    GLuint sphere_vbo         = util::make_buffer(0, sphere_data);
+    GLuint sphere_vbo_normals = util::make_buffer(1, sphere_normals);
+    (void) sphere_vbo;
+    (void) sphere_vbo_normals;
+
+    //////// Cube VAO, VBO
+    GLuint cube_vao;
+    glGenVertexArrays(1, &cube_vao);
+    glBindVertexArray(cube_vao);
 
     std::vector<Vector3> cube_data;
     std::vector<Vector3> cube_normals;
-    math::generate_sphere(cube_data, cube_normals, 16);
-    GLuint vbo         = util::make_buffer(0, cube_data);
-    GLuint vbo_normals = util::make_buffer(1, cube_normals);
-    (void) vbo;
-    (void) vbo_normals;
+    math::generate_cube(cube_data, cube_normals, 2);
+    GLuint cube_vbo         = util::make_buffer(0, cube_data);
+    GLuint cube_vbo_normals = util::make_buffer(1, cube_normals);
+    (void) cube_vbo;
+    (void) cube_vbo_normals;
 
     //////// Textures
     util::image wood_img = util::load_image("wood.png");
@@ -128,6 +141,9 @@ int main() try {
         glUniform1f(u_time_location, glfwGetTime());
         glUniformMatrix4fv(u_camera_location, 1, GL_TRUE, camera.Matrix().Inverse().data.data());
         glUniform3f(u_camera_world_pos_location, camera.position.x, camera.position.y, camera.position.z);
+        glUniformMatrix4fv(u_projection_location, 1, GL_TRUE, math::projection(90, float(windowWidth) / windowHeight).data.data());
+
+        // Draw sphere
         {
             Transform transform {
                 .position = Vector3(0, 0, 0),
@@ -136,7 +152,19 @@ int main() try {
             };
             glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.Matrix().data.data());
         }
-        glUniformMatrix4fv(u_projection_location, 1, GL_TRUE, math::projection(90, float(windowWidth) / windowHeight).data.data());
+        glBindVertexArray(sphere_vao);
+        glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
+
+        // Draw floor
+        {
+            Transform transform {
+                .position = Vector3(0, 0, -5.75),
+                .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
+                .scale = 10
+            };
+            glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.Matrix().data.data());
+        }
+        glBindVertexArray(cube_vao);
         glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
 
         glfwSwapBuffers(window.handle);
