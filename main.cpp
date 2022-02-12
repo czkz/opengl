@@ -60,6 +60,8 @@ int main() try {
     GLint u_camera_location = glGetUniformLocation(shader_prog, "u_camera");
     GLint u_camera_world_pos_location = glGetUniformLocation(shader_prog, "u_camera_world_pos");
     GLint u_projection_location = glGetUniformLocation(shader_prog, "u_projection");
+    GLint u_light_pos_location = glGetUniformLocation(shader_prog, "u_light_pos");
+    GLint u_light_color_location = glGetUniformLocation(shader_prog, "u_light_color");
 
     //////// Sphere VAO, VBO
     GLuint sphere_vao;
@@ -125,13 +127,38 @@ int main() try {
         };
     }
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    // glClearColor(0, 0, 0, 1.0);
+    //////// Light
+    Transform light {
+        .position = Vector3(1, 2, 3),
+        .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
+        .scale = 0.1
+    };
+    Vector3 light_color { 1, 1, 1 };
+
+    //////// Light shader
+    GLuint light_vertex_shader = gl::create_shader(GL_VERTEX_SHADER, "shader.vert");
+    GLuint light_fragment_shader = gl::create_shader(GL_FRAGMENT_SHADER, "light.frag");
+
+    GLuint light_shader_prog = glCreateProgram();
+    glAttachShader(light_shader_prog, light_vertex_shader);
+    glAttachShader(light_shader_prog, light_fragment_shader);
+    glLinkProgram(light_shader_prog);
+    gl::assert_link_successful(light_shader_prog);
+
+    GLint light_u_transform_location = glGetUniformLocation(light_shader_prog, "u_transform");
+    GLint light_u_camera_location = glGetUniformLocation(light_shader_prog, "u_camera");
+    GLint light_u_projection_location = glGetUniformLocation(light_shader_prog, "u_projection");
+    GLint light_u_light_color_location = glGetUniformLocation(light_shader_prog, "u_light_color");
+
+    //////// Rendering
+    glClearColor(0, 0, 0, 1.0);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FRAMEBUFFER_SRGB);
     while(!glfwWindowShouldClose(window.handle)) {
         camera.rotation = camera.rotation * Quaternion::Euler(input::get_rotation(window.handle) * 0.05);
         camera.position += camera.rotation.Rotate(input::get_move(window.handle) * 0.05);
+
+        light.position = Quaternion::Rotation(glfwGetTime(), {0, 0, 1}).Rotate({1, 0, 3});
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -142,6 +169,8 @@ int main() try {
         glUniformMatrix4fv(u_camera_location, 1, GL_TRUE, camera.Matrix().Inverse().data.data());
         glUniform3f(u_camera_world_pos_location, camera.position.x, camera.position.y, camera.position.z);
         glUniformMatrix4fv(u_projection_location, 1, GL_TRUE, math::projection(90, float(windowWidth) / windowHeight).data.data());
+        glUniform3f(u_light_pos_location, light.position.x, light.position.y, light.position.z);
+        glUniform3f(u_light_color_location, light_color.x, light_color.y, light_color.z);
 
         // Draw sphere
         {
@@ -166,6 +195,15 @@ int main() try {
         }
         glBindVertexArray(cube_vao);
         glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
+
+        // Draw light
+        glUseProgram(light_shader_prog);
+        glUniformMatrix4fv(light_u_camera_location, 1, GL_TRUE, camera.Matrix().Inverse().data.data());
+        glUniformMatrix4fv(light_u_transform_location, 1, GL_TRUE, light.Matrix().data.data());
+        glUniformMatrix4fv(light_u_projection_location, 1, GL_TRUE, math::projection(90, float(windowWidth) / windowHeight).data.data());
+        glUniform3f(light_u_light_color_location, light_color.x, light_color.y, light_color.z);
+        glBindVertexArray(sphere_vao);
+        glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
 
         glfwSwapBuffers(window.handle);
         glfwPollEvents();
