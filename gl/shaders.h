@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <stdexcept>
 #include <glad/glad.h>
