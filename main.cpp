@@ -19,7 +19,7 @@
 
 #include "util/math/gen.h"
 
-#include "util/make_buffer.h"
+#include "util/make_vao.h"
 
 
 int main() try {
@@ -64,31 +64,17 @@ int main() try {
     GLint u_light_color_location = glGetUniformLocation(shader_prog, "u_light_color");
     GLint u_light_intensity_location = glGetUniformLocation(shader_prog, "u_light_intensity");
 
-    //////// Sphere VAO, VBO
-    GLuint sphere_vao;
-    glGenVertexArrays(1, &sphere_vao);
-    glBindVertexArray(sphere_vao);
-
+    //////// Sphere VAO
     std::vector<Vector3> sphere_data;
     std::vector<Vector3> sphere_normals;
     math::generate_sphere(sphere_data, sphere_normals, 16);
-    GLuint sphere_vbo         = util::make_buffer(0, sphere_data);
-    GLuint sphere_vbo_normals = util::make_buffer(1, sphere_normals);
-    (void) sphere_vbo;
-    (void) sphere_vbo_normals;
+    GLuint sphere_vao = util::make_vao(sphere_data, sphere_normals);
 
-    //////// Cube VAO, VBO
-    GLuint cube_vao;
-    glGenVertexArrays(1, &cube_vao);
-    glBindVertexArray(cube_vao);
-
+    //////// Cube VAO
     std::vector<Vector3> cube_data;
     std::vector<Vector3> cube_normals;
     math::generate_cube(cube_data, cube_normals, 2);
-    GLuint cube_vbo         = util::make_buffer(0, cube_data);
-    GLuint cube_vbo_normals = util::make_buffer(1, cube_normals);
-    (void) cube_vbo;
-    (void) cube_vbo_normals;
+    GLuint cube_vao = util::make_vao(cube_data, cube_normals);
 
     //////// Textures
     util::image wood_img = util::load_image("wood.png");
