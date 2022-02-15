@@ -17,4 +17,5 @@ executable (
     include_directories('window/'),
   ],
   link_with: [glad_lib],
+  cpp_pch: 'pch/pch.h',
 )

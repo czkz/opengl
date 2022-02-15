@@ -1,8 +1,5 @@
 #include <algorithm>
 #include <array>
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
 #include <cmath>
 #include <dbg.h>
 #include <filesystem>
