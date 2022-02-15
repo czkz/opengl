@@ -20,6 +20,7 @@
 #include "util/math/gen.h"
 
 #include "util/make_vao.h"
+#include "util/make_texture.h"
 
 
 int main() try {
@@ -77,19 +78,8 @@ int main() try {
     GLuint cube_vao = util::make_vao(cube_data, cube_normals);
 
     //////// Textures
-    util::image wood_img = util::load_image("wood.png");
-    GLuint wood_texture;
-    glGenTextures(1, &wood_texture);
-    glBindTexture(GL_TEXTURE_2D, wood_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, wood_img.w, wood_img.h, 0, wood_img.format, GL_UNSIGNED_BYTE, wood_img.data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    util::image dev_img = util::load_image("checkerboard.png");
-    GLuint dev_texture;
-    glGenTextures(1, &dev_texture);
-    glBindTexture(GL_TEXTURE_2D, dev_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dev_img.w, dev_img.h, 0, dev_img.format, GL_UNSIGNED_BYTE, dev_img.data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    GLuint wood_texture = util::make_texture_srgb(util::load_image("wood.png"));
+    GLuint dev_texture = util::make_texture(util::load_image("checkerboard.png"));
 
     //////// Bind textures
     glActiveTexture(GL_TEXTURE0);
