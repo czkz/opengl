@@ -2,7 +2,7 @@
 #include <glad/glad.h>
 #include "load_image.h"
 
-namespace util {
+namespace gl {
 
     struct make_texture_options {
         GLint internalformat = GL_RGB;
@@ -15,7 +15,7 @@ namespace util {
     };
 
     /// make_texture creates a texture from file
-    GLuint make_texture(const util::image& img, make_texture_options opts = {}) {
+    GLuint make_texture(const gl::image& img, make_texture_options opts = {}) {
         GLuint texture;
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -33,7 +33,7 @@ namespace util {
         return texture;
     }
 
-    GLuint make_texture_srgb(const util::image& img, make_texture_options opts = {}) {
+    GLuint make_texture_srgb(const gl::image& img, make_texture_options opts = {}) {
         opts.internalformat = GL_SRGB;
         return make_texture(img, std::move(opts));
     }

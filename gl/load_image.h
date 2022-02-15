@@ -4,8 +4,8 @@
 #include <string>
 #include <stdexcept>
 
-namespace {
-    GLenum _channels_to_format (int nrChannels) {
+namespace gl::_ {
+    GLenum channels_to_format (int nrChannels) {
         switch (nrChannels) {
             case 1: return GL_RED;
             case 2: return GL_RG;
@@ -18,7 +18,7 @@ namespace {
     }
 }
 
-namespace util {
+namespace gl {
     class image {
     public:
         const int w, h, n_channels;
@@ -45,6 +45,6 @@ namespace util {
                 std::string("Failed to load texture ") + filename
             );
         }
-        return image {w, h, nchan, _channels_to_format(nchan), data};
+        return image {w, h, nchan, _::channels_to_format(nchan), data};
     }
 }

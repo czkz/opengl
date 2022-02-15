@@ -6,7 +6,7 @@
 
 #include "_/register_attributes.h"
 
-namespace util {
+namespace gl {
 
     /// make_buffer creates and fills a VBO
     GLuint make_buffer(int location, const std::ranges::range auto& data) {
@@ -23,7 +23,7 @@ namespace util {
             GL_STATIC_DRAW
         );
 
-        util::_::register_attributes<typename decltype(sp)::value_type>(location, true);
+        _::register_attributes<typename decltype(sp)::value_type>(location, true);
 
         return vbo;
     }

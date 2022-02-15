@@ -4,9 +4,9 @@
 #include <numbers>
 
 
-namespace {
+namespace math::_ {
 
-    void _generate_quad(Vector2 a, Vector2 b, std::vector<Vector3>& out) {
+    void generate_quad(Vector2 a, Vector2 b, std::vector<Vector3>& out) {
         out.emplace_back( a.x, a.y, 0.5 );
         out.emplace_back( a.x, b.y, 0.5 );
         out.emplace_back( b.x, a.y, 0.5 );
@@ -15,10 +15,10 @@ namespace {
         out.emplace_back( b.x, b.y, 0.5 );
     }
 
-    void _generate_side(int sub, std::vector<Vector3>& out) {
+    void generate_side(int sub, std::vector<Vector3>& out) {
         for (int i = 0; i < sub; i++) {
             for (int j = 0; j < sub; j++) {
-                _generate_quad(
+                generate_quad(
                     {float(i+0)/sub-0.5f, float(j+0)/sub-0.5f},
                     {float(i+1)/sub-0.5f, float(j+1)/sub-0.5f},
                     out
@@ -27,7 +27,7 @@ namespace {
         }
     }
 
-    void _generate_cube_pos(std::vector<Vector3>& verts, int subdivisions) {
+    void generate_cube_pos(std::vector<Vector3>& verts, int subdivisions) {
         size_t side_verts = 6 * subdivisions * subdivisions;
         verts.reserve(side_verts * 6);
         auto rotations = std::to_array({
@@ -39,7 +39,7 @@ namespace {
             Quaternion::RotationN(std::numbers::pi / 2, {0, -1, 0}),
         });
         // Generate side 0
-        _generate_side(subdivisions, verts);
+        generate_side(subdivisions, verts);
         // Generate others
         for (int side = 1; side < 6; side++) {
             for (size_t i = 0; i < side_verts; i++) {
@@ -48,7 +48,7 @@ namespace {
         }
     }
 
-    void _generate_cube_normals(std::vector<Vector3>& norms, int subdivisions) {
+    void generate_cube_normals(std::vector<Vector3>& norms, int subdivisions) {
         size_t side_verts = 6 * subdivisions * subdivisions;
         norms.reserve(side_verts * 6);
         auto normals = std::to_array({
@@ -66,7 +66,7 @@ namespace {
         }
     }
 
-    void _generate_sphere_normals(std::vector<Vector3>& verts, std::vector<Vector3>& norms, int subdivisions) {
+    void generate_sphere_normals(std::vector<Vector3>& verts, std::vector<Vector3>& norms, int subdivisions) {
         size_t side_verts = 6 * subdivisions * subdivisions;
         norms.reserve(side_verts * 6);
         for (const auto& pos : verts) {
@@ -79,16 +79,16 @@ namespace {
 namespace math {
 
     void generate_cube(std::vector<Vector3>& verts, std::vector<Vector3>& norms, int subdivisions) {
-        _generate_cube_pos(verts, subdivisions);
-        _generate_cube_normals(norms, subdivisions);
+        _::generate_cube_pos(verts, subdivisions);
+        _::generate_cube_normals(norms, subdivisions);
     }
 
     void generate_sphere(std::vector<Vector3>& verts, std::vector<Vector3>& norms, int subdivisions) {
-        _generate_cube_pos(verts, subdivisions);
+        _::generate_cube_pos(verts, subdivisions);
         for (auto& pos : verts) {
             pos.Normalize();
         }
-        _generate_sphere_normals(verts, norms, subdivisions);
+        _::generate_sphere_normals(verts, norms, subdivisions);
     }
 
 }

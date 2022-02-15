@@ -2,10 +2,10 @@
 #include <iostream>
 #include <glad/glad.h>
 
-namespace {
+namespace gl::_ {
 
     /// pass this to glDebugMessageCallback()
-    void APIENTRY _debug_callback(
+    void APIENTRY debug_callback(
             GLenum source,
             GLenum type,
             unsigned int id,
@@ -63,7 +63,7 @@ namespace gl {
             std::cerr << "Debug context active\n";
             glEnable(GL_DEBUG_OUTPUT);
             glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-            glDebugMessageCallback(_debug_callback, nullptr);
+            glDebugMessageCallback(_::debug_callback, nullptr);
             glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
             return true;
         } else {

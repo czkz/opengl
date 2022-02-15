@@ -3,9 +3,9 @@
 #include <Vector.h>
 #include <Quaternion.h>
 
-namespace {
+namespace gl::_ {
 
-    class _VertexResolver {
+    class VertexResolver {
         static consteval std::pair<GLint, GLenum> OpenGL_attributeType(int*)        { return std::make_pair(1, GL_INT); }
         static consteval std::pair<GLint, GLenum> OpenGL_attributeType(float*)      { return std::make_pair(1, GL_FLOAT); }
         static consteval std::pair<GLint, GLenum> OpenGL_attributeType(Vector3*)    { return std::make_pair(3, GL_FLOAT); }
@@ -34,11 +34,11 @@ namespace {
 
 }
 
-namespace util::_ {
+namespace gl::_ {
 
     template <typename... Ts>
     static size_t register_attributes(int i, bool enable) {
-        return _VertexResolver::Register<Ts...>(i, enable);
+        return _::VertexResolver::Register<Ts...>(i, enable);
     }
 
 }

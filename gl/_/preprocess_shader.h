@@ -5,9 +5,9 @@
 #include <stack>
 #include <string_view>
 
-namespace {
+namespace gl::_ {
     /// Parses include directives, use each instance once!
-    class _ShaderParser {
+    class ShaderParser {
         public:
             static constexpr std::string_view directive = "##include ";
         private:
@@ -58,6 +58,6 @@ namespace {
 namespace gl::_ {
     /// preprocess_shader handles includes in shaders.
     std::string preprocess_shader(std::filesystem::path file) {
-        return _ShaderParser().parse(std::move(file));
+        return _::ShaderParser().parse(std::move(file));
     }
 }

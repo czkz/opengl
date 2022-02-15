@@ -9,18 +9,16 @@
 
 #include <Vector.h>
 
-#include "util/load_image.h"
-
 #include <Transform.h>
 
 #include <Camera.h>
 #include "util/input/input.h"
-#include "util/math/projection.h"
+#include "math/projection.h"
 
-#include "util/math/gen.h"
+#include "math/gen.h"
 
-#include "util/make_vao.h"
-#include "util/make_texture.h"
+#include "gl/make_vao.h"
+#include "gl/make_texture.h"
 
 
 int main() try {
@@ -61,16 +59,16 @@ int main() try {
     //////// Sphere VAO
     std::vector<Vector3> sphere_data, sphere_normals;
     math::generate_sphere(sphere_data, sphere_normals, 16);
-    GLuint sphere_vao = util::make_vao(sphere_data, sphere_normals);
+    GLuint sphere_vao = gl::make_vao(sphere_data, sphere_normals);
 
     //////// Cube VAO
     std::vector<Vector3> cube_data, cube_normals;
     math::generate_cube(cube_data, cube_normals, 2);
-    GLuint cube_vao = util::make_vao(cube_data, cube_normals);
+    GLuint cube_vao = gl::make_vao(cube_data, cube_normals);
 
     //////// Textures
-    GLuint wood_texture = util::make_texture_srgb(util::load_image("wood.png"));
-    GLuint dev_texture = util::make_texture(util::load_image("checkerboard.png"));
+    GLuint wood_texture = gl::make_texture_srgb(gl::load_image("wood.png"));
+    GLuint dev_texture = gl::make_texture(gl::load_image("checkerboard.png"));
 
     //////// Bind textures
     glActiveTexture(GL_TEXTURE0);

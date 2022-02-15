@@ -5,8 +5,8 @@
 
 #include "_/preprocess_shader.h"
 
-namespace {
-    std::string _get_shader_error_log(GLuint shader) {
+namespace gl::_ {
+    std::string get_shader_error_log(GLuint shader) {
         GLint success;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (success) {
@@ -31,7 +31,7 @@ namespace gl {
         int code_len = src.length();
         glShaderSource(shader, 1, &code_data, &code_len);
         glCompileShader(shader);
-        std::string err = _get_shader_error_log(shader);
+        std::string err = _::get_shader_error_log(shader);
         if (!err.empty()) {
             throw std::runtime_error(std::string(std::move(file)) + ": " + std::move(err));
         }
