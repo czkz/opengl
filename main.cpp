@@ -47,26 +47,24 @@ int main() try {
     //////// Shaders
     GLuint shader_prog = gl::make_shaderprog("shader.vert", "shader.frag");
 
-    GLint u_time_location = glGetUniformLocation(shader_prog, "u_time");
-    GLint tex0_location = glGetUniformLocation(shader_prog, "tex0");
-    GLint tex1_location = glGetUniformLocation(shader_prog, "tex1");
-    GLint u_transform_location = glGetUniformLocation(shader_prog, "u_transform");
-    GLint u_camera_location = glGetUniformLocation(shader_prog, "u_camera");
+    GLint u_time_location             = glGetUniformLocation(shader_prog, "u_time");
+    GLint tex0_location               = glGetUniformLocation(shader_prog, "tex0");
+    GLint tex1_location               = glGetUniformLocation(shader_prog, "tex1");
+    GLint u_transform_location        = glGetUniformLocation(shader_prog, "u_transform");
+    GLint u_camera_location           = glGetUniformLocation(shader_prog, "u_camera");
     GLint u_camera_world_pos_location = glGetUniformLocation(shader_prog, "u_camera_world_pos");
-    GLint u_projection_location = glGetUniformLocation(shader_prog, "u_projection");
-    GLint u_light_pos_location = glGetUniformLocation(shader_prog, "u_light_pos");
-    GLint u_light_color_location = glGetUniformLocation(shader_prog, "u_light_color");
-    GLint u_light_intensity_location = glGetUniformLocation(shader_prog, "u_light_intensity");
+    GLint u_projection_location       = glGetUniformLocation(shader_prog, "u_projection");
+    GLint u_light_pos_location        = glGetUniformLocation(shader_prog, "u_light_pos");
+    GLint u_light_color_location      = glGetUniformLocation(shader_prog, "u_light_color");
+    GLint u_light_intensity_location  = glGetUniformLocation(shader_prog, "u_light_intensity");
 
     //////// Sphere VAO
-    std::vector<Vector3> sphere_data;
-    std::vector<Vector3> sphere_normals;
+    std::vector<Vector3> sphere_data, sphere_normals;
     math::generate_sphere(sphere_data, sphere_normals, 16);
     GLuint sphere_vao = util::make_vao(sphere_data, sphere_normals);
 
     //////// Cube VAO
-    std::vector<Vector3> cube_data;
-    std::vector<Vector3> cube_normals;
+    std::vector<Vector3> cube_data, cube_normals;
     math::generate_cube(cube_data, cube_normals, 2);
     GLuint cube_vao = util::make_vao(cube_data, cube_normals);
 
@@ -106,9 +104,9 @@ int main() try {
     //////// Light shader
     GLuint light_shader_prog = gl::make_shaderprog("shader.vert", "light.frag");
 
-    GLint light_u_transform_location = glGetUniformLocation(light_shader_prog, "u_transform");
-    GLint light_u_camera_location = glGetUniformLocation(light_shader_prog, "u_camera");
-    GLint light_u_projection_location = glGetUniformLocation(light_shader_prog, "u_projection");
+    GLint light_u_transform_location   = glGetUniformLocation(light_shader_prog, "u_transform");
+    GLint light_u_camera_location      = glGetUniformLocation(light_shader_prog, "u_camera");
+    GLint light_u_projection_location  = glGetUniformLocation(light_shader_prog, "u_projection");
     GLint light_u_light_color_location = glGetUniformLocation(light_shader_prog, "u_light_color");
 
     //////// Rendering
