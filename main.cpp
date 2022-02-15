@@ -82,6 +82,10 @@ int main() try {
         .rotation = Quaternion::Identity(),
         .scale = 1
     }};
+    bool isOrthographic = false;
+    kbManager.onDown(GLFW_KEY_F, [&](int, bool, int) mutable {
+        isOrthographic = !isOrthographic;
+    });
     window.onMouseMove = [&camera, mouse_prev = Vector2(0, 0)](float x, float y) mutable {
         Vector2 mouse_curr {x, y};
         Vector2 move = mouse_curr - mouse_prev;
@@ -117,6 +121,14 @@ int main() try {
 
         light.position = Quaternion::Rotation(0, {0, 0, 1}).Rotate({1, 0, (float)(std::sin(glfwGetTime()) + 0.75) });
 
+        MatrixS<4, 4> projection_matrix;
+        float aspect = float(windowWidth) / windowHeight;
+        if (isOrthographic) {
+            projection_matrix = math::projection_orthgraphic(5, aspect);
+        } else {
+            projection_matrix = math::projection_perspective(90, aspect);
+        }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(shader_prog);
@@ -125,7 +137,7 @@ int main() try {
         glUniform1f(u_time_location, glfwGetTime());
         glUniformMatrix4fv(u_camera_location, 1, GL_TRUE, camera.Matrix().Inverse().data.data());
         glUniform3f(u_camera_world_pos_location, camera.position.x, camera.position.y, camera.position.z);
-        glUniformMatrix4fv(u_projection_location, 1, GL_TRUE, math::projection(90, float(windowWidth) / windowHeight).data.data());
+        glUniformMatrix4fv(u_projection_location, 1, GL_TRUE, projection_matrix.data.data());
         glUniform3f(u_light_pos_location, light.position.x, light.position.y, light.position.z);
         glUniform3f(u_light_color_location, light_color.x, light_color.y, light_color.z);
         glUniform1f(u_light_intensity_location, light_intensity);
@@ -158,7 +170,7 @@ int main() try {
         glUseProgram(light_shader_prog);
         glUniformMatrix4fv(light_u_camera_location, 1, GL_TRUE, camera.Matrix().Inverse().data.data());
         glUniformMatrix4fv(light_u_transform_location, 1, GL_TRUE, light.Matrix().data.data());
-        glUniformMatrix4fv(light_u_projection_location, 1, GL_TRUE, math::projection(90, float(windowWidth) / windowHeight).data.data());
+        glUniformMatrix4fv(light_u_projection_location, 1, GL_TRUE, projection_matrix.data.data());
         glUniform3f(light_u_light_color_location, light_color.x, light_color.y, light_color.z);
         glBindVertexArray(sphere_vao);
         glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
