@@ -93,16 +93,13 @@ int main() try {
         .rotation = Quaternion::Identity(),
         .scale = 1
     }};
-    { // Mouse rotation
-        Vector2 mouse_prev {0, 0};
-        window.onMouseMove = [&camera, mouse_prev](float x, float y) mutable {
-            Vector2 mouse_curr {x, y};
-            Vector2 move = mouse_curr - mouse_prev;
-            camera.RotateX(-move.y / 50);
-            camera.RotateZ(-move.x / 50);
-            mouse_prev = mouse_curr;
-        };
-    }
+    window.onMouseMove = [&camera, mouse_prev = Vector2(0, 0)](float x, float y) mutable {
+        Vector2 mouse_curr {x, y};
+        Vector2 move = mouse_curr - mouse_prev;
+        camera.RotateX(-move.y / 50);
+        camera.RotateZ(-move.x / 50);
+        mouse_prev = mouse_curr;
+    };
 
     //////// Light
     Transform light {
