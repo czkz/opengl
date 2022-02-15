@@ -45,14 +45,7 @@ int main() try {
     gl::enable_debug_context();
 
     //////// Shaders
-    GLuint vertex_shader = gl::create_shader(GL_VERTEX_SHADER, "shader.vert");
-    GLuint fragment_shader = gl::create_shader(GL_FRAGMENT_SHADER, "shader.frag");
-
-    GLuint shader_prog = glCreateProgram();
-    glAttachShader(shader_prog, vertex_shader);
-    glAttachShader(shader_prog, fragment_shader);
-    glLinkProgram(shader_prog);
-    gl::assert_link_successful(shader_prog);
+    GLuint shader_prog = gl::make_shaderprog("shader.vert", "shader.frag");
 
     GLint u_time_location = glGetUniformLocation(shader_prog, "u_time");
     GLint tex0_location = glGetUniformLocation(shader_prog, "tex0");
@@ -111,14 +104,7 @@ int main() try {
     Vector3 light_color { 1, 1, 1 };
 
     //////// Light shader
-    GLuint light_vertex_shader = gl::create_shader(GL_VERTEX_SHADER, "shader.vert");
-    GLuint light_fragment_shader = gl::create_shader(GL_FRAGMENT_SHADER, "light.frag");
-
-    GLuint light_shader_prog = glCreateProgram();
-    glAttachShader(light_shader_prog, light_vertex_shader);
-    glAttachShader(light_shader_prog, light_fragment_shader);
-    glLinkProgram(light_shader_prog);
-    gl::assert_link_successful(light_shader_prog);
+    GLuint light_shader_prog = gl::make_shaderprog("shader.vert", "light.frag");
 
     GLint light_u_transform_location = glGetUniformLocation(light_shader_prog, "u_transform");
     GLint light_u_camera_location = glGetUniformLocation(light_shader_prog, "u_camera");

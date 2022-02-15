@@ -22,8 +22,9 @@ namespace {
 }
 
 namespace gl {
-    /// create_shader creates and compiles shader object
-    GLuint create_shader(GLenum type, std::filesystem::path file) {
+
+    /// make_shader creates and compiles shader object
+    GLuint make_shader(GLenum type, std::filesystem::path file) {
         const std::string src = _::preprocess_shader(file);
         GLuint shader = glCreateShader(type);
         const char* code_data = src.data();
@@ -49,5 +50,22 @@ namespace gl {
             throw std::runtime_error(log);
         }
     }
-}
 
+    // make_shaderprog creates and links a shader program
+    GLuint make_shaderprog(std::filesystem::path vert, std::filesystem::path frag) {
+        GLuint vertex_shader = gl::make_shader(GL_VERTEX_SHADER, vert);
+        GLuint fragment_shader = gl::make_shader(GL_FRAGMENT_SHADER, frag);
+
+        GLuint shader_prog = glCreateProgram();
+        glAttachShader(shader_prog, vertex_shader);
+        glAttachShader(shader_prog, fragment_shader);
+        glLinkProgram(shader_prog);
+        gl::assert_link_successful(shader_prog);
+
+        glDeleteShader(vertex_shader);
+        glDeleteShader(fragment_shader);
+
+        return shader_prog;
+    }
+
+}
