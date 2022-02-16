@@ -1,4 +1,11 @@
-vec3 phong(vec3 diffuseColor, vec3 specularColor, vec3 toLight, vec3 normal, vec3 toEye, float gloss) {
+vec3 phong(
+    vec3 diffuseColor,
+    vec3 specularColor,
+    vec3 toLight,
+    vec3 normal,
+    vec3 toEye,
+    float gloss
+) {
     vec3 L = normalize(toLight);
     vec3 N = normalize(normal);
     vec3 V = normalize(toEye);
@@ -11,7 +18,14 @@ vec3 phong(vec3 diffuseColor, vec3 specularColor, vec3 toLight, vec3 normal, vec
     return diffuseStrength * diffuseColor + specularStrength * specularColor;
 }
 
-vec3 blinn(vec3 diffuseColor, vec3 specularColor, vec3 toLight, vec3 normal, vec3 toEye, float gloss) {
+vec3 blinn(
+    vec3 diffuseColor,
+    vec3 specularColor,
+    vec3 toLight,
+    vec3 normal,
+    vec3 toEye,
+    float gloss
+) {
     vec3 L = normalize(toLight);
     vec3 N = normalize(normal);
     vec3 V = normalize(toEye);

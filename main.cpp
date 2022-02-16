@@ -55,6 +55,7 @@ int main() try {
     GLint u_light_pos_location        = glGetUniformLocation(shader_prog, "u_light_pos");
     GLint u_light_color_location      = glGetUniformLocation(shader_prog, "u_light_color");
     GLint u_light_intensity_location  = glGetUniformLocation(shader_prog, "u_light_intensity");
+    GLint u_is_orthographic_location  = glGetUniformLocation(shader_prog, "u_is_orthographic");
 
     //////// Sphere VAO
     std::vector<Vector3> sphere_data, sphere_normals;
@@ -141,6 +142,7 @@ int main() try {
         glUniform3f(u_light_pos_location, light.position.x, light.position.y, light.position.z);
         glUniform3f(u_light_color_location, light_color.x, light_color.y, light_color.z);
         glUniform1f(u_light_intensity_location, light_intensity);
+        glUniform1i(u_is_orthographic_location, isOrthographic);
 
         // Draw sphere
         {
