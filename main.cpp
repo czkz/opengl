@@ -19,6 +19,7 @@
 
 #include "gl/make_vao.h"
 #include "gl/make_texture.h"
+#include "gl/uniform.h"
 
 
 int main() try {
@@ -44,18 +45,6 @@ int main() try {
 
     //////// Shaders
     GLuint shader_prog = gl::make_shaderprog("shader.vert", "shader.frag");
-
-    GLint u_time_location             = glGetUniformLocation(shader_prog, "u_time");
-    GLint tex0_location               = glGetUniformLocation(shader_prog, "tex0");
-    GLint tex1_location               = glGetUniformLocation(shader_prog, "tex1");
-    GLint u_transform_location        = glGetUniformLocation(shader_prog, "u_transform");
-    GLint u_camera_location           = glGetUniformLocation(shader_prog, "u_camera");
-    GLint u_camera_world_pos_location = glGetUniformLocation(shader_prog, "u_camera_world_pos");
-    GLint u_projection_location       = glGetUniformLocation(shader_prog, "u_projection");
-    GLint u_light_pos_location        = glGetUniformLocation(shader_prog, "u_light_pos");
-    GLint u_light_color_location      = glGetUniformLocation(shader_prog, "u_light_color");
-    GLint u_light_intensity_location  = glGetUniformLocation(shader_prog, "u_light_intensity");
-    GLint u_is_orthographic_location  = glGetUniformLocation(shader_prog, "u_is_orthographic");
 
     //////// Sphere VAO
     std::vector<Vector3> sphere_data, sphere_normals;
@@ -107,11 +96,6 @@ int main() try {
     //////// Light shader
     GLuint light_shader_prog = gl::make_shaderprog("shader.vert", "light.frag");
 
-    GLint light_u_transform_location   = glGetUniformLocation(light_shader_prog, "u_transform");
-    GLint light_u_camera_location      = glGetUniformLocation(light_shader_prog, "u_camera");
-    GLint light_u_projection_location  = glGetUniformLocation(light_shader_prog, "u_projection");
-    GLint light_u_light_color_location = glGetUniformLocation(light_shader_prog, "u_light_color");
-
     //////// Rendering
     glClearColor(0, 0, 0, 1.0);
     glEnable(GL_DEPTH_TEST);
@@ -133,16 +117,16 @@ int main() try {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(shader_prog);
-        glUniform1i(tex0_location, 0);
-        glUniform1i(tex1_location, 1);
-        glUniform1f(u_time_location, glfwGetTime());
-        glUniformMatrix4fv(u_camera_location, 1, GL_TRUE, camera.Matrix().Inverse().data.data());
-        glUniform3f(u_camera_world_pos_location, camera.position.x, camera.position.y, camera.position.z);
-        glUniformMatrix4fv(u_projection_location, 1, GL_TRUE, projection_matrix.data.data());
-        glUniform3f(u_light_pos_location, light.position.x, light.position.y, light.position.z);
-        glUniform3f(u_light_color_location, light_color.x, light_color.y, light_color.z);
-        glUniform1f(u_light_intensity_location, light_intensity);
-        glUniform1i(u_is_orthographic_location, isOrthographic);
+        gl::uniform("tex0", 0);
+        gl::uniform("tex1", 1);
+        gl::uniform("u_time", glfwGetTime());
+        gl::uniform("u_camera", camera.Matrix().Inverse());
+        gl::uniform("u_camera_world_pos", camera.position);
+        gl::uniform("u_projection", projection_matrix);
+        gl::uniform("u_light_pos", light.position);
+        gl::uniform("u_light_color", light_color);
+        gl::uniform("u_light_intensity", light_intensity);
+        gl::uniform("u_is_orthographic", isOrthographic);
 
         // Draw sphere
         {
@@ -151,7 +135,7 @@ int main() try {
                 .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
                 .scale = 0.5
             };
-            glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.Matrix().data.data());
+            gl::uniform("u_transform", transform.Matrix());
         }
         glBindVertexArray(sphere_vao);
         glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
@@ -163,17 +147,17 @@ int main() try {
                 .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
                 .scale = 10
             };
-            glUniformMatrix4fv(u_transform_location, 1, GL_TRUE, transform.Matrix().data.data());
+            gl::uniform("u_transform", transform.Matrix());
         }
         glBindVertexArray(cube_vao);
         glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
 
         // Draw light
         glUseProgram(light_shader_prog);
-        glUniformMatrix4fv(light_u_camera_location, 1, GL_TRUE, camera.Matrix().Inverse().data.data());
-        glUniformMatrix4fv(light_u_transform_location, 1, GL_TRUE, light.Matrix().data.data());
-        glUniformMatrix4fv(light_u_projection_location, 1, GL_TRUE, projection_matrix.data.data());
-        glUniform3f(light_u_light_color_location, light_color.x, light_color.y, light_color.z);
+        gl::uniform("u_camera", camera.Matrix().Inverse());
+        gl::uniform("u_transform", light.Matrix());
+        gl::uniform("u_projection", projection_matrix);
+        gl::uniform("u_light_color", light_color);
         glBindVertexArray(sphere_vao);
         glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
 
