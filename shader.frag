@@ -45,6 +45,7 @@ void main() {
         toEye,
         0.5
     );
+    c += diffuseColor * 0.01;
 
     FragColor = vec4(c, 1.0);
 }
