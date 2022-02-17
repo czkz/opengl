@@ -2,7 +2,7 @@
 #include <string>
 #include <stdexcept>
 #include <glad/glad.h>
-
+#include "handle/handle.h"
 #include "_/preprocess_shader.h"
 
 namespace gl::_ {
@@ -24,14 +24,14 @@ namespace gl::_ {
 namespace gl {
 
     /// make_shader creates and compiles shader object
-    GLuint make_shader(GLenum type, std::filesystem::path file) {
+    handle::Shader make_shader(GLenum type, std::filesystem::path file) {
         const std::string src = _::preprocess_shader(file);
-        GLuint shader = glCreateShader(type);
+        handle::Shader shader { type };
         const char* code_data = src.data();
         int code_len = src.length();
-        glShaderSource(shader, 1, &code_data, &code_len);
-        glCompileShader(shader);
-        std::string err = _::get_shader_error_log(shader);
+        glShaderSource(+shader, 1, &code_data, &code_len);
+        glCompileShader(+shader);
+        std::string err = _::get_shader_error_log(+shader);
         if (!err.empty()) {
             throw std::runtime_error(std::string(std::move(file)) + ": " + std::move(err));
         }
@@ -52,18 +52,15 @@ namespace gl {
     }
 
     // make_shaderprog creates and links a shader program
-    GLuint make_shaderprog(std::filesystem::path vert, std::filesystem::path frag) {
-        GLuint vertex_shader = gl::make_shader(GL_VERTEX_SHADER, vert);
-        GLuint fragment_shader = gl::make_shader(GL_FRAGMENT_SHADER, frag);
+    handle::ShaderProg make_shaderprog(std::filesystem::path vert, std::filesystem::path frag) {
+        handle::Shader vertex_shader = gl::make_shader(GL_VERTEX_SHADER, vert);
+        handle::Shader fragment_shader = gl::make_shader(GL_FRAGMENT_SHADER, frag);
 
-        GLuint shader_prog = glCreateProgram();
-        glAttachShader(shader_prog, vertex_shader);
-        glAttachShader(shader_prog, fragment_shader);
-        glLinkProgram(shader_prog);
-        gl::assert_link_successful(shader_prog);
-
-        glDeleteShader(vertex_shader);
-        glDeleteShader(fragment_shader);
+        handle::ShaderProg shader_prog;
+        glAttachShader(+shader_prog, +vertex_shader);
+        glAttachShader(+shader_prog, +fragment_shader);
+        glLinkProgram(+shader_prog);
+        gl::assert_link_successful(+shader_prog);
 
         return shader_prog;
     }

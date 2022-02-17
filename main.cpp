@@ -16,6 +16,7 @@
 #include "gl/make_vao.h"
 #include "gl/make_texture.h"
 #include "gl/uniform.h"
+#include "gl/handle/handle.h"
 
 
 int main() try {
@@ -42,24 +43,24 @@ int main() try {
     //////// Sphere VAO
     std::vector<Vector3> sphere_data, sphere_normals;
     math::generate_sphere(sphere_data, sphere_normals, 16);
-    GLuint sphere_vao = gl::make_vao(sphere_data, sphere_normals);
+    gl::handle::VAO sphere_vao = gl::make_vao(sphere_data, sphere_normals);
 
     //////// Cube VAO
     std::vector<Vector3> cube_data, cube_normals;
     math::generate_cube(cube_data, cube_normals, 2);
-    GLuint cube_vao = gl::make_vao(cube_data, cube_normals);
+    gl::handle::VAO cube_vao = gl::make_vao(cube_data, cube_normals);
 
     //////// Shaders
-    GLuint shader_prog = gl::make_shaderprog("shader.vert", "shader.frag");
-    GLuint light_shader_prog = gl::make_shaderprog("shader.vert", "light.frag");
+    gl::handle::ShaderProg shader_prog = gl::make_shaderprog("shader.vert", "shader.frag");
+    gl::handle::ShaderProg light_shader_prog = gl::make_shaderprog("shader.vert", "light.frag");
 
     //////// Textures
-    GLuint wood_texture = gl::make_texture_srgb(gl::load_image("wood.png"));
-    GLuint dev_texture = gl::make_texture(gl::load_image("checkerboard.png"));
+    gl::handle::Texture wood_texture = gl::make_texture_srgb(gl::load_image("wood.png"));
+    gl::handle::Texture dev_texture = gl::make_texture(gl::load_image("checkerboard.png"));
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, wood_texture);
+    glBindTexture(GL_TEXTURE_2D, +wood_texture);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, dev_texture);
+    glBindTexture(GL_TEXTURE_2D, +dev_texture);
 
     //////// Configure user input
     SpaceCamera camera {{
@@ -120,7 +121,7 @@ int main() try {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glUseProgram(shader_prog);
+        glUseProgram(+shader_prog);
         gl::uniform("tex0", 0);
         gl::uniform("tex1", 1);
         gl::uniform("u_time", glfwGetTime());
@@ -134,21 +135,21 @@ int main() try {
 
         // Draw sphere
         gl::uniform("u_transform", sphere_transform.Matrix());
-        glBindVertexArray(sphere_vao);
+        glBindVertexArray(+sphere_vao);
         glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
 
         // Draw floor
         gl::uniform("u_transform", floor_transform.Matrix());
-        glBindVertexArray(cube_vao);
+        glBindVertexArray(+cube_vao);
         glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
 
         // Draw light
-        glUseProgram(light_shader_prog);
+        glUseProgram(+light_shader_prog);
         gl::uniform("u_camera", camera.Matrix().Inverse());
         gl::uniform("u_transform", light.Matrix());
         gl::uniform("u_projection", projection_matrix);
         gl::uniform("u_light_color", light_color);
-        glBindVertexArray(sphere_vao);
+        glBindVertexArray(+sphere_vao);
         glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
 
         glfwSwapBuffers(window.handle);

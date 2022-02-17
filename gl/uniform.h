@@ -4,7 +4,6 @@
 #include <iostream>
 #include <set>
 #include <glad/glad.h>
-
 #include <Vector.h>
 #include <Quaternion.h>
 
@@ -13,7 +12,7 @@ namespace gl::_ {
     GLint get_uniform_location(const char* name) {
         constexpr bool soft_uniform_errors = true;
 
-        GLuint prog;
+        GLuint prog; // Non-owning
         glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &prog);
         if (prog == 0) {
             throw std::runtime_error("Can't set a uniform without an active shader program");

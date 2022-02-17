@@ -3,19 +3,18 @@
 #include <stdexcept>
 #include <glad/glad.h>
 #include <Vector.h>
-
+#include "handle/handle.h"
 #include "_/register_attributes.h"
 
 namespace gl {
 
     /// make_buffer creates and fills a VBO
-    GLuint make_buffer(int location, const std::ranges::range auto& data) {
+    handle::Buffer make_buffer(int location, const std::ranges::range auto& data) {
         std::span sp { data };
 
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
+        handle::Buffer vbo;
 
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, +vbo);
         glBufferData(
             GL_ARRAY_BUFFER,
             sp.size_bytes(),

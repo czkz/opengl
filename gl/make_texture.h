@@ -1,5 +1,6 @@
 #pragma once
 #include <glad/glad.h>
+#include "handle/handle.h"
 #include "load_image.h"
 
 namespace gl {
@@ -15,10 +16,9 @@ namespace gl {
     };
 
     /// make_texture creates a texture from file
-    GLuint make_texture(const gl::image& img, make_texture_options opts = {}) {
-        GLuint texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
+    handle::Texture make_texture(const gl::image& img, make_texture_options opts = {}) {
+        handle::Texture texture;
+        glBindTexture(GL_TEXTURE_2D, +texture);
         glTexImage2D(GL_TEXTURE_2D, 0, opts.internalformat, img.w, img.h, 0, img.format, opts.type, img.data);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, opts.min_filter);
@@ -33,7 +33,7 @@ namespace gl {
         return texture;
     }
 
-    GLuint make_texture_srgb(const gl::image& img, make_texture_options opts = {}) {
+    handle::Texture make_texture_srgb(const gl::image& img, make_texture_options opts = {}) {
         opts.internalformat = GL_SRGB;
         return make_texture(img, std::move(opts));
     }
