@@ -53,7 +53,7 @@ int main() try {
     //////// Shaders
     gl::handle::ShaderProg shader_prog = gl::make_shaderprog("shader.vert", "shader.frag");
     gl::handle::ShaderProg light_shader_prog = gl::make_shaderprog("shader.vert", "light.frag");
-    gl::handle::ShaderProg shadowmap_shader_prog = gl::make_shaderprog("shadowmap.vert", "shadowmap.frag");
+    gl::handle::ShaderProg shadowmap_shader_prog = gl::make_shaderprog("shadow.vert", "shadow.frag");
 
     //////// Textures
     gl::handle::Texture wood_texture = gl::make_texture_srgb(gl::load_image("wood.png"));
@@ -118,6 +118,8 @@ int main() try {
     gl::handle::Framebuffer shadow_fb;
     glBindFramebuffer(GL_FRAMEBUFFER, +shadow_fb);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, +shadowmap_data, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         throw std::runtime_error("Framebuffer is not complete");
     }
@@ -141,11 +143,8 @@ int main() try {
             projection_matrix = math::projection_perspective(90, aspect);
         }
 
-        // const MatrixS<4, 4> shadowmap_projection = math::projection_orthgraphic(10, 1);
-        const MatrixS<4, 4> shadowmap_projection = math::projection_perspective(90, 1);
-        Transform shadow_transform = light;
-        shadow_transform.scale = 1;
-        const MatrixS<4, 4> shadowmap_camera = shadow_transform.Matrix().Inverse();
+        const MatrixS<4, 4> shadowmap_VP = math::projection_perspective(90, 1) *
+            Transform { light.position, light.rotation, 1 }.Matrix().Inverse();
 
         //////// Shadowmap rendering
         glViewport(0, 0, shadowmap_w, shadowmap_h);
@@ -153,8 +152,7 @@ int main() try {
         glClear(GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(+shadowmap_shader_prog);
-        gl::uniform("u_camera", shadowmap_camera);
-        gl::uniform("u_projection", shadowmap_projection);
+        gl::uniform("u_shadowmap_VP", shadowmap_VP);
 
         // Draw sphere
         gl::uniform("u_transform", sphere_transform.Matrix());
@@ -184,8 +182,7 @@ int main() try {
         gl::uniform("u_light_intensity", light_intensity);
         gl::uniform("u_is_orthographic", isOrthographic);
         gl::uniform("u_shadowmap", 3);
-        gl::uniform("u_shadowmap_camera", shadowmap_camera);
-        gl::uniform("u_shadowmap_projection", shadowmap_projection);
+        gl::uniform("u_shadowmap_VP", shadowmap_VP);
 
         // Draw sphere
         gl::uniform("u_transform", sphere_transform.Matrix());

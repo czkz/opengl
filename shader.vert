@@ -14,8 +14,7 @@ uniform mat4 u_transform;
 uniform mat4 u_camera;
 uniform mat4 u_projection;
 
-uniform mat4 u_shadowmap_camera;
-uniform mat4 u_shadowmap_projection;
+uniform mat4 u_shadowmap_VP;
 
 void main() {
     // _out.st = aTexCoord;
@@ -23,7 +22,7 @@ void main() {
     vec4 p = vec4(aPos, 1.0);
     p = u_transform * p;
     _out.posW = p.xyz;
-    _out.shadowmapFragCoord = u_shadowmap_projection * u_shadowmap_camera * p;
+    _out.shadowmapFragCoord = u_shadowmap_VP * p;
     p = u_camera * p;
     p = u_projection * p;
     gl_Position = p;
