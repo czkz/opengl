@@ -10,7 +10,7 @@
 namespace gl::_ {
 
     GLint get_uniform_location(const char* name) {
-        constexpr bool soft_uniform_errors = true;
+        constexpr bool soft_unused_uniform_warnings = true;
 
         GLuint prog; // Non-owning
         glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &prog);
@@ -19,8 +19,8 @@ namespace gl::_ {
         }
         GLint ret = glGetUniformLocation(prog, name);
         if (ret == -1) {
-            std::string msg = std::string("Uniform \"") + name + "\" doesn't exist";
-            if (soft_uniform_errors) {
+            std::string msg = std::string("Unused uniform '") + name + "'";
+            if (soft_unused_uniform_warnings) {
                 static std::set<std::pair<GLuint, std::size_t>> shown_errors;
                 if (shown_errors.emplace(prog, std::hash<std::string>{}(msg)).second) {
                     std::cerr << msg << std::endl;
