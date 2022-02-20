@@ -10,20 +10,20 @@ out SHARED {
     vec4 shadowmapFragCoord;
 } _out;
 
-uniform mat4 u_transform;
-uniform mat4 u_camera;
-uniform mat4 u_projection;
+uniform mat4 u_M;
+uniform mat4 u_V;
+uniform mat4 u_P;
 
 uniform mat4 u_shadowmap_VP;
 
 void main() {
     // _out.st = aTexCoord;
-    _out.normalW = (u_transform * vec4(aNormal, 0.0)).xyz;
+    _out.normalW = (u_M * vec4(aNormal, 0.0)).xyz;
     vec4 p = vec4(aPos, 1.0);
-    p = u_transform * p;
+    p = u_M * p;
     _out.posW = p.xyz;
     _out.shadowmapFragCoord = u_shadowmap_VP * p;
-    p = u_camera * p;
-    p = u_projection * p;
+    p = u_V * p;
+    p = u_P * p;
     gl_Position = p;
 }

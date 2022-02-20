@@ -97,7 +97,7 @@ int main() try {
     //////// Light
     Transform light {
         .position = Vector3(1, 0, 0),
-        .rotation = Quaternion::Rotation(3.1415*0.5, Vector3(0, 0, 1)) * Quaternion::Rotation(-3.1415*0.25, Vector3(1, 0, 0)),
+        .rotation = Quaternion::Rotation(3.1415*0.5, Vector3(0, 0, 1)),
         .scale = 0.01
     };
     float light_intensity = 1;
@@ -133,7 +133,7 @@ int main() try {
         camera.rotation = camera.rotation * Quaternion::Euler(input::get_rotation(window.handle) * 0.05);
         camera.position += camera.rotation.Rotate(input::get_move(window.handle) * 0.05);
 
-        light.position = Vector3(1, 0, (float)(std::sin(glfwGetTime()) + 0.75));
+        // light.position = Vector3(1, 0, (float)(std::sin(glfwGetTime()) + 0.75));
 
         MatrixS<4, 4> projection_matrix;
         float aspect = float(windowWidth) / windowHeight;
@@ -155,12 +155,12 @@ int main() try {
         gl::uniform("u_shadowmap_VP", shadowmap_VP);
 
         // Draw sphere
-        gl::uniform("u_transform", sphere_transform.Matrix());
+        gl::uniform("u_M", sphere_transform.Matrix());
         glBindVertexArray(+sphere_vao);
         glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
 
         // Draw floor
-        gl::uniform("u_transform", floor_transform.Matrix());
+        gl::uniform("u_M", floor_transform.Matrix());
         glBindVertexArray(+cube_vao);
         glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
 
@@ -171,34 +171,34 @@ int main() try {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(+shader_prog);
-        gl::uniform("tex0", 1);
-        gl::uniform("tex1", 2);
+        gl::uniform("u_tex0", 1);
+        gl::uniform("u_tex1", 2);
         gl::uniform("u_time", glfwGetTime());
-        gl::uniform("u_camera", camera.Matrix().Inverse());
-        gl::uniform("u_camera_world_pos", camera.position);
-        gl::uniform("u_projection", projection_matrix);
-        gl::uniform("u_light_pos", light.position);
-        gl::uniform("u_light_color", light_color);
-        gl::uniform("u_light_intensity", light_intensity);
-        gl::uniform("u_is_orthographic", isOrthographic);
+        gl::uniform("u_V", camera.Matrix().Inverse());
+        gl::uniform("u_cameraPosW", camera.position);
+        gl::uniform("u_P", projection_matrix);
+        gl::uniform("u_light.pos", light.position);
+        gl::uniform("u_light.color", light_color);
+        gl::uniform("u_light.intensity", light_intensity);
+        gl::uniform("u_isOrthographic", isOrthographic);
         gl::uniform("u_shadowmap", 3);
         gl::uniform("u_shadowmap_VP", shadowmap_VP);
 
         // Draw sphere
-        gl::uniform("u_transform", sphere_transform.Matrix());
+        gl::uniform("u_M", sphere_transform.Matrix());
         glBindVertexArray(+sphere_vao);
         glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
 
         // Draw floor
-        gl::uniform("u_transform", floor_transform.Matrix());
+        gl::uniform("u_M", floor_transform.Matrix());
         glBindVertexArray(+cube_vao);
         glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
 
         // Draw light
         glUseProgram(+light_shader_prog);
-        gl::uniform("u_camera", camera.Matrix().Inverse());
-        gl::uniform("u_transform", light.Matrix());
-        gl::uniform("u_projection", projection_matrix);
+        gl::uniform("u_M", light.Matrix());
+        gl::uniform("u_V", camera.Matrix().Inverse());
+        gl::uniform("u_P", projection_matrix);
         gl::uniform("u_light_color", light_color);
         glBindVertexArray(+sphere_vao);
         glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
