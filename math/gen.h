@@ -8,10 +8,10 @@ namespace math::_ {
 
     void generate_quad(Vector2 a, Vector2 b, std::vector<Vector3>& out) {
         out.emplace_back( a.x, a.y, 0.5 );
-        out.emplace_back( a.x, b.y, 0.5 );
-        out.emplace_back( b.x, a.y, 0.5 );
         out.emplace_back( b.x, a.y, 0.5 );
         out.emplace_back( a.x, b.y, 0.5 );
+        out.emplace_back( a.x, b.y, 0.5 );
+        out.emplace_back( b.x, a.y, 0.5 );
         out.emplace_back( b.x, b.y, 0.5 );
     }
 
