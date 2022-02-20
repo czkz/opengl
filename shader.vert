@@ -7,11 +7,15 @@ out SHARED {
     vec3 posW;
     vec3 normalW;
     // vec2 st;
+    vec4 shadowmapFragCoord;
 } _out;
 
-uniform mat4 u_camera;
 uniform mat4 u_transform;
+uniform mat4 u_camera;
 uniform mat4 u_projection;
+
+uniform mat4 u_shadowmap_camera;
+uniform mat4 u_shadowmap_projection;
 
 void main() {
     // _out.st = aTexCoord;
@@ -19,6 +23,7 @@ void main() {
     vec4 p = vec4(aPos, 1.0);
     p = u_transform * p;
     _out.posW = p.xyz;
+    _out.shadowmapFragCoord = u_shadowmap_projection * u_shadowmap_camera * p;
     p = u_camera * p;
     p = u_projection * p;
     gl_Position = p;

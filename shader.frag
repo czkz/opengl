@@ -5,6 +5,7 @@ in SHARED {
     vec3 posW;
     vec3 normalW;
     // vec2 st;
+    vec4 shadowmapFragCoord;
 } _in;
 
 uniform vec3 u_camera_world_pos;
@@ -19,6 +20,8 @@ uniform float u_light_intensity;
 
 uniform mat4 u_camera;
 uniform bool u_is_orthographic;
+
+uniform sampler2D u_shadowmap;
 
 ##include lighting.glsl
 
@@ -45,7 +48,20 @@ void main() {
         toEye,
         0.5
     );
+
+    vec3 shPos = _in.shadowmapFragCoord.xyz / _in.shadowmapFragCoord.w;
+    shPos = shPos * 0.5 + 0.5;
+    float shadowDepthCurrent = shPos.z;
+    float shadowDepthClosest = texture(u_shadowmap, shPos.xy).r;
+    float shadowMod = step(shadowDepthCurrent - 0.001, shadowDepthClosest);
+
+    c *= shadowMod;
     c += diffuseColor * 0.01;
 
+    // float s = pow(shadowDepthCurrent, 1000.0);
+    // float s = pow(shadowDepthClosest, 1000.0);
+    // float s = shadowMod;
+
     FragColor = vec4(c, 1.0);
+    // FragColor = vec4(vec3(s), 1.0);
 }
