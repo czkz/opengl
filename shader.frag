@@ -28,6 +28,8 @@ uniform sampler2D u_shadowmap;
 ##include lighting.glsl
 
 void main() {
+    float a = cos(u_time) * 0.5 + 0.5;
+
     vec3 diffuseColor = texture(u_tex0, _in.posW.xy).rgb;
     // vec3 diffuseColor = vec3(0.8, 0.2, 0.05);
     vec3 specularColor = u_light.color;
@@ -55,7 +57,9 @@ void main() {
     shPos = shPos * 0.5 + 0.5;
     float shadowDepthCurrent = shPos.z;
     float shadowDepthClosest = texture(u_shadowmap, shPos.xy).r;
-    float shadowMod = step(shadowDepthCurrent - 0.001, shadowDepthClosest);
+    float bias = 0.0;
+    float shadowMod = step(shadowDepthCurrent - bias, shadowDepthClosest);
+    if (shadowDepthClosest == 1.0) { shadowMod = 1.0; }
 
     c *= shadowMod;
     c += diffuseColor * 0.01;
@@ -63,7 +67,9 @@ void main() {
     // float s = pow(shadowDepthCurrent, 1000.0);
     // float s = pow(shadowDepthClosest, 1000.0);
     // float s = shadowMod;
+    // if (s == 0.0) { discard; }
 
     FragColor = vec4(c, 1.0);
+    // FragColor += (1.0 - s);
     // FragColor = vec4(vec3(s), 1.0);
 }

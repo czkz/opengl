@@ -84,8 +84,13 @@ int main() try {
 
     //////// Normal objects
     Transform sphere_transform {
-        .position = Vector3(0, 0, 0),
+        .position = Vector3(0, 0.5, -0.5),
         .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
+        .scale = 0.5
+    };
+    Transform cube_transform {
+        .position = Vector3(0, -0.5, -0.5),
+        .rotation = Quaternion::Rotation(1, Vector3(1, 1, 1)),
         .scale = 0.5
     };
     Transform floor_transform {
@@ -132,7 +137,7 @@ int main() try {
     glEnable(GL_CULL_FACE);
     while(!glfwWindowShouldClose(window.handle)) {
         camera.rotation = camera.rotation * Quaternion::Euler(input::get_rotation(window.handle) * 0.05);
-        camera.position += camera.rotation.Rotate(input::get_move(window.handle) * 0.05);
+        camera.position += camera.rotation.Rotate(input::get_move(window.handle) * 0.01);
 
         // light.position = Vector3(1, 0, (float)(std::sin(glfwGetTime()) + 0.75));
 
@@ -151,6 +156,7 @@ int main() try {
         glViewport(0, 0, shadowmap_w, shadowmap_h);
         glBindFramebuffer(GL_FRAMEBUFFER, +shadow_fb);
         glClear(GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_FRONT);
 
         glUseProgram(+shadowmap_shader_prog);
         gl::uniform("u_shadowmap_VP", shadowmap_VP);
@@ -159,6 +165,11 @@ int main() try {
         gl::uniform("u_M", sphere_transform.Matrix());
         glBindVertexArray(+sphere_vao);
         glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
+
+        // Draw cube
+        gl::uniform("u_M", cube_transform.Matrix());
+        glBindVertexArray(+cube_vao);
+        glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
 
         // Draw floor
         gl::uniform("u_M", floor_transform.Matrix());
@@ -170,6 +181,7 @@ int main() try {
         glViewport(0, 0, windowWidth, windowHeight);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_BACK);
 
         glUseProgram(+shader_prog);
         gl::uniform("u_tex0", 1);
@@ -189,6 +201,11 @@ int main() try {
         gl::uniform("u_M", sphere_transform.Matrix());
         glBindVertexArray(+sphere_vao);
         glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
+
+        // Draw cube
+        gl::uniform("u_M", cube_transform.Matrix());
+        glBindVertexArray(+cube_vao);
+        glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
 
         // Draw floor
         gl::uniform("u_M", floor_transform.Matrix());
