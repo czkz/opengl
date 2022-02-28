@@ -65,4 +65,20 @@ namespace gl {
         return shader_prog;
     }
 
+    // make_shaderprog creates and links a shader program
+    handle::ShaderProg make_shaderprog(std::filesystem::path vert, std::filesystem::path geom, std::filesystem::path frag) {
+        handle::Shader vertex_shader = gl::make_shader(GL_VERTEX_SHADER, vert);
+        handle::Shader geometry_shader = gl::make_shader(GL_GEOMETRY_SHADER, geom);
+        handle::Shader fragment_shader = gl::make_shader(GL_FRAGMENT_SHADER, frag);
+
+        handle::ShaderProg shader_prog;
+        glAttachShader(+shader_prog, +vertex_shader);
+        glAttachShader(+shader_prog, +geometry_shader);
+        glAttachShader(+shader_prog, +fragment_shader);
+        glLinkProgram(+shader_prog);
+        gl::assert_link_successful(+shader_prog);
+
+        return shader_prog;
+    }
+
 }
