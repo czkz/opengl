@@ -52,20 +52,14 @@ int main() try {
     gl::handle::VAO cube_vao = gl::make_vao(cube.pos, cube.normals, cube.uvs, cube.tangents, cube.bitangents);
 
     //////// Shaders
-    gl::handle::ShaderProg shader_prog = gl::make_shaderprog("shader.vert", "shader.frag");
-    gl::handle::ShaderProg light_shader_prog = gl::make_shaderprog("shader.vert", "light.frag");
-    gl::handle::ShaderProg shadowmap_shader_prog = gl::make_shaderprog("shadow.vert", "shadow.geom", "shadow.frag");
-    gl::handle::ShaderProg test_shader_prog = gl::make_shaderprog("cubemap.vert", "cubemap.frag");
+    auto shader_prog           = gl::make_shaderprog("shader.vert", "shader.frag");
+    auto light_shader_prog     = gl::make_shaderprog("shader.vert", "light.frag");
+    auto shadowmap_shader_prog = gl::make_shaderprog("shadow.vert", "shadow.geom", "shadow.frag");
+    auto test_shader_prog      = gl::make_shaderprog("cubemap.vert", "cubemap.frag");
 
     //////// Textures
-    // gl::handle::Texture wood_texture = gl::make_texture_srgb(gl::load_image("wood.png"));
-    // gl::handle::Texture dev_texture = gl::make_texture(gl::load_image("checkerboard.png"));
     gl::handle::Texture bricks_texture = gl::make_texture(gl::load_image("bricks.jpg"));
     gl::handle::Texture bricks_normal_texture = gl::make_texture(gl::load_image("bricks_normal.jpg"));
-    // glActiveTexture(GL_TEXTURE1);
-    // glBindTexture(GL_TEXTURE_2D, +wood_texture);
-    // glActiveTexture(GL_TEXTURE2);
-    // glBindTexture(GL_TEXTURE_2D, +dev_texture);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, +bricks_texture);
     glActiveTexture(GL_TEXTURE2);
