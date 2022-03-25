@@ -2,6 +2,8 @@
 #include <dbg.h>
 
 #include "KeyboardManager.h"
+#include "Matrix.h"
+#include "Vector.h"
 #include "Window.h"
 #include "util/input/input.h"
 
@@ -18,6 +20,43 @@
 #include "gl/uniform.h"
 #include "gl/handle/handle.h"
 
+using std::numbers::pi;
+
+void generate_TB(
+    std::ranges::input_range auto&& vertex_pos,
+    std::ranges::input_range auto&& vertex_uv,
+    std::vector<Vector3>& vertex_tangent,
+    std::vector<Vector3>& vertex_bitangent
+) {
+    vertex_tangent.reserve(std::size(vertex_pos));
+    vertex_bitangent.reserve(std::size(vertex_pos));
+    for (size_t i = 0; i < std::size(vertex_pos); i += 3) {
+        const std::span v = std::span(vertex_pos).subspan(i, 3);
+        const std::span uv = std::span(vertex_uv).subspan(i, 3);
+        const MatrixS<3, 2> dw ({
+            (v[1]-v[0]).x, (v[2]-v[0]).x,
+            (v[1]-v[0]).y, (v[2]-v[0]).y,
+            (v[1]-v[0]).z, (v[2]-v[0]).z,
+        });
+        const MatrixS<2, 2> duv ({
+            (uv[1]-uv[0]).x, (uv[2]-uv[0]).x,
+            (uv[1]-uv[0]).y, (uv[2]-uv[0]).y,
+        });
+        const MatrixS<3, 2> TB = dw * duv.Inverse();
+        for (size_t i = 0; i < 3; i++) {
+            vertex_tangent.emplace_back(
+                TB(0, 0),
+                TB(1, 0),
+                TB(2, 0)
+            );
+            vertex_bitangent.emplace_back(
+                TB(0, 1),
+                TB(1, 1),
+                TB(2, 1)
+            );
+        }
+    }
+}
 
 int main() try {
     unsigned int windowWidth = 1000;
@@ -41,14 +80,20 @@ int main() try {
     gl::enable_debug_context();
 
     //////// Sphere VAO
-    std::vector<Vector3> sphere_data, sphere_normals;
+    std::vector<Vector3> sphere_data, sphere_normals, sphere_tangents, sphere_bitangents;
+    std::vector<Vector2> sphere_uvs;
     math::generate_sphere(sphere_data, sphere_normals, 16);
-    gl::handle::VAO sphere_vao = gl::make_vao(sphere_data, sphere_normals);
+    math::_::generate_sphere_uvs(sphere_data, sphere_uvs);
+    generate_TB(sphere_data, sphere_uvs, sphere_tangents, sphere_bitangents);
+    gl::handle::VAO sphere_vao = gl::make_vao(sphere_data, sphere_normals, sphere_uvs, sphere_tangents, sphere_bitangents);
 
     //////// Cube VAO
-    std::vector<Vector3> cube_data, cube_normals;
-    math::generate_cube(cube_data, cube_normals, 2);
-    gl::handle::VAO cube_vao = gl::make_vao(cube_data, cube_normals);
+    std::vector<Vector3> cube_data, cube_normals, cube_tangents, cube_bitangents;
+    std::vector<Vector2> cube_uvs;
+    math::_::generate_cube_uvs(cube_uvs, 4);
+    math::generate_cube(cube_data, cube_normals, 4);
+    generate_TB(cube_data, cube_uvs, cube_tangents, cube_bitangents);
+    gl::handle::VAO cube_vao = gl::make_vao(cube_data, cube_normals, cube_uvs, cube_tangents, cube_bitangents);
 
     //////// Shaders
     gl::handle::ShaderProg shader_prog = gl::make_shaderprog("shader.vert", "shader.frag");
@@ -57,12 +102,18 @@ int main() try {
     gl::handle::ShaderProg test_shader_prog = gl::make_shaderprog("cubemap.vert", "cubemap.frag");
 
     //////// Textures
-    gl::handle::Texture wood_texture = gl::make_texture_srgb(gl::load_image("wood.png"));
-    gl::handle::Texture dev_texture = gl::make_texture(gl::load_image("checkerboard.png"));
+    // gl::handle::Texture wood_texture = gl::make_texture_srgb(gl::load_image("wood.png"));
+    // gl::handle::Texture dev_texture = gl::make_texture(gl::load_image("checkerboard.png"));
+    gl::handle::Texture bricks_texture = gl::make_texture(gl::load_image("bricks.jpg"));
+    gl::handle::Texture bricks_normal_texture = gl::make_texture(gl::load_image("bricks_normal.jpg"));
+    // glActiveTexture(GL_TEXTURE1);
+    // glBindTexture(GL_TEXTURE_2D, +wood_texture);
+    // glActiveTexture(GL_TEXTURE2);
+    // glBindTexture(GL_TEXTURE_2D, +dev_texture);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, +wood_texture);
+    glBindTexture(GL_TEXTURE_2D, +bricks_texture);
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, +dev_texture);
+    glBindTexture(GL_TEXTURE_2D, +bricks_normal_texture);
     glActiveTexture(GL_TEXTURE0);
 
     //////// Configure user input
@@ -158,7 +209,6 @@ int main() try {
         glClear(GL_DEPTH_BUFFER_BIT);
         glCullFace(GL_FRONT);
 
-        using std::numbers::pi;
         glUseProgram(+shadowmap_shader_prog);
         gl::uniform("u_V[0]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 1.5, {0, 0, 1}) * Quaternion::Rotation(pi * 0.5, {0, 1, 0}), 1 }.Matrix().Inverse()); // +X
         gl::uniform("u_V[1]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 0.5, {0, 0, 1}) * Quaternion::Rotation(pi * 1.5, {0, 1, 0}), 1 }.Matrix().Inverse()); // -X

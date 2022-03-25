@@ -3,8 +3,9 @@ out vec4 FragColor;
 
 in SHARED {
     vec3 posW;
-    vec3 normalW;
-    // vec2 st;
+    vec2 st;
+    mat3 tan2world;
+    vec3 posM;
 } _in;
 
 uniform vec3 u_cameraPosW;
@@ -30,7 +31,7 @@ uniform samplerCube u_shadowmap;
 void main() {
     float a = cos(u_time) * 0.5 + 0.5;
 
-    vec3 diffuseColor = texture(u_tex0, _in.posW.xy).rgb;
+    vec3 diffuseColor = texture(u_tex0, _in.st).rgb;
     // vec3 diffuseColor = vec3(0.8, 0.2, 0.05);
     vec3 specularColor = u_light.color;
     vec3 lightPos = u_light.pos;
@@ -44,11 +45,15 @@ void main() {
     float lightDist = length(toLight);
     float attenuation = 1.0 / (lightDist * lightDist);
 
+    vec3 normalT = texture(u_tex1, _in.st).rgb * 2.0 - 1.0;
+    // normalT = vec3(1, 0, 0);
+    vec3 normalW = _in.tan2world * normalT;
+
     vec3 c = u_light.intensity * attenuation * phong(
         diffuseColor,
         specularColor,
         toLight,
-        _in.normalW,
+        normalW,
         toEye,
         0.5
     );
@@ -63,4 +68,6 @@ void main() {
     c += diffuseColor * 0.01;
 
     FragColor = vec4(c, 1.0);
+    // FragColor = vec4(vec3(_in.st, 0.0), 1.0);
+    // FragColor = vec4(vec3(normalW * 0.5 + 0.5), 1.0);
 }

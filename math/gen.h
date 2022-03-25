@@ -74,6 +74,38 @@ namespace math::_ {
         }
     }
 
+    void generate_cube_uvs(std::vector<Vector2>& uvs, int subdivisions) {
+        size_t side_verts = 6 * subdivisions * subdivisions;
+        uvs.reserve(side_verts * 6);
+        // Generate side 0
+        std::vector<Vector3> side_pos;
+        side_pos.reserve(side_verts);
+        generate_side(subdivisions, side_pos);
+        for (const auto& v : side_pos) {
+            uvs.emplace_back(v.x, v.y);
+        }
+        // Generate others
+        for (int side = 1; side < 6; side++) {
+            for (size_t i = 0; i < side_verts; i++) {
+                uvs.push_back(uvs[i]);
+            }
+        }
+    }
+
+    void generate_sphere_uvs(
+        std::ranges::input_range auto&& in_vertex_pos,
+        std::vector<Vector2>& out_uvs
+    ) {
+        using std::numbers::pi;
+        out_uvs.reserve(std::size(in_vertex_pos));
+        for (const auto& v : in_vertex_pos) {
+            out_uvs.emplace_back(
+                std::atan2(v.y, v.x) / pi * 0.5 + 0.5,
+                std::asin(v.z) / pi + 0.5
+            );
+        }
+    }
+
 }
 
 namespace math {
