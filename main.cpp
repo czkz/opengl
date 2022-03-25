@@ -22,42 +22,6 @@
 
 using std::numbers::pi;
 
-void generate_TB(
-    std::ranges::input_range auto&& vertex_pos,
-    std::ranges::input_range auto&& vertex_uv,
-    std::vector<Vector3>& vertex_tangent,
-    std::vector<Vector3>& vertex_bitangent
-) {
-    vertex_tangent.reserve(std::size(vertex_pos));
-    vertex_bitangent.reserve(std::size(vertex_pos));
-    for (size_t i = 0; i < std::size(vertex_pos); i += 3) {
-        const std::span v = std::span(vertex_pos).subspan(i, 3);
-        const std::span uv = std::span(vertex_uv).subspan(i, 3);
-        const MatrixS<3, 2> dw ({
-            (v[1]-v[0]).x, (v[2]-v[0]).x,
-            (v[1]-v[0]).y, (v[2]-v[0]).y,
-            (v[1]-v[0]).z, (v[2]-v[0]).z,
-        });
-        const MatrixS<2, 2> duv ({
-            (uv[1]-uv[0]).x, (uv[2]-uv[0]).x,
-            (uv[1]-uv[0]).y, (uv[2]-uv[0]).y,
-        });
-        const MatrixS<3, 2> TB = dw * duv.Inverse();
-        for (size_t i = 0; i < 3; i++) {
-            vertex_tangent.emplace_back(
-                TB(0, 0),
-                TB(1, 0),
-                TB(2, 0)
-            );
-            vertex_bitangent.emplace_back(
-                TB(0, 1),
-                TB(1, 1),
-                TB(2, 1)
-            );
-        }
-    }
-}
-
 int main() try {
     unsigned int windowWidth = 1000;
     unsigned int windowHeight = 1000;
@@ -80,20 +44,12 @@ int main() try {
     gl::enable_debug_context();
 
     //////// Sphere VAO
-    std::vector<Vector3> sphere_data, sphere_normals, sphere_tangents, sphere_bitangents;
-    std::vector<Vector2> sphere_uvs;
-    math::generate_sphere(sphere_data, sphere_normals, 16);
-    math::_::generate_sphere_uvs(sphere_data, sphere_uvs);
-    generate_TB(sphere_data, sphere_uvs, sphere_tangents, sphere_bitangents);
-    gl::handle::VAO sphere_vao = gl::make_vao(sphere_data, sphere_normals, sphere_uvs, sphere_tangents, sphere_bitangents);
+    math::mesh sphere = math::generate_sphere(16);
+    gl::handle::VAO sphere_vao = gl::make_vao(sphere.pos, sphere.normals, sphere.uvs, sphere.tangents, sphere.bitangents);
 
     //////// Cube VAO
-    std::vector<Vector3> cube_data, cube_normals, cube_tangents, cube_bitangents;
-    std::vector<Vector2> cube_uvs;
-    math::_::generate_cube_uvs(cube_uvs, 4);
-    math::generate_cube(cube_data, cube_normals, 4);
-    generate_TB(cube_data, cube_uvs, cube_tangents, cube_bitangents);
-    gl::handle::VAO cube_vao = gl::make_vao(cube_data, cube_normals, cube_uvs, cube_tangents, cube_bitangents);
+    math::mesh cube = math::generate_cube(4);
+    gl::handle::VAO cube_vao = gl::make_vao(cube.pos, cube.normals, cube.uvs, cube.tangents, cube.bitangents);
 
     //////// Shaders
     gl::handle::ShaderProg shader_prog = gl::make_shaderprog("shader.vert", "shader.frag");
@@ -223,17 +179,17 @@ int main() try {
         // Draw sphere
         gl::uniform("u_M", sphere_transform.Matrix());
         glBindVertexArray(+sphere_vao);
-        glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
+        glDrawArrays(GL_TRIANGLES, 0, sphere.pos.size());
 
         // Draw cube
         gl::uniform("u_M", cube_transform.Matrix());
         glBindVertexArray(+cube_vao);
-        glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
+        glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
 
         // Draw floor
         gl::uniform("u_M", floor_transform.Matrix());
         glBindVertexArray(+cube_vao);
-        glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
+        glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
 
 
         //////// Normal rendering
@@ -259,17 +215,17 @@ int main() try {
         // Draw sphere
         gl::uniform("u_M", sphere_transform.Matrix());
         glBindVertexArray(+sphere_vao);
-        glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
+        glDrawArrays(GL_TRIANGLES, 0, sphere.pos.size());
 
         // Draw cube
         gl::uniform("u_M", cube_transform.Matrix());
         glBindVertexArray(+cube_vao);
-        glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
+        glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
 
         // Draw floor
         gl::uniform("u_M", floor_transform.Matrix());
         glBindVertexArray(+cube_vao);
-        glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
+        glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
 
         // Draw light
         glUseProgram(+light_shader_prog);
@@ -278,7 +234,7 @@ int main() try {
         gl::uniform("u_P", projection_matrix);
         gl::uniform("u_light_color", light_color);
         glBindVertexArray(+sphere_vao);
-        glDrawArrays(GL_TRIANGLES, 0, sphere_data.size());
+        glDrawArrays(GL_TRIANGLES, 0, sphere.pos.size());
 
         // Test draw cubemap
         glUseProgram(+test_shader_prog);
@@ -288,7 +244,7 @@ int main() try {
         gl::uniform("u_shadowmap", 3);
         glBindVertexArray(+cube_vao);
         glDisable(GL_CULL_FACE);
-        glDrawArrays(GL_TRIANGLES, 0, cube_data.size());
+        glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
         glEnable(GL_CULL_FACE);
 
         glfwSwapBuffers(window.handle);
