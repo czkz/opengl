@@ -43,7 +43,9 @@ void main() {
     vec3 toEyeDirT = normalize(inverse(_in.tan2world) * toEye);
 
     const float heightScale = 0.15;
-    const float numLayers = 8.0;
+    const float numLayersMin = 2.0;
+    const float numLayersMax = 64.0;
+    float numLayers = mix(numLayersMax, numLayersMin, dot(vec3(0,0,1), toEyeDirT));
     vec3 sampleStep = -toEyeDirT.xyz / toEyeDirT.z * heightScale / numLayers;
 
     vec3 currentPos = vec3(_in.st, 0.0);
@@ -54,7 +56,12 @@ void main() {
         currentPos += sampleStep;
     }
 
-    vec2 st = currentPos.xy;
+    vec3 p0 = currentPos - sampleStep;
+    vec3 p1 = currentPos;
+    float err0 = p0.z - -texture(u_tex3, p0.xy).r * heightScale;
+    float err1 = p1.z - -texture(u_tex3, p1.xy).r * heightScale;
+    float t = (0.0 - err0) / (err1 - err0);
+    vec2 st = mix(currentPos.xy - sampleStep.xy, currentPos.xy, t);
     // st = _in.st;
     // if (st.x < 0.0 || st.x > 1.0 || st.y < 0.0 || st.y > 1.0) { discard; }
 
