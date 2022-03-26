@@ -84,7 +84,7 @@ namespace math::_ {
         side_pos.reserve(side_verts);
         generate_side(subdivisions, side_pos);
         for (const auto& v : side_pos) {
-            out_uvs.emplace_back(v.x, v.y);
+            out_uvs.emplace_back(v.x + 0.5, v.y + 0.5);
         }
         // Generate others
         for (int side = 1; side < 6; side++) {

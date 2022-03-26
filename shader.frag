@@ -11,8 +11,9 @@ in SHARED {
 uniform vec3 u_cameraPosW;
 
 uniform float u_time;
-uniform sampler2D u_tex0;
 uniform sampler2D u_tex1;
+uniform sampler2D u_tex2;
+uniform sampler2D u_tex3;
 
 uniform struct {
     vec3 pos;
@@ -31,22 +32,32 @@ uniform samplerCube u_shadowmap;
 void main() {
     float a = cos(u_time) * 0.5 + 0.5;
 
-    vec3 diffuseColor = texture(u_tex0, _in.st).rgb;
-    // vec3 diffuseColor = vec3(0.8, 0.2, 0.05);
-    vec3 specularColor = u_light.color;
-    vec3 lightPos = u_light.pos;
-    vec3 toLight = lightPos - _in.posW;
     vec3 toEye;
     if (u_isOrthographic) {
         toEye = (inverse(u_V) * vec4(0.0, 0.0, 1.0, 0.0)).xyz;
     } else {
         toEye = u_cameraPosW - _in.posW;
     }
+
+    vec3 toEyeDirT = normalize(inverse(_in.tan2world) * toEye);
+    float dispDepth = 1.0 - texture(u_tex3, _in.st).r;
+    vec2 depthOffsetT = -toEyeDirT.xy * dispDepth * 0.05;
+    vec2 st = _in.st;
+    st += depthOffsetT;
+    if (st.x < 0.0 || st.x > 1.0 || st.y < 0.0 || st.y > 1.0) {
+        discard;
+    }
+
+    vec3 diffuseColor = texture(u_tex1, st).rgb;
+    // vec3 diffuseColor = vec3(0.8, 0.2, 0.05);
+    vec3 specularColor = u_light.color;
+    vec3 lightPos = u_light.pos;
+    vec3 toLight = lightPos - _in.posW;
     float lightDist = length(toLight);
     float attenuation = 1.0 / (lightDist * lightDist);
 
-    vec3 normalT = texture(u_tex1, _in.st).rgb * 2.0 - 1.0;
-    // normalT = vec3(1, 0, 0);
+    vec3 normalT = texture(u_tex2, st).rgb * 2.0 - 1.0;
+    // normalT = vec3(0, 0, 1);
     vec3 normalW = _in.tan2world * normalT;
 
     vec3 c = u_light.intensity * attenuation * phong(
@@ -70,4 +81,5 @@ void main() {
     FragColor = vec4(c, 1.0);
     // FragColor = vec4(vec3(_in.st, 0.0), 1.0);
     // FragColor = vec4(vec3(normalW * 0.5 + 0.5), 1.0);
+    // FragColor = vec4(vec3(heightOffsetT), 1.0);
 }

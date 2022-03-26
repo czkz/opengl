@@ -58,12 +58,15 @@ int main() try {
     auto test_shader_prog      = gl::make_shaderprog("cubemap.vert", "cubemap.frag");
 
     //////// Textures
-    gl::handle::Texture bricks_texture = gl::make_texture(gl::load_image("bricks.jpg"));
-    gl::handle::Texture bricks_normal_texture = gl::make_texture(gl::load_image("bricks_normal.jpg"));
+    gl::handle::Texture bricks_texture = gl::make_texture_srgb(gl::load_image("bricks2.jpg"));
+    gl::handle::Texture bricks_normal_texture = gl::make_texture(gl::load_image("bricks2_normal.jpg"));
+    gl::handle::Texture bricks_height_texture = gl::make_texture(gl::load_image("bricks2_disp.jpg"));
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, +bricks_texture);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, +bricks_normal_texture);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, +bricks_height_texture);
     glActiveTexture(GL_TEXTURE0);
 
     //////// Configure user input
@@ -114,7 +117,7 @@ int main() try {
     constexpr int shadowmap_w = 1024, shadowmap_h = shadowmap_w;
     constexpr float shadowmap_far_plane = 100;
     gl::handle::Texture shadowmap_data;
-    glActiveTexture(GL_TEXTURE3);
+    glActiveTexture(GL_TEXTURE9);
     glBindTexture(GL_TEXTURE_CUBE_MAP, +shadowmap_data);
     for (int i = 0; i < 6; i++) {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowmap_w, shadowmap_h, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
@@ -193,8 +196,9 @@ int main() try {
         glCullFace(GL_BACK);
 
         glUseProgram(+shader_prog);
-        gl::uniform("u_tex0", 1);
-        gl::uniform("u_tex1", 2);
+        gl::uniform("u_tex1", 1);
+        gl::uniform("u_tex2", 2);
+        gl::uniform("u_tex3", 3);
         gl::uniform("u_time", glfwGetTime());
         gl::uniform("u_V", math::z_convert * camera.Matrix().Inverse());
         gl::uniform("u_cameraPosW", camera.position);
@@ -204,7 +208,7 @@ int main() try {
         gl::uniform("u_light.intensity", light_intensity);
         gl::uniform("u_isOrthographic", isOrthographic);
         gl::uniform("u_shadowmapFarPlane", shadowmap_far_plane);
-        gl::uniform("u_shadowmap", 3);
+        gl::uniform("u_shadowmap", 9);
 
         // Draw sphere
         gl::uniform("u_M", sphere_transform.Matrix());
@@ -235,7 +239,7 @@ int main() try {
         gl::uniform("u_M", Transform { {5, 0, 0}, Quaternion::Identity(), 1 }.Matrix());
         gl::uniform("u_V", math::z_convert * camera.Matrix().Inverse());
         gl::uniform("u_P", projection_matrix);
-        gl::uniform("u_shadowmap", 3);
+        gl::uniform("u_shadowmap", 9);
         glBindVertexArray(+cube_vao);
         glDisable(GL_CULL_FACE);
         glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
