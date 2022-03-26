@@ -39,17 +39,28 @@ void main() {
         toEye = u_cameraPosW - _in.posW;
     }
 
+
     vec3 toEyeDirT = normalize(inverse(_in.tan2world) * toEye);
-    float dispDepth = 1.0 - texture(u_tex3, _in.st).r;
-    vec2 depthOffsetT = -toEyeDirT.xy * dispDepth * 0.05;
-    vec2 st = _in.st;
-    st += depthOffsetT;
-    if (st.x < 0.0 || st.x > 1.0 || st.y < 0.0 || st.y > 1.0) {
-        discard;
+
+    const float heightScale = 0.15;
+    const float numLayers = 8.0;
+    vec3 sampleStep = -toEyeDirT.xyz / toEyeDirT.z * heightScale / numLayers;
+
+    vec3 currentPos = vec3(_in.st, 0.0);
+
+    int i = 0;
+    while(currentPos.z > -texture(u_tex3, currentPos.xy).r * heightScale) {
+        if (++i > 100) { FragColor=vec4(1,0,1,1); return; break; }
+        currentPos += sampleStep;
     }
 
+    vec2 st = currentPos.xy;
+    // st = _in.st;
+    // if (st.x < 0.0 || st.x > 1.0 || st.y < 0.0 || st.y > 1.0) { discard; }
+
+
     vec3 diffuseColor = texture(u_tex1, st).rgb;
-    // vec3 diffuseColor = vec3(0.8, 0.2, 0.05);
+    // diffuseColor = vec3(0.8, 0.2, 0.05);
     vec3 specularColor = u_light.color;
     vec3 lightPos = u_light.pos;
     vec3 toLight = lightPos - _in.posW;

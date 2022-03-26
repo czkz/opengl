@@ -58,9 +58,9 @@ int main() try {
     auto test_shader_prog      = gl::make_shaderprog("cubemap.vert", "cubemap.frag");
 
     //////// Textures
-    gl::handle::Texture bricks_texture = gl::make_texture_srgb(gl::load_image("bricks2.jpg"));
-    gl::handle::Texture bricks_normal_texture = gl::make_texture(gl::load_image("bricks2_normal.jpg"));
-    gl::handle::Texture bricks_height_texture = gl::make_texture(gl::load_image("bricks2_disp.jpg"));
+    gl::handle::Texture bricks_texture = gl::make_texture_srgb(gl::load_image("wood.png"));
+    gl::handle::Texture bricks_normal_texture = gl::make_texture(gl::load_image("toy_box_normal.png"));
+    gl::handle::Texture bricks_height_texture = gl::make_texture(gl::load_image("toy_box_disp.png"));
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, +bricks_texture);
     glActiveTexture(GL_TEXTURE2);
