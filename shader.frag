@@ -46,6 +46,7 @@ void main() {
     const float numLayersMin = 2.0;
     const float numLayersMax = 64.0;
     float numLayers = mix(numLayersMax, numLayersMin, dot(vec3(0,0,1), toEyeDirT));
+    if (numLayers > 100) { FragColor=vec4(0,1,0,1); return; }
     vec3 sampleStep = -toEyeDirT.xyz / toEyeDirT.z * heightScale / numLayers;
 
     vec3 currentPos = vec3(_in.st, 0.0);
@@ -98,6 +99,6 @@ void main() {
 
     FragColor = vec4(c, 1.0);
     // FragColor = vec4(vec3(_in.st, 0.0), 1.0);
-    // FragColor = vec4(vec3(normalW * 0.5 + 0.5), 1.0);
+    // FragColor = vec4(vec3(normalW), 1.0);
     // FragColor = vec4(vec3(heightOffsetT), 1.0);
 }

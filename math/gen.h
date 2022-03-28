@@ -4,6 +4,7 @@
 #include <memory>
 #include <numbers>
 #include <span>
+#include <stdexcept>
 
 
 namespace math::_ {
@@ -117,20 +118,26 @@ namespace math::_ {
         if (vertex_tangent == nullptr && vertex_bitangent == nullptr) { return; }
         if (vertex_tangent != nullptr) { vertex_tangent->reserve(std::size(vertex_pos)); }
         if (vertex_bitangent != nullptr) { vertex_bitangent->reserve(std::size(vertex_pos)); }
-        vertex_bitangent->reserve(std::size(vertex_pos));
-        for (size_t i = 0; i < std::size(vertex_pos); i += 3) {
-            const std::span v = std::span(vertex_pos).subspan(i, 3);
+        size_t nVertices = std::size(vertex_pos);
+        if (nVertices % 3) { throw std::runtime_error("nVertices % 3 != 0"); }
+        for (size_t i = 0; i < nVertices; i += 3) {
+            const std::span p = std::span(vertex_pos).subspan(i, 3);
             const std::span uv = std::span(vertex_uv).subspan(i, 3);
+            const Vector3 e1 = p[1] - p[0];
+            const Vector3 e2 = p[2] - p[0];
+            const Vector2 duv1 = uv[1]-uv[0];
+            const Vector2 duv2 = uv[2]-uv[0];
             const MatrixS<3, 2> dw ({
-                (v[1]-v[0]).x, (v[2]-v[0]).x,
-                (v[1]-v[0]).y, (v[2]-v[0]).y,
-                (v[1]-v[0]).z, (v[2]-v[0]).z,
+                e1.x, e2.x,
+                e1.y, e2.y,
+                e1.z, e2.z,
             });
             const MatrixS<2, 2> duv ({
-                (uv[1]-uv[0]).x, (uv[2]-uv[0]).x,
-                (uv[1]-uv[0]).y, (uv[2]-uv[0]).y,
+                duv1.x, duv2.x,
+                duv1.y, duv2.y,
             });
             const MatrixS<3, 2> TB = dw * duv.Inverse();
+
             for (size_t i = 0; i < 3; i++) {
                 if (vertex_tangent != nullptr) {
                     vertex_tangent->emplace_back(

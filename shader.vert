@@ -17,15 +17,16 @@ uniform mat4 u_V;
 uniform mat4 u_P;
 
 void main() {
-    vec3 normalW    = normalize((u_M * vec4(aNormal,    0.0)).xyz);
-    vec3 tangentW   = normalize((u_M * vec4(aTangent,   0.0)).xyz);
-    vec3 bitangentW = normalize((u_M * vec4(aBitangent, 0.0)).xyz);
-    _out.tan2world = mat3(tangentW, bitangentW, normalW);
+    _out.st = aTexCoords;
+
+    mat3 normalMatrix = mat3(transpose(inverse(u_M)));
+    mat3 TBN = mat3(aTangent, aBitangent, aNormal);
+    _out.tan2world = normalMatrix * TBN;
+
     vec4 p = vec4(aPos, 1.0);
     _out.posM = p.xyz;
     p = u_M * p;
     _out.posW = p.xyz;
-    _out.st = aTexCoords;
     p = u_V * p;
     p = u_P * p;
     gl_Position = p;
