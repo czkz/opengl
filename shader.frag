@@ -26,6 +26,31 @@ uniform samplerCube u_shadowmap;
 
 ##include lighting.glsl
 
+vec3 parallaxMap(vec3 toEyeDirT, vec2 st, sampler2D depthMap,
+                     float numLayersMin, float numLayersMax)
+{
+    const float heightScale = 0.05;
+    float numLayers = mix(numLayersMax, numLayersMin, dot(vec3(0,0,1), toEyeDirT));
+    if (numLayers > 100) { discard; }
+    vec3 sampleStep = -toEyeDirT.xyz / toEyeDirT.z * heightScale / numLayers;
+
+    vec3 currentPos = vec3(st, 0.0);
+
+    int i = 0;
+    while(currentPos.z > -texture(depthMap, currentPos.xy).r * heightScale) {
+        if (++i > 100) { discard; break; }
+        currentPos += sampleStep;
+    }
+
+    vec3 p0 = currentPos - sampleStep;
+    vec3 p1 = currentPos;
+    float err0 = p0.z - -texture(depthMap, p0.xy).r * heightScale;
+    float err1 = p1.z - -texture(depthMap, p1.xy).r * heightScale;
+    float t = (0.0 - err0) / (err1 - err0);
+    currentPos = mix(currentPos - sampleStep, currentPos, t);
+    return currentPos;
+}
+
 void main() {
     float a = cos(u_time) * 0.5 + 0.5;
 
@@ -39,40 +64,18 @@ void main() {
         toEyeDir = normalize(toEyeDir);
     }
 
-
     vec3 toEyeDirT = normalize(inverse(_in.tan2world) * toEyeDir);
-
-    const float heightScale = 0.15;
-    const float numLayersMin = 2.0;
-    const float numLayersMax = 64.0;
-    float numLayers = mix(numLayersMax, numLayersMin, dot(vec3(0,0,1), toEyeDirT));
-    if (numLayers > 100) { FragColor=vec4(0,1,0,1); return; }
-    vec3 sampleStep = -toEyeDirT.xyz / toEyeDirT.z * heightScale / numLayers;
-
-    vec3 currentPos = vec3(_in.st, 0.0);
-
-    int i = 0;
-    while(currentPos.z > -texture(u_depthMap, currentPos.xy).r * heightScale) {
-        if (++i > 100) { FragColor=vec4(1,0,1,1); return; break; }
-        currentPos += sampleStep;
-    }
-
-    vec3 p0 = currentPos - sampleStep;
-    vec3 p1 = currentPos;
-    float err0 = p0.z - -texture(u_depthMap, p0.xy).r * heightScale;
-    float err1 = p1.z - -texture(u_depthMap, p1.xy).r * heightScale;
-    float t = (0.0 - err0) / (err1 - err0);
-    currentPos = mix(currentPos - sampleStep, currentPos, t);
-    vec2 st = currentPos.xy;
+    vec3 posT = parallaxMap(toEyeDirT, _in.st, u_depthMap, 2, 64);
+    vec2 st = posT.xy;
     // st = _in.st;
     // if (st.x < 0.0 || st.x > 1.0 || st.y < 0.0 || st.y > 1.0) { discard; }
-
 
     vec3 diffuseColor = texture(u_diffuseMap, st).rgb;
     // diffuseColor = vec3(0.8, 0.2, 0.05);
     vec3 specularColor = u_light.color;
     vec3 lightPos = u_light.pos;
     vec3 toLight = lightPos - _in.posW;
+    vec3 toLightDir = normalize(toLight);
     float lightDist = length(toLight);
     float attenuation = 1.0 / (lightDist * lightDist);
 
@@ -83,7 +86,7 @@ void main() {
     vec3 c = u_light.intensity * attenuation * phong(
         diffuseColor,
         specularColor,
-        normalize(toLight),
+        toLightDir,
         normalW,
         toEyeDir,
         0.5
