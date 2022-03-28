@@ -196,12 +196,11 @@ int main() try {
         glCullFace(GL_BACK);
 
         glUseProgram(+shader_prog);
-        gl::uniform("u_tex1", 1);
-        gl::uniform("u_tex2", 2);
-        gl::uniform("u_tex3", 3);
+        gl::uniform("u_diffuseMap", 1);
+        gl::uniform("u_normalMap", 2);
+        gl::uniform("u_depthMap", 3);
         gl::uniform("u_time", glfwGetTime());
         gl::uniform("u_V", math::z_convert * camera.Matrix().Inverse());
-        gl::uniform("u_cameraPosW", camera.position);
         gl::uniform("u_P", projection_matrix);
         gl::uniform("u_light.pos", light.position);
         gl::uniform("u_light.color", light_color);

@@ -5,15 +5,12 @@ in SHARED {
     vec3 posW;
     vec2 st;
     mat3 tan2world;
-    vec3 posM;
 } _in;
 
-uniform vec3 u_cameraPosW;
-
 uniform float u_time;
-uniform sampler2D u_tex1;
-uniform sampler2D u_tex2;
-uniform sampler2D u_tex3;
+uniform sampler2D u_diffuseMap;
+uniform sampler2D u_normalMap;
+uniform sampler2D u_depthMap;
 
 uniform struct {
     vec3 pos;
@@ -32,15 +29,18 @@ uniform samplerCube u_shadowmap;
 void main() {
     float a = cos(u_time) * 0.5 + 0.5;
 
-    vec3 toEye;
+    vec3 toEyeDir;
     if (u_isOrthographic) {
-        toEye = (inverse(u_V) * vec4(0.0, 0.0, 1.0, 0.0)).xyz;
+        toEyeDir = (inverse(u_V) * vec4(0.0, 0.0, 1.0, 0.0)).xyz;
     } else {
-        toEye = u_cameraPosW - _in.posW;
+        // toEyeDir = normalize(u_cameraPosW - _in.posW);
+        vec3 posV = (u_V * vec4(_in.posW, 1.0)).xyz;
+        toEyeDir = (inverse(u_V) * vec4(-posV, 0.0)).xyz;
+        toEyeDir = normalize(toEyeDir);
     }
 
 
-    vec3 toEyeDirT = normalize(inverse(_in.tan2world) * toEye);
+    vec3 toEyeDirT = normalize(inverse(_in.tan2world) * toEyeDir);
 
     const float heightScale = 0.15;
     const float numLayersMin = 2.0;
@@ -52,22 +52,23 @@ void main() {
     vec3 currentPos = vec3(_in.st, 0.0);
 
     int i = 0;
-    while(currentPos.z > -texture(u_tex3, currentPos.xy).r * heightScale) {
+    while(currentPos.z > -texture(u_depthMap, currentPos.xy).r * heightScale) {
         if (++i > 100) { FragColor=vec4(1,0,1,1); return; break; }
         currentPos += sampleStep;
     }
 
     vec3 p0 = currentPos - sampleStep;
     vec3 p1 = currentPos;
-    float err0 = p0.z - -texture(u_tex3, p0.xy).r * heightScale;
-    float err1 = p1.z - -texture(u_tex3, p1.xy).r * heightScale;
+    float err0 = p0.z - -texture(u_depthMap, p0.xy).r * heightScale;
+    float err1 = p1.z - -texture(u_depthMap, p1.xy).r * heightScale;
     float t = (0.0 - err0) / (err1 - err0);
-    vec2 st = mix(currentPos.xy - sampleStep.xy, currentPos.xy, t);
+    currentPos = mix(currentPos - sampleStep, currentPos, t);
+    vec2 st = currentPos.xy;
     // st = _in.st;
     // if (st.x < 0.0 || st.x > 1.0 || st.y < 0.0 || st.y > 1.0) { discard; }
 
 
-    vec3 diffuseColor = texture(u_tex1, st).rgb;
+    vec3 diffuseColor = texture(u_diffuseMap, st).rgb;
     // diffuseColor = vec3(0.8, 0.2, 0.05);
     vec3 specularColor = u_light.color;
     vec3 lightPos = u_light.pos;
@@ -75,7 +76,7 @@ void main() {
     float lightDist = length(toLight);
     float attenuation = 1.0 / (lightDist * lightDist);
 
-    vec3 normalT = texture(u_tex2, st).rgb * 2.0 - 1.0;
+    vec3 normalT = texture(u_normalMap, st).rgb * 2.0 - 1.0;
     // normalT = vec3(0, 0, 1);
     vec3 normalW = normalize(_in.tan2world * normalT);
 
@@ -84,7 +85,7 @@ void main() {
         specularColor,
         normalize(toLight),
         normalW,
-        normalize(toEye),
+        toEyeDir,
         0.5
     );
 

@@ -9,7 +9,6 @@ out SHARED {
     vec3 posW;
     vec2 st;
     mat3 tan2world;
-    vec3 posM;
 } _out;
 
 uniform mat4 u_M;
@@ -24,7 +23,6 @@ void main() {
     _out.tan2world = normalMatrix * TBN;
 
     vec4 p = vec4(aPos, 1.0);
-    _out.posM = p.xyz;
     p = u_M * p;
     _out.posW = p.xyz;
     p = u_V * p;
