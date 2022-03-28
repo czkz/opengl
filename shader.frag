@@ -77,14 +77,14 @@ void main() {
 
     vec3 normalT = texture(u_tex2, st).rgb * 2.0 - 1.0;
     // normalT = vec3(0, 0, 1);
-    vec3 normalW = _in.tan2world * normalT;
+    vec3 normalW = normalize(_in.tan2world * normalT);
 
     vec3 c = u_light.intensity * attenuation * phong(
         diffuseColor,
         specularColor,
-        toLight,
+        normalize(toLight),
         normalW,
-        toEye,
+        normalize(toEye),
         0.5
     );
 
