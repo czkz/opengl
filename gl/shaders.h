@@ -6,7 +6,7 @@
 #include "_/preprocess_shader.h"
 
 namespace gl::_ {
-    std::string get_shader_error_log(GLuint shader) {
+    inline std::string get_shader_error_log(GLuint shader) {
         GLint success;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (success) {
@@ -24,7 +24,7 @@ namespace gl::_ {
 namespace gl {
 
     /// make_shader creates and compiles shader object
-    handle::Shader make_shader(GLenum type, std::filesystem::path file) {
+    inline handle::Shader make_shader(GLenum type, std::filesystem::path file) {
         const std::string src = _::preprocess_shader(file);
         handle::Shader shader { type };
         const char* code_data = src.data();
@@ -39,7 +39,7 @@ namespace gl {
     }
 
     /// assert_link_successful throws if shader program failed to link
-    void assert_link_successful(GLuint prog) {
+    inline void assert_link_successful(GLuint prog) {
         GLint success;
         glGetProgramiv(prog, GL_LINK_STATUS, &success);
         if (!success) {
@@ -52,7 +52,7 @@ namespace gl {
     }
 
     // make_shaderprog creates and links a shader program
-    handle::ShaderProg make_shaderprog(std::filesystem::path vert, std::filesystem::path frag) {
+    inline handle::ShaderProg make_shaderprog(std::filesystem::path vert, std::filesystem::path frag) {
         handle::Shader vertex_shader = gl::make_shader(GL_VERTEX_SHADER, vert);
         handle::Shader fragment_shader = gl::make_shader(GL_FRAGMENT_SHADER, frag);
 
@@ -66,7 +66,7 @@ namespace gl {
     }
 
     // make_shaderprog creates and links a shader program
-    handle::ShaderProg make_shaderprog(std::filesystem::path vert, std::filesystem::path geom, std::filesystem::path frag) {
+    inline handle::ShaderProg make_shaderprog(std::filesystem::path vert, std::filesystem::path geom, std::filesystem::path frag) {
         handle::Shader vertex_shader = gl::make_shader(GL_VERTEX_SHADER, vert);
         handle::Shader geometry_shader = gl::make_shader(GL_GEOMETRY_SHADER, geom);
         handle::Shader fragment_shader = gl::make_shader(GL_FRAGMENT_SHADER, frag);

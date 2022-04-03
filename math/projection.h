@@ -14,7 +14,7 @@ namespace math {
         0,  0, 0, 1,
     }};
 
-    MatrixS<4, 4> projection_perspective(float fov_deg, float aspect) {
+    inline MatrixS<4, 4> projection_perspective(float fov_deg, float aspect) {
         const float fov = fov_deg * std::numbers::pi / 180.0;
         const float n = 0.01;
         const float f = 100;
@@ -27,7 +27,7 @@ namespace math {
         });
     }
 
-    MatrixS<4, 4> projection_orthgraphic(float height, float aspect) {
+    inline MatrixS<4, 4> projection_orthgraphic(float height, float aspect) {
         const float h2 = height / 2;
         const float w2 = h2 * aspect;
         const float n = 0;

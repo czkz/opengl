@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 namespace gl::_ {
-    GLenum channels_to_format (int nrChannels) {
+    inline GLenum channels_to_format (int nrChannels) {
         switch (nrChannels) {
             case 1: return GL_RED;
             case 2: return GL_RG;
@@ -35,7 +35,7 @@ namespace gl {
         ~image() { if (data) { stbi_image_free(data); } }
     };
 
-    image load_image(const char* filename, bool flip = true) {
+    inline image load_image(const char* filename, bool flip = true) {
         stbi_set_flip_vertically_on_load(flip);
         int w, h, nchan;
         unsigned char* data;

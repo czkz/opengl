@@ -16,7 +16,7 @@ namespace gl {
     };
 
     /// make_texture creates a texture from file
-    handle::Texture make_texture(const gl::image& img, make_texture_options opts = {}) {
+    inline handle::Texture make_texture(const gl::image& img, make_texture_options opts = {}) {
         handle::Texture texture;
         glBindTexture(GL_TEXTURE_2D, +texture);
         glTexImage2D(GL_TEXTURE_2D, 0, opts.internalformat, img.w, img.h, 0, img.format, opts.type, img.data);
@@ -33,7 +33,7 @@ namespace gl {
         return texture;
     }
 
-    handle::Texture make_texture_srgb(const gl::image& img, make_texture_options opts = {}) {
+    inline handle::Texture make_texture_srgb(const gl::image& img, make_texture_options opts = {}) {
         opts.internalformat = GL_SRGB;
         return make_texture(img, std::move(opts));
     }

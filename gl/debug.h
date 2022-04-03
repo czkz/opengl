@@ -5,7 +5,7 @@
 namespace gl::_ {
 
     /// pass this to glDebugMessageCallback()
-    void APIENTRY debug_callback(
+    inline void APIENTRY debug_callback(
             GLenum source,
             GLenum type,
             unsigned int id,
@@ -57,7 +57,7 @@ namespace gl::_ {
 
 namespace gl {
 
-    bool enable_debug_context() {
+    inline bool enable_debug_context() {
         int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
         if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
             std::cerr << "Debug context active\n";

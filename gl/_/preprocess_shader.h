@@ -57,7 +57,7 @@ namespace gl::_ {
 
 namespace gl::_ {
     /// preprocess_shader handles includes in shaders.
-    std::string preprocess_shader(std::filesystem::path file) {
+    inline std::string preprocess_shader(std::filesystem::path file) {
         return _::ShaderParser().parse(std::move(file));
     }
 }
