@@ -190,4 +190,13 @@ namespace math {
         return ret;
     }
 
+    constexpr std::array<Vector2, 6> screenspace_quad = {
+        Vector2(-1, -1),
+        Vector2(+1, -1),
+        Vector2(-1, +1),
+        Vector2(-1, +1),
+        Vector2(+1, -1),
+        Vector2(+1, +1),
+    };
+
 }

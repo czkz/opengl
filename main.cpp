@@ -117,7 +117,7 @@ int main() try {
     constexpr int shadowmap_w = 1024, shadowmap_h = shadowmap_w;
     constexpr float shadowmap_far_plane = 100;
     gl::handle::Texture shadowmap_data;
-    glActiveTexture(GL_TEXTURE9);
+    glActiveTexture(GL_TEXTURE8);
     glBindTexture(GL_TEXTURE_CUBE_MAP, +shadowmap_data);
     for (int i = 0; i < 6; i++) {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowmap_w, shadowmap_h, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
@@ -137,12 +137,40 @@ int main() try {
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    //////// Postprocessing
+    gl::handle::Texture pp_tex_color;
+    glActiveTexture(GL_TEXTURE9);
+    glBindTexture(GL_TEXTURE_2D, +pp_tex_color);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, windowWidth, windowHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // gl::handle::Texture pp_tex_depth_stencil;
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, +pp_tex_depth_stencil);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, windowWidth, windowHeight, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    gl::handle::Renderbuffer pp_rb_depth_stencil;
+    glBindRenderbuffer(GL_RENDERBUFFER, +pp_rb_depth_stencil);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL, windowWidth, windowHeight);
+
+    gl::handle::Framebuffer pp_fb;
+    glBindFramebuffer(GL_FRAMEBUFFER, +pp_fb);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, +pp_tex_color, 0);
+    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, +pp_tex_depth_stencil, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, +pp_rb_depth_stencil);
+
+    gl::handle::VAO screen_quad = gl::make_vao(math::screenspace_quad);
+    gl::handle::ShaderProg pp_shader_prog = gl::make_shaderprog("pp.vert", "pp.frag");
+
     //////// Rendering
     glClearColor(0, 0, 0, 1.0);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_FRAMEBUFFER_SRGB);
-    glEnable(GL_CULL_FACE);
     while(!glfwWindowShouldClose(window.handle)) {
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+
         camera.rotation = camera.rotation * Quaternion::Euler(input::get_rotation(window.handle) * 0.05);
         camera.position += camera.rotation.Rotate(input::get_move(window.handle) * 0.01);
 
@@ -191,7 +219,7 @@ int main() try {
 
         //////// Normal rendering
         glViewport(0, 0, windowWidth, windowHeight);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, +pp_fb);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glCullFace(GL_BACK);
 
@@ -207,7 +235,7 @@ int main() try {
         gl::uniform("u_light.intensity", light_intensity);
         gl::uniform("u_isOrthographic", isOrthographic);
         gl::uniform("u_shadowmapFarPlane", shadowmap_far_plane);
-        gl::uniform("u_shadowmap", 9);
+        gl::uniform("u_shadowmap", 8);
 
         // Draw sphere
         gl::uniform("u_M", sphere_transform.Matrix());
@@ -238,11 +266,22 @@ int main() try {
         gl::uniform("u_M", Transform { {5, 0, 0}, Quaternion::Identity(), 1 }.Matrix());
         gl::uniform("u_V", math::z_convert * camera.Matrix().Inverse());
         gl::uniform("u_P", projection_matrix);
-        gl::uniform("u_shadowmap", 9);
+        gl::uniform("u_shadowmap", 8);
         glBindVertexArray(+cube_vao);
         glDisable(GL_CULL_FACE);
         glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
         glEnable(GL_CULL_FACE);
+
+        //////// Postprocessing
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_FRAMEBUFFER_SRGB);
+        glDisable(GL_CULL_FACE);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glUseProgram(+pp_shader_prog);
+        gl::uniform("u_texture", 9);
+        glBindVertexArray(+screen_quad);
+        glDrawArrays(GL_TRIANGLES, 0, math::screenspace_quad.size());
+        glDisable(GL_FRAMEBUFFER_SRGB);
 
         glfwSwapBuffers(window.handle);
         glfwPollEvents();
