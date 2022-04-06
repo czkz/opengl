@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <dbg.h>
+#include <cassert>
 
 #include "KeyboardManager.h"
 #include "Matrix.h"
@@ -20,9 +21,8 @@
 #include "gl/uniform.h"
 #include "gl/handle/handle.h"
 
-using std::numbers::pi;
-
 int main() try {
+    using std::numbers::pi;
     unsigned int windowWidth = 1000;
     unsigned int windowHeight = 1000;
     Window window (windowWidth, windowHeight, "Sample Text", 4, true);
@@ -105,37 +105,48 @@ int main() try {
     };
 
     //////// Light
-    Transform light {
-        .position = Vector3(1, 0, 0),
-        .rotation = Quaternion::Rotation(3.1415*0.5, Vector3(0, 0, 1)),
-        .scale = 0.01
+    struct light {
+        Vector3 position;
+        float intensity;
+        Vector3 color;
     };
-    float light_intensity = 1;
-    Vector3 light_color { 1, 1, 1 };
+    constexpr size_t max_lights = 8;
+    std::vector<light> lights;
+    lights.push_back({
+        .position = Vector3(1, 0, 0),
+        .intensity = 1,
+        .color = Vector3(1, 1, 1),
+    });
+    lights.push_back({
+        .position = Vector3(-1, -1, -0.1),
+        .intensity = 0.5,
+        .color = Vector3(1, 0.1, 0.01),
+    });
+    assert(lights.size() <= max_lights);
 
     //////// Shadows
-    constexpr int shadowmap_w = 1024, shadowmap_h = shadowmap_w;
-    constexpr float shadowmap_far_plane = 100;
-    gl::handle::Texture shadowmap_data;
-    glActiveTexture(GL_TEXTURE8);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, +shadowmap_data);
-    for (int i = 0; i < 6; i++) {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowmap_w, shadowmap_h, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    gl::handle::Framebuffer shadow_fb;
-    glBindFramebuffer(GL_FRAMEBUFFER, +shadow_fb);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, +shadowmap_data, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        throw std::runtime_error("Framebuffer is not complete");
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // constexpr int shadowmap_w = 1024, shadowmap_h = shadowmap_w;
+    // constexpr float shadowmap_far_plane = 100;
+    // gl::handle::Texture shadowmap_data;
+    // glActiveTexture(GL_TEXTURE8);
+    // glBindTexture(GL_TEXTURE_CUBE_MAP, +shadowmap_data);
+    // for (int i = 0; i < 6; i++) {
+    //     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowmap_w, shadowmap_h, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    // }
+    // glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    // glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //
+    // gl::handle::Framebuffer shadow_fb;
+    // glBindFramebuffer(GL_FRAMEBUFFER, +shadow_fb);
+    // glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, +shadowmap_data, 0);
+    // glDrawBuffer(GL_NONE);
+    // glReadBuffer(GL_NONE);
+    // if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    //     throw std::runtime_error("Framebuffer is not complete");
+    // }
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     //////// Postprocessing
     gl::handle::Texture pp_tex_color;
@@ -185,36 +196,36 @@ int main() try {
         }
 
         //////// Shadowmap rendering
-        glViewport(0, 0, shadowmap_w, shadowmap_h);
-        glBindFramebuffer(GL_FRAMEBUFFER, +shadow_fb);
-        glClear(GL_DEPTH_BUFFER_BIT);
-        glCullFace(GL_FRONT);
-
-        glUseProgram(+shadowmap_shader_prog);
-        gl::uniform("u_V[0]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 1.5, {0, 0, 1}) * Quaternion::Rotation(pi * 0.5, {0, 1, 0}), 1 }.Matrix().Inverse()); // +X
-        gl::uniform("u_V[1]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 0.5, {0, 0, 1}) * Quaternion::Rotation(pi * 1.5, {0, 1, 0}), 1 }.Matrix().Inverse()); // -X
-        gl::uniform("u_V[2]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 0.0, {0, 0, 1}) * Quaternion::Rotation(pi * 0.0, {0, 1, 0}), 1 }.Matrix().Inverse()); // +Y
-        gl::uniform("u_V[3]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 1.0, {0, 0, 1}) * Quaternion::Rotation(pi * 1.0, {0, 1, 0}), 1 }.Matrix().Inverse()); // -Y
-        gl::uniform("u_V[4]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 0.5, {1, 0, 0}) * Quaternion::Rotation(pi * 0.0, {0, 1, 0}), 1 }.Matrix().Inverse()); // +Z
-        gl::uniform("u_V[5]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 1.5, {1, 0, 0}) * Quaternion::Rotation(pi * 1.0, {0, 1, 0}), 1 }.Matrix().Inverse()); // -Z
-        gl::uniform("u_P", math::projection_perspective(90, 1));
-        gl::uniform("u_light.pos", light.position);
-        gl::uniform("u_shadowmapFarPlane", shadowmap_far_plane);
-
-        // Draw sphere
-        gl::uniform("u_M", sphere_transform.Matrix());
-        glBindVertexArray(+sphere_vao);
-        glDrawArrays(GL_TRIANGLES, 0, sphere.pos.size());
-
-        // Draw cube
-        gl::uniform("u_M", cube_transform.Matrix());
-        glBindVertexArray(+cube_vao);
-        glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
-
-        // Draw floor
-        gl::uniform("u_M", floor_transform.Matrix());
-        glBindVertexArray(+cube_vao);
-        glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
+        // glViewport(0, 0, shadowmap_w, shadowmap_h);
+        // glBindFramebuffer(GL_FRAMEBUFFER, +shadow_fb);
+        // glClear(GL_DEPTH_BUFFER_BIT);
+        // glCullFace(GL_FRONT);
+        //
+        // glUseProgram(+shadowmap_shader_prog);
+        // gl::uniform("u_V[0]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 1.5, {0, 0, 1}) * Quaternion::Rotation(pi * 0.5, {0, 1, 0}), 1 }.Matrix().Inverse()); // +X
+        // gl::uniform("u_V[1]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 0.5, {0, 0, 1}) * Quaternion::Rotation(pi * 1.5, {0, 1, 0}), 1 }.Matrix().Inverse()); // -X
+        // gl::uniform("u_V[2]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 0.0, {0, 0, 1}) * Quaternion::Rotation(pi * 0.0, {0, 1, 0}), 1 }.Matrix().Inverse()); // +Y
+        // gl::uniform("u_V[3]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 1.0, {0, 0, 1}) * Quaternion::Rotation(pi * 1.0, {0, 1, 0}), 1 }.Matrix().Inverse()); // -Y
+        // gl::uniform("u_V[4]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 0.5, {1, 0, 0}) * Quaternion::Rotation(pi * 0.0, {0, 1, 0}), 1 }.Matrix().Inverse()); // +Z
+        // gl::uniform("u_V[5]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 1.5, {1, 0, 0}) * Quaternion::Rotation(pi * 1.0, {0, 1, 0}), 1 }.Matrix().Inverse()); // -Z
+        // gl::uniform("u_P", math::projection_perspective(90, 1));
+        // gl::uniform("u_light.pos", light.position);
+        // gl::uniform("u_shadowmapFarPlane", shadowmap_far_plane);
+        //
+        // // Draw sphere
+        // gl::uniform("u_M", sphere_transform.Matrix());
+        // glBindVertexArray(+sphere_vao);
+        // glDrawArrays(GL_TRIANGLES, 0, sphere.pos.size());
+        //
+        // // Draw cube
+        // gl::uniform("u_M", cube_transform.Matrix());
+        // glBindVertexArray(+cube_vao);
+        // glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
+        //
+        // // Draw floor
+        // gl::uniform("u_M", floor_transform.Matrix());
+        // glBindVertexArray(+cube_vao);
+        // glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
 
 
         //////// Normal rendering
@@ -230,12 +241,17 @@ int main() try {
         gl::uniform("u_time", glfwGetTime());
         gl::uniform("u_V", math::z_convert * camera.Matrix().Inverse());
         gl::uniform("u_P", projection_matrix);
-        gl::uniform("u_light.pos", light.position);
-        gl::uniform("u_light.color", light_color);
-        gl::uniform("u_light.intensity", light_intensity);
+        gl::uniform("u_nLights", (int) lights.size());
+        for (int i = 0; const auto& e : lights) {
+            using namespace std::string_literals;
+            gl::uniform(("u_lights["s + std::to_string(i) + "].pos"      ).c_str(), e.position);
+            gl::uniform(("u_lights["s + std::to_string(i) + "].color"    ).c_str(), e.color);
+            gl::uniform(("u_lights["s + std::to_string(i) + "].intensity").c_str(), e.intensity);
+            i++;
+        }
         gl::uniform("u_isOrthographic", isOrthographic);
-        gl::uniform("u_shadowmapFarPlane", shadowmap_far_plane);
-        gl::uniform("u_shadowmap", 8);
+        // gl::uniform("u_shadowmapFarPlane", shadowmap_far_plane);
+        // gl::uniform("u_shadowmap", 8);
 
         // Draw sphere
         gl::uniform("u_M", sphere_transform.Matrix());
@@ -254,12 +270,19 @@ int main() try {
 
         // Draw light
         glUseProgram(+light_shader_prog);
-        gl::uniform("u_M", light.Matrix());
         gl::uniform("u_V", math::z_convert * camera.Matrix().Inverse());
         gl::uniform("u_P", projection_matrix);
-        gl::uniform("u_light_color", light_color);
         glBindVertexArray(+sphere_vao);
-        glDrawArrays(GL_TRIANGLES, 0, sphere.pos.size());
+        for (const auto& e : lights) {
+            Transform t {
+                .position = e.position,
+                .rotation = Quaternion::Identity(),
+                .scale = 0.01,
+            };
+            gl::uniform("u_M", t.Matrix());
+            gl::uniform("u_light_color", e.color);
+            glDrawArrays(GL_TRIANGLES, 0, sphere.pos.size());
+        }
 
         // Test draw cubemap
         glUseProgram(+test_shader_prog);

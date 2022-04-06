@@ -12,17 +12,19 @@ uniform sampler2D u_diffuseMap;
 uniform sampler2D u_normalMap;
 uniform sampler2D u_depthMap;
 
+#define MAX_LIGHTS 8
 uniform struct {
     vec3 pos;
     vec3 color;
     float intensity;
-} u_light;
+} u_lights[MAX_LIGHTS];
+uniform int u_nLights;
 
 uniform mat4 u_V;
 uniform bool u_isOrthographic;
 
-uniform float u_shadowmapFarPlane;
-uniform samplerCube u_shadowmap;
+// uniform float u_shadowmapFarPlane;
+// uniform samplerCube u_shadowmap;
 
 ##include lighting.glsl
 
@@ -70,34 +72,40 @@ void main() {
     // st = _in.st;
     // if (st.x < 0.0 || st.x > 1.0 || st.y < 0.0 || st.y > 1.0) { discard; }
 
-    vec3 diffuseColor = texture(u_diffuseMap, st).rgb;
-    // diffuseColor = vec3(0.8, 0.2, 0.05);
-    vec3 specularColor = u_light.color;
-    vec3 lightPos = u_light.pos;
-    vec3 toLight = lightPos - _in.posW;
-    vec3 toLightDir = normalize(toLight);
-    float lightDist = length(toLight);
-    float attenuation = 1.0 / (lightDist * lightDist);
-
     vec3 normalT = texture(u_normalMap, st).rgb * 2.0 - 1.0;
     // normalT = vec3(0, 0, 1);
     vec3 normalW = normalize(_in.tan2world * normalT);
 
-    vec3 c = u_light.intensity * attenuation * phong(
-        diffuseColor,
-        specularColor,
-        toLightDir,
-        normalW,
-        toEyeDir,
-        0.5
-    );
+    vec3 diffuseColor = texture(u_diffuseMap, st).rgb;
+    // diffuseColor = vec3(0.8, 0.2, 0.05);
 
-    float shadowDepthCurrent = lightDist / u_shadowmapFarPlane;
-    float shadowDepthClosest = texture(u_shadowmap, -toLight).r;
-    float bias = 0.0;
-    float shadowMod = step(shadowDepthCurrent - bias, shadowDepthClosest);
-    if (shadowDepthClosest == 1.0) { shadowMod = 1.0; }
-    c *= shadowMod;
+    vec3 cSum = vec3(0);
+    for (int i = 0; i < u_nLights; i++) {
+        vec3 specularColor = u_lights[i].color;
+        vec3 lightPos = u_lights[i].pos;
+        vec3 toLight = lightPos - _in.posW;
+        vec3 toLightDir = normalize(toLight);
+        float lightDist = length(toLight);
+        float attenuation = 1.0 / (lightDist * lightDist);
+
+        vec3 c = u_lights[i].intensity * attenuation * phong(
+            diffuseColor * specularColor,
+            specularColor,
+            toLightDir,
+            normalW,
+            toEyeDir,
+            0.5
+        );
+        cSum += c;
+    }
+    vec3 c = cSum / u_nLights;
+
+    // float shadowDepthCurrent = lightDist / u_shadowmapFarPlane;
+    // float shadowDepthClosest = texture(u_shadowmap, -toLight).r;
+    // float bias = 0.0;
+    // float shadowMod = step(shadowDepthCurrent - bias, shadowDepthClosest);
+    // if (shadowDepthClosest == 1.0) { shadowMod = 1.0; }
+    // c *= shadowMod;
 
     c += diffuseColor * 0.01;
 
