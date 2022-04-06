@@ -5,13 +5,13 @@
 
 struct Transform {
     Vector3 position;
-    Quaternion rotation;
-    float scale = 1;
+    Quaternion rotation = Quaternion::Identity();
+    Vector3 scale = Vector3(1);
 
     MatrixS<4, 4> Matrix() const {
         return
             Vector3(position).TranslationMatrix() *
             rotation.RotationMatrix() *
-            Vector3(scale).ScaleMatrix();
+            scale.ScaleMatrix();
     }
 };

@@ -71,9 +71,7 @@ int main() try {
 
     //////// Configure user input
     SpaceCamera camera {{
-        .position = Vector3(0, -1, 0),
-        .rotation = Quaternion::Identity(),
-        .scale = 1
+        .position = Vector3(0, -1, 0)
     }};
     bool isOrthographic = false;
     kbManager.onDown(GLFW_KEY_F, [&](int, bool, int) {
@@ -91,17 +89,17 @@ int main() try {
     Transform sphere_transform {
         .position = Vector3(0, 0.5, -0.5),
         .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
-        .scale = 0.5
+        .scale = Vector3(0.5)
     };
     Transform cube_transform {
         .position = Vector3(0, -0.5, -0.5),
         .rotation = Quaternion::Rotation(1, Vector3(1, 1, 1)),
-        .scale = 0.5
+        .scale = Vector3(0.5)
     };
     Transform floor_transform {
-        .position = Vector3(0, 0, -5.75),
-        .rotation = Quaternion::Rotation(0, Vector3(0, 0, 1)),
-        .scale = 10
+        .position = Vector3(0, 0, -1.25),
+        .rotation = Quaternion::Identity(),
+        .scale = Vector3(10, 10, 1)
     };
 
     //////// Light
@@ -277,7 +275,7 @@ int main() try {
             Transform t {
                 .position = e.position,
                 .rotation = Quaternion::Identity(),
-                .scale = 0.01,
+                .scale = Vector3(0.01),
             };
             gl::uniform("u_M", t.Matrix());
             gl::uniform("u_light_color", e.color);
