@@ -52,10 +52,10 @@ int main() try {
     gl::handle::VAO cube_vao = gl::make_vao(cube.pos, cube.normals, cube.uvs, cube.tangents, cube.bitangents);
 
     //////// Shaders
-    auto shader_prog           = gl::make_shaderprog("shader.vert", "shader.frag");
-    auto light_shader_prog     = gl::make_shaderprog("shader.vert", "light.frag");
-    auto shadowmap_shader_prog = gl::make_shaderprog("shadow.vert", "shadow.geom", "shadow.frag");
-    auto test_shader_prog      = gl::make_shaderprog("cubemap.vert", "cubemap.frag");
+    auto default_shader   = gl::make_shaderprog("default.vert", "default.frag");
+    auto light_shader     = gl::make_shaderprog("default.vert", "light.frag");
+    // auto shadowmap_shader = gl::make_shaderprog("shadow.vert", "shadow.geom", "shadow.frag");
+    // auto test_shader      = gl::make_shaderprog("cubemap.vert", "cubemap.frag");
 
     //////// Textures
     gl::handle::Texture bricks_texture = gl::make_texture_srgb(gl::load_image("wood.png"));
@@ -174,7 +174,7 @@ int main() try {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, +pp_rb_depth_stencil);
 
     gl::handle::VAO screen_quad = gl::make_vao(math::screenspace_quad);
-    gl::handle::ShaderProg pp_shader_prog = gl::make_shaderprog("pp.vert", "pp.frag");
+    gl::handle::ShaderProg pp_shader = gl::make_shaderprog("pp.vert", "pp.frag");
 
     //////// Rendering
     glClearColor(0, 0, 0, 1.0);
@@ -201,7 +201,7 @@ int main() try {
         // glClear(GL_DEPTH_BUFFER_BIT);
         // glCullFace(GL_FRONT);
         //
-        // glUseProgram(+shadowmap_shader_prog);
+        // glUseProgram(+shadowmap_shader);
         // gl::uniform("u_V[0]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 1.5, {0, 0, 1}) * Quaternion::Rotation(pi * 0.5, {0, 1, 0}), 1 }.Matrix().Inverse()); // +X
         // gl::uniform("u_V[1]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 0.5, {0, 0, 1}) * Quaternion::Rotation(pi * 1.5, {0, 1, 0}), 1 }.Matrix().Inverse()); // -X
         // gl::uniform("u_V[2]", math::z_convert * Transform { light.position, Quaternion::Rotation(pi * 0.0, {0, 0, 1}) * Quaternion::Rotation(pi * 0.0, {0, 1, 0}), 1 }.Matrix().Inverse()); // +Y
@@ -234,7 +234,7 @@ int main() try {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glCullFace(GL_BACK);
 
-        glUseProgram(+shader_prog);
+        glUseProgram(+default_shader);
         gl::uniform("u_diffuseMap", 1);
         gl::uniform("u_normalMap", 2);
         gl::uniform("u_depthMap", 3);
@@ -269,7 +269,7 @@ int main() try {
         glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
 
         // Draw light
-        glUseProgram(+light_shader_prog);
+        glUseProgram(+light_shader);
         gl::uniform("u_V", math::z_convert * camera.Matrix().Inverse());
         gl::uniform("u_P", projection_matrix);
         glBindVertexArray(+sphere_vao);
@@ -285,22 +285,22 @@ int main() try {
         }
 
         // Test draw cubemap
-        glUseProgram(+test_shader_prog);
-        gl::uniform("u_M", Transform { {5, 0, 0}, Quaternion::Identity(), 1 }.Matrix());
-        gl::uniform("u_V", math::z_convert * camera.Matrix().Inverse());
-        gl::uniform("u_P", projection_matrix);
-        gl::uniform("u_shadowmap", 8);
-        glBindVertexArray(+cube_vao);
-        glDisable(GL_CULL_FACE);
-        glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
-        glEnable(GL_CULL_FACE);
+        // glUseProgram(+test_shader);
+        // gl::uniform("u_M", Transform { {5, 0, 0}, Quaternion::Identity(), 1 }.Matrix());
+        // gl::uniform("u_V", math::z_convert * camera.Matrix().Inverse());
+        // gl::uniform("u_P", projection_matrix);
+        // gl::uniform("u_shadowmap", 8);
+        // glBindVertexArray(+cube_vao);
+        // glDisable(GL_CULL_FACE);
+        // glDrawArrays(GL_TRIANGLES, 0, cube.pos.size());
+        // glEnable(GL_CULL_FACE);
 
         //////// Postprocessing
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_FRAMEBUFFER_SRGB);
         glDisable(GL_CULL_FACE);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glUseProgram(+pp_shader_prog);
+        glUseProgram(+pp_shader);
         gl::uniform("u_texture", 9);
         glBindVertexArray(+screen_quad);
         glDrawArrays(GL_TRIANGLES, 0, math::screenspace_quad.size());
