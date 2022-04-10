@@ -18,9 +18,10 @@ uniform mat4 u_P;
 void main() {
     _out.st = aTexCoords;
 
-    mat3 normalMatrix = mat3(transpose(inverse(u_M)));
-    mat3 TBN = mat3(aTangent, aBitangent, aNormal);
-    _out.tan2world = normalMatrix * TBN;
+    _out.tan2world = transpose(inverse(mat3(u_M))) * mat3(aTangent, aBitangent, aNormal);
+    _out.tan2world[0] = normalize(_out.tan2world[0]);
+    _out.tan2world[1] = normalize(_out.tan2world[1]);
+    _out.tan2world[2] = normalize(_out.tan2world[2]);
 
     vec4 p = vec4(aPos, 1.0);
     p = u_M * p;

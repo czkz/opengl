@@ -66,15 +66,16 @@ void main() {
         toEyeDir = normalize(toEyeDir);
     }
 
-    vec3 toEyeDirT = normalize(inverse(_in.tan2world) * toEyeDir);
+    vec3 toEyeDirT = transpose(_in.tan2world) * toEyeDir;
     vec3 posT = parallaxMap(toEyeDirT, _in.st, u_depthMap, 2, 64);
     vec2 st = posT.xy;
     // st = _in.st;
     // if (st.x < 0.0 || st.x > 1.0 || st.y < 0.0 || st.y > 1.0) { discard; }
 
     vec3 normalT = texture(u_normalMap, st).rgb * 2.0 - 1.0;
+    normalT = normalize(normalT); // Required because of texture interpolation
     // normalT = vec3(0, 0, 1);
-    vec3 normalW = normalize(_in.tan2world * normalT);
+    vec3 normalW = _in.tan2world * normalT;
 
     vec3 diffuseColor = texture(u_diffuseMap, st).rgb;
     // diffuseColor = vec3(0.8, 0.2, 0.05);
