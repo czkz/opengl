@@ -1,3 +1,4 @@
+#line 2
 vec3 phong(
     vec3 diffuseColor,
     vec3 specularColor,

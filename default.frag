@@ -1,4 +1,8 @@
 #version 330 core
+##include lighting.glsl
+##include assert.glsl
+#line 5
+
 out vec4 FragColor;
 
 in SHARED {
@@ -25,8 +29,6 @@ uniform bool u_isOrthographic;
 
 // uniform float u_shadowmapFarPlane;
 // uniform samplerCube u_shadowmap;
-
-##include lighting.glsl
 
 vec3 parallaxMap(vec3 toEyeDirT, vec2 st, sampler2D depthMap,
                      float numLayersMin, float numLayersMax)
@@ -76,6 +78,7 @@ void main() {
     normalT = normalize(normalT); // Required because of texture interpolation
     // normalT = vec3(0, 0, 1);
     vec3 normalW = _in.tan2world * normalT;
+    ASSERT_LEN(normalW, 1.0);
 
     vec3 diffuseColor = texture(u_diffuseMap, st).rgb;
     // diffuseColor = vec3(0.8, 0.2, 0.05);
@@ -114,4 +117,5 @@ void main() {
     // FragColor = vec4(vec3(_in.st, 0.0), 1.0);
     // FragColor = vec4(vec3(normalW), 1.0);
     // FragColor = vec4(vec3(heightOffsetT), 1.0);
+    ASSERT_APPLY(FragColor);
 }
