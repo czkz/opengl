@@ -105,20 +105,17 @@ int main() try {
     //////// Light
     struct light {
         Vector3 position;
-        float intensity;
         Vector3 color;
     };
     constexpr size_t max_lights = 8;
     std::vector<light> lights;
     lights.push_back({
         .position = Vector3(1, 0, 0),
-        .intensity = 1,
-        .color = Vector3(1, 1, 1),
+        .color = Vector3(1, 1, 1) * 5,
     });
     lights.push_back({
         .position = Vector3(-1, -1, -0.1),
-        .intensity = 0.5,
-        .color = Vector3(1, 0.1, 0.01),
+        .color = Vector3(1, 0.1, 0.01) * 0.5,
     });
     assert(lights.size() <= max_lights);
 
@@ -245,7 +242,6 @@ int main() try {
             using namespace std::string_literals;
             gl::uniform(("u_lights["s + std::to_string(i) + "].pos"      ).c_str(), e.position);
             gl::uniform(("u_lights["s + std::to_string(i) + "].color"    ).c_str(), e.color);
-            gl::uniform(("u_lights["s + std::to_string(i) + "].intensity").c_str(), e.intensity);
             i++;
         }
         gl::uniform("u_isOrthographic", isOrthographic);

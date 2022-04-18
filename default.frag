@@ -20,7 +20,6 @@ uniform sampler2D u_depthMap;
 uniform struct {
     vec3 pos;
     vec3 color;
-    float intensity;
 } u_lights[MAX_LIGHTS];
 uniform int u_nLights;
 
@@ -92,7 +91,7 @@ void main() {
         float lightDist = length(toLight);
         float attenuation = 1.0 / (lightDist * lightDist);
 
-        vec3 c = u_lights[i].intensity * attenuation * phong(
+        vec3 c = attenuation * phong(
             diffuseColor * specularColor,
             specularColor,
             toLightDir,
