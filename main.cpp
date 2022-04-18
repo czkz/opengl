@@ -35,9 +35,9 @@ int main() try {
     kbManager.onDown(GLFW_KEY_ENTER, [&window](int, bool, int) {
         glfwSetWindowShouldClose(window.handle, true);
     });
-    kbManager.onDown(GLFW_KEY_EQUAL, [wireframeEnabled = false](int, bool, int) mutable {
+    bool wireframeEnabled = false;
+    kbManager.onDown(GLFW_KEY_EQUAL, [&wireframeEnabled](int, bool, int) mutable {
         wireframeEnabled = !wireframeEnabled;
-        glPolygonMode(GL_FRONT_AND_BACK, wireframeEnabled ? GL_LINE : GL_FILL);
     });
     // glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -227,6 +227,7 @@ int main() try {
 
 
         //////// Normal rendering
+        if (wireframeEnabled) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
         glViewport(0, 0, windowWidth, windowHeight);
         glBindFramebuffer(GL_FRAMEBUFFER, +pp_fb);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -294,6 +295,7 @@ int main() try {
         // glEnable(GL_CULL_FACE);
 
         //////// Postprocessing
+        if (wireframeEnabled) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_FRAMEBUFFER_SRGB);
         glDisable(GL_CULL_FACE);
