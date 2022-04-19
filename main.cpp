@@ -36,9 +36,12 @@ int main() try {
         glfwSetWindowShouldClose(window.handle, true);
     });
     bool wireframeEnabled = false;
-    kbManager.onDown(GLFW_KEY_EQUAL, [&wireframeEnabled](int, bool, int) mutable {
+    kbManager.onDown(GLFW_KEY_EQUAL, [&wireframeEnabled](int, bool, int) {
         wireframeEnabled = !wireframeEnabled;
     });
+    float exposure = 1.0;
+    kbManager.onDown(GLFW_KEY_9, [&exposure](int, bool, int) { exposure /= 1.5; });
+    kbManager.onDown(GLFW_KEY_0, [&exposure](int, bool, int) { exposure *= 1.5; });
     // glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     gl::enable_debug_context();
@@ -298,6 +301,7 @@ int main() try {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glUseProgram(+pp_shader);
         gl::uniform("u_texture", 9);
+        gl::uniform("u_exposure", exposure);
         glBindVertexArray(+screen_quad);
         glDrawArrays(GL_TRIANGLES, 0, math::screenspace_quad.size());
         glDisable(GL_FRAMEBUFFER_SRGB);
